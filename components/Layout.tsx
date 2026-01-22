@@ -3,12 +3,13 @@ import React from 'react';
 import { 
   LayoutDashboard, 
   ListTodo, 
-  Settings, 
   History, 
-  PlusSquare,
-  UserCircle
+  UserCircle,
+  LogOut,
+  ChevronRight
 } from 'lucide-react';
 import { UserRole } from '../types';
+import { Button } from './ui/primitives';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,85 +27,73 @@ const Layout: React.FC<LayoutProps> = ({
   setCurrentUser 
 }) => {
   const menuItems = [
-    { id: 'dashboard', label: 'Bảng Điều Khiển', icon: LayoutDashboard },
-    { id: 'content', label: 'Quản Lý Nội Dung', icon: ListTodo },
-    { id: 'audit', label: 'Nhật Ký Hoạt Động', icon: History },
+    { id: 'dashboard', label: 'Tổng Quan' },
+    { id: 'content', label: 'Tài Nguyên' },
+    { id: 'audit', label: 'Nhật Ký Hệ Thống' },
   ];
 
   const roles: UserRole[] = [UserRole.EDITOR, UserRole.REVIEWER, UserRole.ADMIN];
 
   return (
-    <div className="flex h-screen overflow-hidden font-sans">
-      {/* Sidebar - Navy Glassmorphism */}
-      <aside className="w-64 glass-sidebar text-white flex flex-col z-20">
-        <div className="p-6 border-b border-white/10 flex items-center gap-3">
-          <div className="w-10 h-10 bg-brand-orange rounded-xl flex items-center justify-center font-black text-xl text-navy shadow-lg shadow-brand-orange/20">
-            H
-          </div>
-          <span className="text-xl font-bold tracking-tight text-off-white">Hii Social</span>
+    <div className="flex min-h-screen w-full">
+      {/* Carbon Sidebar */}
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 flex-col border-r border-white/10 bg-black/80 backdrop-blur-md p-10 sm:flex">
+        <div className="flex items-center gap-3 mb-16">
+          <div className="h-3 w-3 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.4)]"></div>
+          <span className="font-black text-xl tracking-tighter text-white">CARBON.</span>
         </div>
         
-        <nav className="flex-1 mt-6 px-4">
-          <ul className="space-y-2">
+        <nav className="flex-1 flex flex-col">
+            <ul className="space-y-6">
             {menuItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                    activeTab === item.id 
-                      ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/30 scale-105' 
-                      : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <item.icon size={20} />
-                  <span className="text-sm font-semibold">{item.label}</span>
-                </button>
+              <li 
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`group cursor-pointer flex items-center text-xs font-mono uppercase tracking-widest transition-all duration-300 hover:translate-x-2 hover:text-white ${activeTab === item.id ? 'text-white' : 'text-zinc-500'}`}
+              >
+                {item.label}
+                {activeTab === item.id && (
+                    <div className="ml-4 h-[1px] flex-grow bg-gradient-to-r from-white to-transparent"></div>
+                )}
               </li>
             ))}
-          </ul>
+            </ul>
         </nav>
 
-        <div className="p-4 border-t border-white/10 bg-navy/20">
-          <div className="mb-4">
-            <label className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-2 block">Chế độ Dev</label>
-            <select 
-              value={currentUser.role}
-              onChange={(e) => setCurrentUser({ ...currentUser, role: e.target.value as UserRole })}
-              className="w-full bg-navy/40 border border-white/10 text-xs rounded-lg p-2 text-off-white outline-none focus:border-brand-blue"
-            >
-              {roles.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+        <div className="mt-auto pt-10 border-t border-white/5 space-y-4">
+          <div className="space-y-1">
+             <label className="text-[10px] font-mono uppercase text-zinc-600 block mb-2">Truy Cập Hệ Thống</label>
+             <div className="relative">
+                <select 
+                  value={currentUser.role}
+                  onChange={(e) => setCurrentUser({ ...currentUser, role: e.target.value as UserRole })}
+                  className="w-full appearance-none bg-transparent border border-white/10 rounded-none py-2 px-3 text-xs font-mono text-zinc-400 focus:outline-none focus:border-white hover:border-zinc-500 transition-colors cursor-pointer uppercase"
+                >
+                  {roles.map(r => <option key={r} value={r} className="bg-black text-white">{r}</option>)}
+                </select>
+             </div>
           </div>
-          <div className="flex items-center gap-3 px-3 py-3 glass-card rounded-2xl border-white/10">
-            <div className="w-10 h-10 rounded-full bg-brand-blue/30 flex items-center justify-center">
-              <UserCircle size={24} className="text-brand-blue" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate text-off-white">{currentUser.name}</p>
-              <p className="text-[10px] text-brand-blue font-bold uppercase tracking-wider">{currentUser.role}</p>
-            </div>
+
+          <div className="flex justify-between items-end font-mono">
+              <div className="text-[10px] text-zinc-600">TRẠNG THÁI</div>
+              <div className="text-[10px] text-white">ĐỒNG BỘ // 100%</div>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
-        <header className="h-20 glass-header flex items-center justify-between px-10 shrink-0 z-10">
-          <div>
-            <h1 className="text-2xl font-black text-navy capitalize tracking-tight">
-              {menuItems.find(m => m.id === activeTab)?.label || activeTab}
-            </h1>
-            <p className="text-xs text-brand-blue font-semibold">CMS Kiểm Duyệt Nội Bộ</p>
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Create button removed as requested */}
-          </div>
+      <div className="flex flex-col sm:pl-72 w-full min-h-screen relative z-10">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-white/10 bg-black/80 backdrop-blur px-4 sm:hidden">
+           <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded-full bg-white"></div>
+              <span className="font-bold text-white tracking-tighter">CARBON.</span>
+           </div>
         </header>
         
-        <div className="flex-1 overflow-auto p-10">
+        <main className="grid flex-1 items-start gap-4 p-4 sm:p-14">
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

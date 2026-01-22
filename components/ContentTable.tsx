@@ -1,92 +1,106 @@
 
 import React from 'react';
 import { ContentItem, ContentStatus, MediaType } from '../types';
-import { STATUS_COLORS, STATUS_LABELS } from '../constants';
-import { Eye, Video, Image as ImageIcon, Type, Link as LinkIcon } from 'lucide-react';
+import { STATUS_LABELS } from '../constants';
+import { Video, Image as ImageIcon, Type, Link as LinkIcon, MoreHorizontal } from 'lucide-react';
+import { Button } from './ui/primitives';
 
 interface ContentTableProps {
   items: ContentItem[];
   onView: (id: string) => void;
+  selectedIds: string[];
+  onToggleSelect: (id: string) => void;
+  onToggleAll: () => void;
 }
 
 const MediaIcon = ({ type }: { type: MediaType }) => {
   switch (type) {
-    case MediaType.VIDEO: return <div className="p-2 bg-blue-100 rounded-lg text-blue-600"><Video size={16} /></div>;
-    case MediaType.IMAGE: return <div className="p-2 bg-green-100 rounded-lg text-green-600"><ImageIcon size={16} /></div>;
-    case MediaType.TEXT: return <div className="p-2 bg-slate-100 rounded-lg text-slate-600"><Type size={16} /></div>;
-    case MediaType.LINK: return <div className="p-2 bg-purple-100 rounded-lg text-purple-600"><LinkIcon size={16} /></div>;
+    case MediaType.VIDEO: return <Video size={14} className="text-zinc-400" />;
+    case MediaType.IMAGE: return <ImageIcon size={14} className="text-zinc-400" />;
+    case MediaType.TEXT: return <Type size={14} className="text-zinc-400" />;
+    case MediaType.LINK: return <LinkIcon size={14} className="text-zinc-400" />;
     default: return null;
   }
 };
 
-const ContentTable: React.FC<ContentTableProps> = ({ items, onView }) => {
+const ContentTable: React.FC<ContentTableProps> = ({ items, onView, selectedIds, onToggleSelect, onToggleAll }) => {
+  const allSelected = items.length > 0 && items.every(item => selectedIds.includes(item.content_id));
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-white/20">
-        <thead>
-          <tr className="bg-white/10">
-            <th className="px-8 py-5 text-left text-xs font-black text-navy uppercase tracking-widest">Thông Tin</th>
-            <th className="px-8 py-5 text-left text-xs font-black text-navy uppercase tracking-widest">Danh Mục</th>
-            <th className="px-8 py-5 text-left text-xs font-black text-navy uppercase tracking-widest">Tài Sản</th>
-            <th className="px-8 py-5 text-left text-xs font-black text-navy uppercase tracking-widest">Nguồn</th>
-            <th className="px-8 py-5 text-left text-xs font-black text-navy uppercase tracking-widest">Trạng Thái</th>
-            <th className="relative py-5 px-8">
-              <span className="sr-only">Hành động</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-white/10">
-          {items.map((item) => (
-            <tr key={item.content_id} className="hover:bg-white/30 transition-all duration-200 cursor-pointer" onClick={() => onView(item.content_id)}>
-              <td className="px-8 py-6">
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-black text-navy truncate max-w-[240px]">
-                    {item.title}
-                  </span>
-                  <span className="text-[10px] text-brand-blue font-bold uppercase tracking-tight">ID: {item.content_id} • Bởi {item.created_by}</span>
-                </div>
-              </td>
-              <td className="whitespace-nowrap px-8 py-6">
-                <span className="inline-flex items-center rounded-xl bg-white/40 px-4 py-1.5 text-[10px] font-black text-navy uppercase tracking-widest border border-white/50">
-                  {item.category}
-                </span>
-              </td>
-              <td className="whitespace-nowrap px-8 py-6">
-                <div className="flex items-center gap-3">
-                  <MediaIcon type={item.media_type} />
-                  <span className="text-xs font-bold text-slate-700 capitalize">{item.media_type}</span>
-                </div>
-              </td>
-              <td className="whitespace-nowrap px-8 py-6">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-brand-blue uppercase">{item.source_platform}</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter italic">{item.source_type}</span>
-                </div>
-              </td>
-              <td className="whitespace-nowrap px-8 py-6">
-                <span className={`inline-flex items-center rounded-xl px-4 py-1.5 text-[10px] font-black uppercase tracking-widest shadow-sm ${STATUS_COLORS[item.status]}`}>
-                  {STATUS_LABELS[item.status]}
-                </span>
-              </td>
-              <td className="relative whitespace-nowrap py-6 px-8 text-right">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onView(item.content_id); }}
-                  className="text-brand-orange hover:bg-brand-orange hover:text-white p-3 rounded-2xl transition-all shadow-lg shadow-brand-orange/5"
-                >
-                  <Eye size={20} />
-                </button>
-              </td>
+    <div className="w-full border border-white/10 bg-black">
+      <div className="w-full overflow-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th className="h-10 px-6 text-left align-middle w-[50px]">
+                 <input 
+                    type="checkbox" 
+                    className="accent-white h-3 w-3 bg-transparent border-zinc-700 rounded-none cursor-pointer"
+                    checked={allSelected}
+                    onChange={onToggleAll}
+                 />
+              </th>
+              <th className="h-10 px-6 text-left align-middle font-mono text-[10px] uppercase text-zinc-500 tracking-wider">Tài Nguyên</th>
+              <th className="h-10 px-6 text-left align-middle font-mono text-[10px] uppercase text-zinc-500 tracking-wider">Loại</th>
+              <th className="h-10 px-6 text-left align-middle font-mono text-[10px] uppercase text-zinc-500 tracking-wider">Nguồn</th>
+              <th className="h-10 px-6 text-left align-middle font-mono text-[10px] uppercase text-zinc-500 tracking-wider">Trạng Thái</th>
+              <th className="h-10 px-6 text-right align-middle font-mono text-[10px] uppercase text-zinc-500 tracking-wider">Thao Tác</th>
             </tr>
-          ))}
-          {items.length === 0 && (
-            <tr>
-              <td colSpan={6} className="px-8 py-20 text-center text-sm font-black text-brand-blue/60 italic uppercase tracking-widest">
-                Không tìm thấy nội dung phù hợp trong hệ thống.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {items.map((item) => (
+              <tr 
+                key={item.content_id} 
+                className={`group transition-colors hover:bg-[#111] cursor-pointer ${selectedIds.includes(item.content_id) ? 'bg-white/5' : ''}`}
+                onClick={() => onView(item.content_id)}
+              >
+                <td className="p-6 align-middle" onClick={(e) => e.stopPropagation()}>
+                    <input 
+                        type="checkbox" 
+                        className="accent-white h-3 w-3 bg-transparent border-zinc-700 rounded-none cursor-pointer"
+                        checked={selectedIds.includes(item.content_id)}
+                        onChange={() => onToggleSelect(item.content_id)}
+                    />
+                </td>
+                <td className="p-6 align-middle">
+                  <div className="flex flex-col max-w-[300px]">
+                    <span className="font-bold text-white truncate mb-1 group-hover:text-white transition-colors">{item.title}</span>
+                    <span className="font-mono text-[10px] text-zinc-600 uppercase">ID: {item.content_id}</span>
+                  </div>
+                </td>
+                <td className="p-6 align-middle">
+                    <div className="flex items-center gap-2">
+                        <MediaIcon type={item.media_type} />
+                        <span className="font-mono text-[10px] text-zinc-400 uppercase">{item.category}</span>
+                    </div>
+                </td>
+                <td className="p-6 align-middle">
+                  <div className="font-mono text-[10px] uppercase text-zinc-400">
+                    {item.source_platform}
+                  </div>
+                </td>
+                <td className="p-6 align-middle">
+                  <div className="inline-block border border-zinc-800 px-2 py-1 font-mono text-[10px] uppercase text-zinc-300">
+                    {STATUS_LABELS[item.status]}
+                  </div>
+                </td>
+                <td className="p-6 align-middle text-right">
+                   <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-white rounded-none">
+                      <MoreHorizontal className="h-4 w-4" />
+                   </Button>
+                </td>
+              </tr>
+            ))}
+            {items.length === 0 && (
+              <tr>
+                <td colSpan={6} className="p-8 align-middle text-center font-mono text-xs text-zinc-600 uppercase">
+                  Không có dữ liệu hiển thị.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

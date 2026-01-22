@@ -2,13 +2,13 @@
 import { ContentStatus, MediaType, SourceType, SourcePlatform, ContentItem, UserRole } from './types';
 
 export const STATUS_COLORS: Record<ContentStatus, string> = {
-  [ContentStatus.DRAFT]: 'bg-slate-200 text-slate-700 border border-slate-300',
-  [ContentStatus.PENDING_REVIEW]: 'bg-amber-100 text-amber-700 border border-amber-300',
-  [ContentStatus.APPROVED]: 'bg-brand-blue/20 text-brand-blue border border-brand-blue/30',
-  [ContentStatus.SCHEDULED]: 'bg-indigo-100 text-indigo-700 border border-indigo-300',
-  [ContentStatus.REJECTED]: 'bg-red-100 text-red-700 border border-red-300',
-  [ContentStatus.PUBLISHED]: 'bg-green-100 text-green-700 border border-green-300',
-  [ContentStatus.ARCHIVED]: 'bg-navy/20 text-navy border border-navy/30',
+  [ContentStatus.DRAFT]: 'bg-slate-100 text-slate-700 hover:bg-slate-100/80',
+  [ContentStatus.PENDING_REVIEW]: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100/80',
+  [ContentStatus.APPROVED]: 'bg-blue-100 text-blue-700 hover:bg-blue-100/80',
+  [ContentStatus.SCHEDULED]: 'bg-purple-100 text-purple-700 hover:bg-purple-100/80',
+  [ContentStatus.REJECTED]: 'bg-red-100 text-red-700 hover:bg-red-100/80',
+  [ContentStatus.PUBLISHED]: 'bg-green-100 text-green-700 hover:bg-green-100/80',
+  [ContentStatus.ARCHIVED]: 'bg-stone-100 text-stone-700 hover:bg-stone-100/80',
 };
 
 export const STATUS_LABELS: Record<ContentStatus, string> = {

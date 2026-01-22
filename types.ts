@@ -30,9 +30,9 @@ export enum SourcePlatform {
 }
 
 export enum UserRole {
-  EDITOR = 'Content Editor',
-  REVIEWER = 'Content Reviewer',
-  ADMIN = 'Admin'
+  EDITOR = 'Biên Tập Viên',
+  REVIEWER = 'Kiểm Duyệt Viên',
+  ADMIN = 'Quản Trị Viên'
 }
 
 export interface ContentItem {
