@@ -713,48 +713,12 @@ const App: React.FC = () => {
     setActiveTab('content');
   };
 
-  const handleViewDetail = (id: string) => {
-    const item = contentList.find(i => i.content_id === id);
-    if (item) {
-      syncWorkflowStep(item);
-    }
+  // Missing definitions implemented below
+  
+  const handleNavigateToDetail = (id: string) => {
     setSelectedContentId(id);
     setActiveTab('detail');
   };
-
-  // Handler for dashboard KPI clicks
-  const handleDashboardNavigation = (filter: { status?: string; source?: string }) => {
-    // Reset filters first
-    setStatusFilter('ALL');
-    setSourceFilter('ALL');
-    setCategoryFilters([]);
-    setPlatformFilter('ALL');
-    
-    // Apply new filters
-    if (filter.status) setStatusFilter(filter.status);
-    if (filter.source) setSourceFilter(filter.source);
-    
-    // Switch tab
-    setActiveTab('content');
-  };
-
-  const filteredContent = useMemo(() => {
-    return contentList.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           item.content_id.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'ALL' || item.status === statusFilter;
-      // New: Check source type (e.g. CRAWL vs MANUAL)
-      const matchesSource = sourceFilter === 'ALL' || item.source_type === sourceFilter;
-      const matchesCategory = categoryFilters.length === 0 || categoryFilters.includes(item.category);
-      const matchesPlatform = platformFilter === 'ALL' || item.source_platform === platformFilter;
-      const matchesType = item.media_type === typeFilter;
-      return matchesSearch && matchesStatus && matchesSource && matchesCategory && matchesPlatform && matchesType;
-    });
-  }, [contentList, searchQuery, statusFilter, sourceFilter, categoryFilters, platformFilter, typeFilter]);
-
-  const pendingReviewQueue = useMemo(() => {
-    return contentList.filter(i => i.status === ContentStatus.PENDING_REVIEW);
-  }, [contentList]);
 
   const toggleCategory = (cat: string) => {
     setCategoryFilters(prev => 
@@ -762,7 +726,60 @@ const App: React.FC = () => {
     );
   };
 
-  const renderDetail = () => {
+  const filteredContent = useMemo(() => {
+    return contentList.filter(item => {
+      // 1. Search
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!item.title.toLowerCase().includes(q) && !item.content_id.toLowerCase().includes(q)) {
+          return false;
+        }
+      }
+      
+      // 2. Status
+      if (statusFilter !== 'ALL' && item.status !== statusFilter) {
+        return false;
+      }
+      
+      // 3. Source
+      if (sourceFilter !== 'ALL') {
+         if (Object.values(SourceType).includes(sourceFilter as SourceType)) {
+            if (item.source_type !== sourceFilter) return false;
+         } else {
+             if (item.source_platform !== sourceFilter) return false;
+         }
+      }
+      
+      // 4. Platform
+      if (platformFilter !== 'ALL') {
+         if (item.source_platform !== platformFilter && !item.target_platforms?.includes(platformFilter as SourcePlatform)) {
+             return false;
+         }
+      }
+      
+      // 5. Categories
+      if (categoryFilters.length > 0) {
+         const itemCats = [item.category, ...(item.tags || [])];
+         if (!categoryFilters.some(c => itemCats.includes(c))) return false;
+      }
+      
+      // 6. Type
+      if (typeFilter) {
+         if (item.media_type !== typeFilter) return false;
+      }
+      
+      return true;
+    });
+  }, [contentList, searchQuery, statusFilter, sourceFilter, platformFilter, categoryFilters, typeFilter]);
+
+  const handleDashboardNavigation = (filters: { status?: string; source?: string }) => {
+     if (filters.status) setStatusFilter(filters.status);
+     if (filters.source) setSourceFilter(filters.source);
+     setActiveTab('content');
+  };
+
+  // Renamed from handleViewDetail to renderDetailContent to avoid naming conflict with the handler
+  const renderDetailContent = () => {
     const item = contentList.find(i => i.content_id === selectedContentId);
     
     if (!item) {
@@ -776,6 +793,7 @@ const App: React.FC = () => {
     }
 
     const canDo = (target: ContentStatus) => service.canTransition(item.status, target, currentUser.role);
+    const isEditable = item.status === ContentStatus.DRAFT || currentUser.role === UserRole.ADMIN;
 
     return (
       <div className="animate-in slide-in-from-right duration-500 pb-20">
@@ -844,7 +862,7 @@ const App: React.FC = () => {
               </div>
               <EditableDescription 
                 value={item.short_description} 
-                isEditable={item.status === ContentStatus.DRAFT || currentUser.role === UserRole.ADMIN}
+                isEditable={isEditable}
                 onSave={(val) => {
                    service.updateContent(item.content_id, { short_description: val }, currentUser.name);
                    refreshData();
@@ -879,31 +897,108 @@ const App: React.FC = () => {
                 />
              </div>
 
-             {/* Metadata Panel */}
+             {/* Nền tảng & Danh mục Panel (Replacing Metadata & Tags) */}
              <div className="glass-card p-6 rounded-[32px] shadow-xl border-white/40 space-y-6">
-                <h3 className="text-xs font-black text-navy uppercase tracking-widest mb-4">Metadata & Tags</h3>
+                <h3 className="text-xs font-black text-navy uppercase tracking-widest mb-4">Nền tảng & Danh mục</h3>
                 
+                {/* Platforms */}
                 <div>
-                   <label className="text-[10px] font-black text-navy/40 uppercase tracking-widest block mb-2">Tags (Hashtags)</label>
-                   <div className="flex flex-wrap gap-2">
-                      {item.tags.map(t => (
-                        <span key={t} className="px-3 py-1 bg-white/50 rounded-lg text-[10px] font-bold text-navy border border-white/60">#{t}</span>
-                      ))}
-                      <button className="px-3 py-1 bg-brand-blue/10 rounded-lg text-[10px] font-bold text-brand-blue border border-brand-blue/20 hover:bg-brand-blue hover:text-white transition-all">+ Thêm</button>
+                   <label className="text-[10px] font-black text-navy/40 uppercase tracking-widest block mb-3">Nền Tảng Phân Phối</label>
+                   <div className="space-y-3">
+                      {Object.values(SourcePlatform).filter(p => p !== SourcePlatform.OTHER).map(platform => {
+                         const currentPlatforms = item.target_platforms || [];
+                         const isSelected = currentPlatforms.includes(platform);
+                         
+                         return (
+                            <div
+                               key={platform}
+                               onClick={() => {
+                                  if (!isEditable) return;
+                                  
+                                  const updated = isSelected
+                                     ? currentPlatforms.filter(p => p !== platform)
+                                     : [...currentPlatforms, platform];
+                                     
+                                  service.updateContent(item.content_id, { target_platforms: updated }, currentUser.name);
+                                  refreshData();
+                               }}
+                               className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                                  isEditable ? 'cursor-pointer hover:bg-white/60' : 'cursor-not-allowed opacity-80'
+                               } ${
+                                  isSelected
+                                     ? 'bg-brand-blue/10 border-brand-blue text-navy'
+                                     : 'bg-white/40 border-transparent text-navy/40'
+                               }`}
+                            >
+                               <div className="flex items-center gap-3">
+                                  <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${isSelected ? 'bg-brand-blue border-brand-blue' : 'border-navy/20 bg-white'}`}>
+                                     {isSelected && <Check size={12} className="text-white" />}
+                                  </div>
+                                  <span className="text-xs font-bold uppercase">{platform}</span>
+                               </div>
+                               {isSelected && <span className="text-[10px] font-black text-brand-blue">ACTIVE</span>}
+                            </div>
+                         )
+                      })}
                    </div>
                 </div>
 
+                {/* Categories (Multi-select) */}
                 <div>
-                   <label className="text-[10px] font-black text-navy/40 uppercase tracking-widest block mb-2">Nguồn Gốc</label>
-                   <div className="bg-white/40 p-4 rounded-xl border border-white/40">
-                      <div className="flex items-center justify-between mb-2">
-                         <span className="text-[10px] font-bold text-navy/60">Loại nguồn</span>
-                         <span className="text-[10px] font-black text-navy uppercase">{item.source_type}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                         <span className="text-[10px] font-bold text-navy/60">Link gốc</span>
-                         <a href="#" className="text-[10px] font-bold text-brand-blue hover:underline truncate max-w-[150px]">Xem liên kết</a>
-                      </div>
+                   <label className="text-[10px] font-black text-navy/40 uppercase tracking-widest block mb-3">Phân Loại Danh Mục (Đa chọn)</label>
+                   <div className="flex flex-wrap gap-2">
+                      {categories.map(cat => {
+                         const isPrimary = item.category === cat;
+                         const isInTags = item.tags.includes(cat);
+                         const isSelected = isPrimary || isInTags;
+
+                         return (
+                            <button
+                               key={cat}
+                               onClick={() => {
+                                  if (!isEditable) return;
+
+                                  let newCategory = item.category;
+                                  let newTags = [...item.tags];
+
+                                  if (isSelected) {
+                                     if (isPrimary) {
+                                        // Attempting to remove primary
+                                        const nextPrimary = newTags.find(t => categories.includes(t));
+                                        if (nextPrimary) {
+                                           newCategory = nextPrimary;
+                                           newTags = newTags.filter(t => t !== nextPrimary);
+                                        } else {
+                                           // Don't allow removing last category if strictly enforced, or set to empty if allowed
+                                           // For this UI, we'll keep at least one category if possible, or allow deselect if user really wants to clear
+                                           return; 
+                                        }
+                                     } else {
+                                        // Remove from tags
+                                        newTags = newTags.filter(t => t !== cat);
+                                     }
+                                  } else {
+                                     // Adding
+                                     if (!newCategory || !categories.includes(newCategory)) {
+                                         newCategory = cat;
+                                     } else {
+                                         newTags.push(cat);
+                                     }
+                                  }
+                                  
+                                  service.updateContent(item.content_id, { category: newCategory, tags: newTags }, currentUser.name);
+                                  refreshData();
+                               }}
+                               className={`px-3 py-2 rounded-lg text-[10px] font-bold border transition-all ${
+                                  isSelected
+                                     ? 'bg-navy text-white border-navy shadow-md transform scale-105'
+                                     : 'bg-white/40 text-navy/60 border-white/40 hover:bg-white/80'
+                               } ${!isEditable ? 'cursor-not-allowed opacity-80' : ''}`}
+                            >
+                               {cat} {isPrimary && '(Chính)'}
+                            </button>
+                         );
+                      })}
                    </div>
                 </div>
              </div>
@@ -934,6 +1029,8 @@ const App: React.FC = () => {
       </div>
     );
   };
+
+  const renderDetail = () => renderDetailContent();
 
   const renderContentList = () => {
     const statusTabs = [
@@ -1089,10 +1186,10 @@ const App: React.FC = () => {
         
         {viewMode === 'table' ? (
           <div className="glass-card rounded-[32px] overflow-hidden shadow-2xl border-white/40">
-            <ContentTable items={filteredContent} onView={handleViewDetail} />
+            <ContentTable items={filteredContent} onView={handleNavigateToDetail} />
           </div>
         ) : (
-          <ContentGrid items={filteredContent} onView={handleViewDetail} />
+          <ContentGrid items={filteredContent} onView={handleNavigateToDetail} />
         )}
       </div>
     );
@@ -1106,7 +1203,7 @@ const App: React.FC = () => {
       case 'detail': return renderDetail();
       case 'audit': return (
         <div className="glass-card rounded-[32px] overflow-hidden shadow-2xl border-white/40 animate-in fade-in duration-500">
-           <ContentTable items={contentList} onView={handleViewDetail} />
+           <ContentTable items={contentList} onView={handleNavigateToDetail} />
         </div>
       );
       case 'create': return <CreateContentForm categories={categories} onCancel={() => setActiveTab('content')} onSubmit={handleCreate} />;
