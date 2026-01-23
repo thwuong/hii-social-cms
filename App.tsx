@@ -1,6 +1,9 @@
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from '@tanstack/react-router';
 import React, { useState } from 'react';
 import { INITIAL_CONTENT, MOCK_CATEGORIES, MOCK_TAGS } from './constants';
+import { queryClient } from './lib/query-client';
 import { createAppRouter, RouterContext } from './routes/root-layout';
 import { CMSService } from './services/cmsService';
 import { UserRole } from './types';
@@ -37,7 +40,13 @@ const App: React.FC = () => {
   // Create router instance with context
   const router = createAppRouter(routerContext);
 
-  return <RouterProvider router={router} context={routerContext} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} context={routerContext} />
+      {/* React Query Devtools - only in development */}
+      <ReactQueryDevtools initialIsOpen={false} position="bottom" />
+    </QueryClientProvider>
+  );
 };
 
 export default App;
