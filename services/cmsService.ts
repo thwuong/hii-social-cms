@@ -1,15 +1,12 @@
-
-import { 
-  ContentItem, 
-  ContentStatus, 
-  AuditLogEntry, 
-  UserRole 
-} from '../types';
+import { ContentItem, ContentStatus, AuditLogEntry, UserRole } from '../types';
 
 export class CMSService {
   private content: ContentItem[] = [];
+
   private auditLogs: AuditLogEntry[] = [];
+
   private categories: string[] = [];
+
   private tags: string[] = [];
 
   constructor(initialContent: ContentItem[], initialCategories: string[], initialTags: string[]) {
@@ -18,12 +15,29 @@ export class CMSService {
     this.tags = [...initialTags];
   }
 
-  getContent() { return [...this.content].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); }
-  getAuditLogs() { return [...this.auditLogs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()); }
-  getCategories() { return this.categories; }
-  getTags() { return this.tags; }
+  getContent() {
+    return [...this.content].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  }
 
-  getContentById(id: string) { return this.content.find(c => c.content_id === id); }
+  getAuditLogs() {
+    return [...this.auditLogs].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+  }
+
+  getCategories() {
+    return this.categories;
+  }
+
+  getTags() {
+    return this.tags;
+  }
+
+  getContentById(id: string) {
+    return this.content.find((c) => c.content_id === id);
+  }
 
   createContent(item: Omit<ContentItem, 'content_id' | 'created_at' | 'status'>, user: string) {
     const newItem: ContentItem = {
@@ -31,7 +45,7 @@ export class CMSService {
       content_id: Math.random().toString(36).substr(2, 9),
       created_at: new Date().toISOString(),
       status: ContentStatus.DRAFT,
-      created_by: user
+      created_by: user,
     };
     this.content.push(newItem);
     this.logAction(newItem.content_id, 'Đã tạo', undefined, ContentStatus.DRAFT, user);
@@ -39,7 +53,7 @@ export class CMSService {
   }
 
   updateContent(id: string, updates: Partial<ContentItem>, user: string) {
-    const index = this.content.findIndex(c => c.content_id === id);
+    const index = this.content.findIndex((c) => c.content_id === id);
     if (index === -1) return null;
 
     const oldItem = this.content[index];
@@ -47,7 +61,13 @@ export class CMSService {
     this.content[index] = newItem;
 
     if (updates.status && updates.status !== oldItem.status) {
-      this.logAction(id, `Trạng thái đổi thành ${updates.status}`, oldItem.status, updates.status, user);
+      this.logAction(
+        id,
+        `Trạng thái đổi thành ${updates.status}`,
+        oldItem.status,
+        updates.status,
+        user
+      );
     } else {
       this.logAction(id, 'Cập nhật thông tin', oldItem.status, oldItem.status, user);
     }
@@ -60,7 +80,7 @@ export class CMSService {
   }
 
   removeCategory(name: string) {
-    this.categories = this.categories.filter(c => c !== name);
+    this.categories = this.categories.filter((c) => c !== name);
   }
 
   addTag(name: string) {
@@ -68,14 +88,14 @@ export class CMSService {
   }
 
   removeTag(name: string) {
-    this.tags = this.tags.filter(t => t !== name);
+    this.tags = this.tags.filter((t) => t !== name);
   }
 
   private logAction(
-    content_id: string, 
-    action: string, 
-    prev: ContentStatus | undefined, 
-    next: ContentStatus, 
+    content_id: string,
+    action: string,
+    prev: ContentStatus | undefined,
+    next: ContentStatus,
     user: string
   ) {
     const entry: AuditLogEntry = {
@@ -85,7 +105,7 @@ export class CMSService {
       previous_status: prev,
       new_status: next,
       user,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
     this.auditLogs.push(entry);
   }
@@ -96,11 +116,15 @@ export class CMSService {
     const transitions: Record<ContentStatus, ContentStatus[]> = {
       [ContentStatus.DRAFT]: [ContentStatus.PENDING_REVIEW],
       [ContentStatus.PENDING_REVIEW]: [ContentStatus.APPROVED, ContentStatus.REJECTED],
-      [ContentStatus.APPROVED]: [ContentStatus.SCHEDULED, ContentStatus.PUBLISHED, ContentStatus.PENDING_REVIEW],
+      [ContentStatus.APPROVED]: [
+        ContentStatus.SCHEDULED,
+        ContentStatus.PUBLISHED,
+        ContentStatus.PENDING_REVIEW,
+      ],
       [ContentStatus.SCHEDULED]: [ContentStatus.PUBLISHED, ContentStatus.DRAFT],
       [ContentStatus.REJECTED]: [ContentStatus.DRAFT],
       [ContentStatus.PUBLISHED]: [ContentStatus.ARCHIVED],
-      [ContentStatus.ARCHIVED]: [ContentStatus.DRAFT]
+      [ContentStatus.ARCHIVED]: [ContentStatus.DRAFT],
     };
 
     const allowedRoles: Record<ContentStatus, UserRole[]> = {

@@ -1,4 +1,3 @@
-
 export enum ContentStatus {
   DRAFT = 'DRAFT',
   PENDING_REVIEW = 'PENDING_REVIEW',
@@ -6,7 +5,7 @@ export enum ContentStatus {
   SCHEDULED = 'SCHEDULED',
   REJECTED = 'REJECTED',
   PUBLISHED = 'PUBLISHED',
-  ARCHIVED = 'ARCHIVED'
+  ARCHIVED = 'ARCHIVED',
 }
 
 // Fix: Added IMAGE and LINK members to resolve missing property errors in ContentTable and ContentGrid
@@ -14,25 +13,25 @@ export enum MediaType {
   VIDEO = 'video',
   TEXT = 'article',
   IMAGE = 'image',
-  LINK = 'link'
+  LINK = 'link',
 }
 
 export enum SourceType {
   MANUAL = 'manual',
-  CRAWL = 'crawl'
+  CRAWL = 'crawl',
 }
 
 export enum SourcePlatform {
   YAAH_CONNECT = 'yaah connect',
   LALALA = 'lalala',
   VOTEME = 'voteme',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 export enum UserRole {
   EDITOR = 'Biên Tập Viên',
   REVIEWER = 'Kiểm Duyệt Viên',
-  ADMIN = 'Quản Trị Viên'
+  ADMIN = 'Quản Trị Viên',
 }
 
 export interface ContentItem {
