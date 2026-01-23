@@ -8,9 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
   Textarea,
-} from '../components/ui/primitives';
-import { STATUS_LABELS } from '../constants';
-import { ContentStatus, MediaType } from '../types';
+} from '@/shared/ui/primitives';
+import { ContentStatus, MediaType } from '@/shared/types';
+import { STATUS_LABELS } from '@/shared';
 import { rootRoute } from './root-layout';
 
 // Modal components từ App.tsx
@@ -77,7 +77,7 @@ function RejectConfirmationModal({
 }
 
 function ActivityLogModal({ item, isOpen, onClose, service }: any) {
-  const logs = service.getAuditLogs().filter((log) => log.content_id === item.content_id);
+  const logs = service.getAuditLogs().filter((log: any) => log.content_id === item.content_id);
   const sortedLogs = [...logs].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
@@ -143,7 +143,7 @@ function DetailPage() {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [pendingRejectId, setPendingRejectId] = useState<string | null>(null);
 
-  const item = items.find((i) => i.content_id === contentId);
+  const item = items.find((i: any) => i.content_id === contentId);
 
   const handleUpdateStatus = (id: string, nextStatus: ContentStatus) => {
     if (nextStatus === ContentStatus.REJECTED) {
@@ -184,7 +184,7 @@ function DetailPage() {
   }
 
   const isEditable = item.status === ContentStatus.DRAFT || currentUser.role === 'ADMIN';
-  const queueItems = items.filter((i) => i.status === item.status);
+  const queueItems = items.filter((i: any) => i.status === item.status);
 
   const workflowSteps = [
     { id: ContentStatus.DRAFT, label: 'K.TẠO' },
@@ -208,11 +208,11 @@ function DetailPage() {
       <aside className="queue-sidebar">
         <div className="queue-header flex items-center gap-2">
           <ListVideo size={12} />
-          <span>HÀNG ĐỢI // {STATUS_LABELS[item.status]}</span>
+          <span>HÀNG ĐỢI // {STATUS_LABELS[item.status as ContentStatus]}</span>
           <span className="ml-auto opacity-50">{queueItems.length}</span>
         </div>
         <div className="queue-list custom-scrollbar">
-          {queueItems.map((qItem) => (
+          {queueItems.map((qItem: any) => (
             <div
               key={qItem.content_id}
               className={`queue-item ${qItem.content_id === item.content_id ? 'active' : ''}`}
@@ -320,7 +320,7 @@ function DetailPage() {
         <div className="meta-group">
           <span className="label">MẠNG_LƯỚI_PHÂN_PHỐI</span>
           <div className="tag-container">
-            {item.target_platforms?.map((platform) => (
+            {item.target_platforms?.map((platform: any) => (
               <div
                 key={platform}
                 className="tag text-zinc-300 border-zinc-700 bg-zinc-900/50 flex items-center gap-2"
@@ -337,7 +337,7 @@ function DetailPage() {
           <span className="label">THẺ_PHÂN_LOẠI</span>
           <div className="tag-container">
             <div className="tag text-white border-white">{item.category}</div>
-            {item.tags.map((tag) => (
+            {item.tags.map((tag: any) => (
               <div key={tag} className="tag">
                 #{tag}
               </div>

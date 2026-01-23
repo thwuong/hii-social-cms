@@ -14,10 +14,15 @@ import {
   Zap,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import ContentGrid from '../components/ContentGrid';
-import ContentTable from '../components/ContentTable';
-import { Button, Input, Select } from '../components/ui/primitives';
-import { ContentItem, ContentStatus, SourcePlatform } from '../types';
+
+import {
+  ContentGrid,
+  ContentTable,
+  ContentItem,
+  ContentStatus,
+  SourcePlatform,
+} from '@/features/content';
+import { Button, Input, Select } from '@/shared/ui';
 import { rootRoute } from './root-layout';
 
 export const contentRoute = createRoute({

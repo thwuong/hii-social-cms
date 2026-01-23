@@ -1,8 +1,8 @@
 import React from 'react';
 import { Video, Image as ImageIcon, Type, Link as LinkIcon, MoreHorizontal } from 'lucide-react';
-import { ContentItem, ContentStatus, MediaType } from '../types';
-import { STATUS_LABELS } from '../constants';
-import { Button } from './ui/primitives';
+import { ContentItem, ContentStatus, MediaType } from '@/shared/types';
+import { STATUS_LABELS } from '@/features/content/constants';
+import { Button } from '@/shared/ui/primitives';
 
 interface ContentTableProps {
   items: ContentItem[];

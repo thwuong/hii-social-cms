@@ -6,14 +6,14 @@ import {
   redirect,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import MainLayout from '../components/layouts/main-layout';
+import MainLayout from '@/app/layouts/main-layout';
+import { CMSService } from '@/services/cmsService';
+import { ContentItem, UserRole } from '@/shared/types';
 import { auditRoute } from './audit';
 import { contentRoute } from './content';
 import { createContentRoute } from './create';
 import { dashboardRoute } from './dashboard';
 import { detailRoute } from './detail.$contentId';
-import { CMSService } from '../services/cmsService';
-import { ContentItem, UserRole } from '../types';
 
 // Define the router context type
 export interface RouterContext {

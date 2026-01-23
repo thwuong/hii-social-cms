@@ -1,6 +1,6 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router';
 import React from 'react';
-import { UserRole } from '../../types';
+import { UserRole } from '@/shared/types';
 
 interface MainLayoutProps {
   children?: React.ReactNode;

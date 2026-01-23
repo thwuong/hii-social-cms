@@ -9,8 +9,8 @@ import {
   Input,
   Select,
   Textarea,
-} from '../components/ui/primitives';
-import { MediaType, SourcePlatform, SourceType } from '../types';
+} from '@/shared/ui/primitives';
+import { MediaType, SourcePlatform, SourceType } from '@/shared/types';
 import { rootRoute } from './root-layout';
 
 export const createContentRoute = createRoute({
@@ -102,7 +102,7 @@ function CreatePage() {
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   >
-                    {categories.map((c) => (
+                    {categories.map((c: string) => (
                       <option key={c} value={c}>
                         {c}
                       </option>

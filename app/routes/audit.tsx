@@ -1,7 +1,7 @@
 import { createRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import ContentTable from '../components/ContentTable';
-import { ContentItem } from '../types';
+import ContentTable from '@/features/content/components/ContentTable';
+import { ContentItem } from '@/shared/types';
 import { rootRoute } from './root-layout';
 
 export const auditRoute = createRoute({

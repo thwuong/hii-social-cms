@@ -1,7 +1,7 @@
 import React from 'react';
 import { Play, FileText } from 'lucide-react';
-import { ContentItem, MediaType } from '../types';
-import { STATUS_LABELS } from '../constants';
+import { ContentItem, MediaType } from '@/shared/types';
+import { STATUS_LABELS } from '@/features/content/constants';
 
 interface ContentGridProps {
   items: ContentItem[];

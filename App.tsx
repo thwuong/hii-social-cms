@@ -2,11 +2,11 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from '@tanstack/react-router';
 import React, { useState } from 'react';
-import { INITIAL_CONTENT, MOCK_CATEGORIES, MOCK_TAGS } from './constants';
-import { queryClient } from './lib/query-client';
-import { createAppRouter, RouterContext } from './routes/root-layout';
-import { CMSService } from './services/cmsService';
-import { UserRole } from './types';
+import { INITIAL_CONTENT, MOCK_CATEGORIES, MOCK_TAGS } from '@/shared';
+import { queryClient } from '@/lib/query-client';
+import { createAppRouter, RouterContext } from '@/app/routes/root-layout';
+import { CMSService } from '@/services/cmsService';
+import { UserRole } from '@/shared/types';
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState({

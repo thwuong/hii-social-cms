@@ -1,17 +1,8 @@
+import { ContentItem, ContentStatus } from '@/shared/types';
+import { Button } from '@/shared/ui';
+import { ArrowUpRight, Zap } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
-import {
-  Zap,
-  Clock,
-  ShieldAlert,
-  ThumbsUp,
-  Calendar,
-  CheckCircle2,
-  Activity,
-  ArrowUpRight,
-} from 'lucide-react';
-import { ContentItem, ContentStatus, SourceType, SourcePlatform } from '../types';
-import { Card, CardContent, CardHeader, CardTitle, Input, Button } from './ui/primitives';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 
 interface DashboardProps {
   items: ContentItem[];

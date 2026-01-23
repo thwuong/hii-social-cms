@@ -1,4 +1,4 @@
-import { ContentItem, ContentStatus, AuditLogEntry, UserRole } from '../types';
+import { ContentItem, ContentStatus, AuditLogEntry, UserRole } from '@/shared/types';
 
 export class CMSService {
   private content: ContentItem[] = [];

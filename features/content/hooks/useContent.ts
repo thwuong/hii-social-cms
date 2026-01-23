@@ -5,9 +5,9 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../services/apiService';
-import { queryKeys } from '../lib/query-client';
-import { ContentItem, ContentStatus } from '../types';
+import { api } from '@/services/apiService';
+import { queryKeys } from '@/lib/query-client';
+import { ContentItem, ContentStatus } from '@/shared/types';
 
 /**
  * Fetch content list

@@ -5,7 +5,7 @@ import {
   SourcePlatform,
   ContentItem,
   UserRole,
-} from './types';
+} from '@/shared/types';
 
 export const STATUS_COLORS: Record<ContentStatus, string> = {
   [ContentStatus.DRAFT]: 'bg-slate-100 text-slate-700 hover:bg-slate-100/80',
