@@ -1,6 +1,6 @@
 import { VideoInfo } from './reports';
 
-interface Report {
+export interface Report {
   created_at: string;
   description: string;
   id: string;
@@ -11,8 +11,7 @@ interface Report {
   video_id: string;
 }
 
-interface ReportDetailResponse {
+export interface ReportDetailResponse {
   reports: Report[];
   video_info: VideoInfo;
 }
-export type { Report, ReportDetailResponse };

@@ -1,7 +1,7 @@
 import { Media, Thumbnail } from '@/features/content';
 import { Report } from './report-detail';
 
-interface GetReportsResponse {
+export interface GetReportsResponse {
   has_next: boolean;
   next_cursor: string;
   number_of_items: number;
@@ -9,7 +9,7 @@ interface GetReportsResponse {
   videos: Video[];
 }
 
-interface Video {
+export interface Video {
   latest_report: string;
   report_count: number;
   reports: Report[];
@@ -17,7 +17,7 @@ interface Video {
   video_info: VideoInfo;
 }
 
-interface Metadata {
+export interface Metadata {
   channelId: number;
   name: string;
   nsfw: boolean;
@@ -26,7 +26,7 @@ interface Metadata {
   targetUrl: string;
 }
 
-interface VideoInfo {
+export interface VideoInfo {
   approving_status: string;
   content: string;
   created_at: string;
@@ -52,34 +52,23 @@ interface VideoInfo {
   updated_by: string;
 }
 
-enum ReportStatus {
+export enum ReportStatus {
   PENDING = 'pending',
   RESOLVED = 'resolved',
   REJECTED = 'rejected',
   REVIEWED = 'reviewed',
 }
 
-interface GetReportsPayload {
+export interface GetReportsPayload {
   limit?: number;
   cursor?: string;
   status?: ReportStatus;
 }
 
-interface ReportPayload {
+export interface ReportPayload {
   is_hidden: boolean;
   video_ids: string[];
 }
 
-interface RejectReportPayload extends ReportPayload {}
-interface AcceptReportPayload extends ReportPayload {}
-export type {
-  GetReportsResponse,
-  Video,
-  Metadata,
-  VideoInfo,
-  ReportStatus,
-  GetReportsPayload,
-  ReportPayload,
-  RejectReportPayload,
-  AcceptReportPayload,
-};
+export interface RejectReportPayload extends ReportPayload {}
+export interface AcceptReportPayload extends ReportPayload {}
