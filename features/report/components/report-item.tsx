@@ -1,7 +1,7 @@
 import { Badge, Typography } from '@/shared/ui';
 import { AlertTriangle, Calendar, Check, Clock, MessageSquare, User } from 'lucide-react';
 import type { Report } from '../types';
-import { formatDate, getReportStatusColor } from '../utils';
+import { formatDate, getReportStatusColor, REPORT_STATUS_LABELS } from '../utils';
 import { ReportStatus } from '../types';
 
 interface ReportItemProps {
@@ -52,7 +52,7 @@ function ReportItem({ report, index, isSelected, onToggleSelect }: ReportItemPro
         </div>
 
         <Badge variant="outline" className={`font-mono text-[10px] uppercase ${statusColor}`}>
-          {report.status}
+          {REPORT_STATUS_LABELS[report.status as ReportStatus]}
         </Badge>
       </div>
 
@@ -68,7 +68,7 @@ function ReportItem({ report, index, isSelected, onToggleSelect }: ReportItemPro
           <AlertTriangle size={12} className="text-red-500" />
           <span>Lý do: </span>
           <Badge variant="destructive" className="font-mono text-[9px] uppercase">
-            {report.reason_id}
+            {report.reason.description}
           </Badge>
         </div>
       </div>

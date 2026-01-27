@@ -1,3 +1,4 @@
+import { ReportReason } from './reason';
 import { VideoInfo } from './reports';
 
 export interface Report {
@@ -9,6 +10,7 @@ export interface Report {
   updated_at: string;
   user_reporter: string;
   video_id: string;
+  reason: ReportReason;
 }
 
 export interface ReportDetailResponse {
