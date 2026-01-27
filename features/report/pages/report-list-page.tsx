@@ -6,7 +6,13 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { RejectConfirmationModal } from '@/features/content/components';
 import { AcceptConfirmationModal, ReportCard } from '../components';
-import { useAcceptReport, useRejectReport, useReportReasons, useReports } from '../hooks/useReport';
+import {
+  useAcceptReport,
+  useMarkReportsAsReviewed,
+  useRejectReport,
+  useReportReasons,
+  useReports,
+} from '../hooks/useReport';
 import { useReportStore } from '../stores/useReportStore';
 import { ReportStatus } from '../types';
 import { REPORT_STATUS_LABELS } from '../utils';
@@ -53,6 +59,7 @@ function ReportListPage() {
 
   const { mutate: acceptReport, isPending: isAccepting } = useAcceptReport();
   const { mutate: rejectReport, isPending: isRejecting } = useRejectReport();
+  const { mutate: markReportsAsReviewed } = useMarkReportsAsReviewed();
 
   const handleViewDetail = (reportId: string) => {
     navigate({ to: `/report/$reportId`, params: { reportId } });
@@ -99,6 +106,11 @@ function ReportListPage() {
       },
       {
         onSuccess: () => {
+          const reportIds =
+            pendingReports?.flatMap((r) => r.reports.map((report) => report.id)) || [];
+          markReportsAsReviewed({
+            report_ids: reportIds,
+          });
           toast.dismiss(toastId);
           toast.success('CHẤP NHẬN THÀNH CÔNG', {
             description: `${selectedVideoIds.length} video đã được ẩn`,
@@ -270,7 +282,7 @@ function ReportListPage() {
           </Typography>
         </div>
       )}
-      {!isLoading && reports?.length && (
+      {!isLoading && !!reports?.length && (
         <>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {reports.map((report) => (

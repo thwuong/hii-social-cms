@@ -58,6 +58,7 @@ export interface ContentItem {
   published_at?: string;
   thumbnail_url?: string;
   details_link?: string;
+  scheduled_at?: string;
 }
 
 export interface AuditLogEntry {

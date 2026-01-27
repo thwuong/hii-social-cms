@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CalendarIcon, Clock, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -30,6 +30,18 @@ interface ScheduleModalProps {
 export function ScheduleModal({ isOpen, onClose, onConfirm, item }: ScheduleModalProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState('');
+
+  const firstRender = useRef(true);
+
+  useEffect(() => {
+    if (item?.scheduled_at && firstRender.current) {
+      firstRender.current = false;
+      const date = new Date(item.scheduled_at);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedDate(date);
+      setSelectedTime(format(date, 'HH:mm'));
+    }
+  }, [item?.scheduled_at]);
 
   if (!isOpen || !item) return null;
 

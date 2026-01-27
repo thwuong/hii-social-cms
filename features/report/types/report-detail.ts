@@ -15,3 +15,7 @@ export interface ReportDetailResponse {
   reports: Report[];
   video_info: VideoInfo;
 }
+
+export interface MarkReportsAsReviewedPayload {
+  report_ids: string[];
+}

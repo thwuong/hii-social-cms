@@ -4,6 +4,7 @@ import type {
   AcceptReportPayload,
   GetReportsPayload,
   GetReportsResponse,
+  MarkReportsAsReviewedPayload,
   RejectReportPayload,
   ReportDetailResponse,
   ReportReasonsPayload,
@@ -52,6 +53,13 @@ export const reportService = {
     await api.put<void>('reels/dashboard/videos/hidden-batch', {
       is_hidden: false,
       video_ids: payload.video_ids,
+    });
+  },
+
+  // Mark reports as reviewed
+  markReportsAsReviewed: async (payload: MarkReportsAsReviewedPayload): Promise<void> => {
+    await api.put<void>('reels/dashboard/reports/reviewed', {
+      report_ids: payload.report_ids,
     });
   },
 };

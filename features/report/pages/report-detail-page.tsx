@@ -6,7 +6,12 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { RejectConfirmationModal } from '@/features/content/components';
 import { AcceptConfirmationModal, ReportItem } from '../components';
-import { useAcceptReport, useRejectReport, useReportDetail } from '../hooks/useReport';
+import {
+  useAcceptReport,
+  useMarkReportsAsReviewed,
+  useRejectReport,
+  useReportDetail,
+} from '../hooks/useReport';
 import { ReportStatus } from '../types';
 import { formatDate, getReportStatusColor } from '../utils';
 
@@ -20,6 +25,7 @@ function ReportDetailPage() {
 
   const { mutate: acceptReport, isPending: isAccepting } = useAcceptReport();
   const { mutate: rejectReport, isPending: isRejecting } = useRejectReport();
+  const { mutate: markReportsAsReviewed } = useMarkReportsAsReviewed();
 
   // Get pending reports only
   const pendingReports = report?.reports.filter((r) => r.status === ReportStatus.PENDING) || [];
@@ -40,6 +46,7 @@ function ReportDetailPage() {
       },
       {
         onSuccess: () => {
+          markReportsAsReviewed({ report_ids: report.reports.map((r) => r.id) });
           toast.dismiss(toastId);
           toast.success('CHẤP NHẬN THÀNH CÔNG', {
             description: 'Video đã được ẩn khỏi hệ thống',
@@ -72,6 +79,7 @@ function ReportDetailPage() {
       },
       {
         onSuccess: () => {
+          markReportsAsReviewed({ report_ids: report.reports.map((r) => r.id) });
           toast.dismiss(toastId);
           toast.success('TỪ CHỐI THÀNH CÔNG', {
             description: 'Video vẫn hiển thị bình thường',

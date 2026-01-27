@@ -47,7 +47,9 @@ export const transformReelContent = (content: Reel): ContentItem => {
     original_source_url: '',
     created_at: content.created_at,
     created_by: content.updated_by,
-    approving_status: content.approving_status as ContentStatus,
+    approving_status: content.scheduled_at
+      ? ContentStatus.SCHEDULED
+      : (content.approving_status as ContentStatus),
     status:
       content.status === ContentStatus.PUBLISHED
         ? content.status
@@ -57,6 +59,7 @@ export const transformReelContent = (content: Reel): ContentItem => {
     visibility: 'public',
     moderation_notes: '',
     details_link: `/content/detail`,
+    scheduled_at: content.scheduled_at,
   };
 };
 

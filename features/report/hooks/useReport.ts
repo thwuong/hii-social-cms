@@ -5,6 +5,7 @@ import type {
   AcceptReportPayload,
   GetReportsPayload,
   GetReportsResponse,
+  MarkReportsAsReviewedPayload,
   RejectReportPayload,
 } from '../types';
 
@@ -73,6 +74,18 @@ export const useAcceptReport = () => {
 export const useRejectReport = () => {
   return useMutation({
     mutationFn: (payload: RejectReportPayload) => reportService.rejectReport(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: reportKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: reportKeys.details() });
+    },
+  });
+};
+
+// Mark reports as reviewed mutation
+export const useMarkReportsAsReviewed = () => {
+  return useMutation({
+    mutationFn: (payload: MarkReportsAsReviewedPayload) =>
+      reportService.markReportsAsReviewed(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reportKeys.lists() });
       queryClient.invalidateQueries({ queryKey: reportKeys.details() });

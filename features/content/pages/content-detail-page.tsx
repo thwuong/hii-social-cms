@@ -1,5 +1,5 @@
 import { useInfiniteScroll } from '@/shared/hooks';
-import { QueueSkeleton, DetailPageSkeleton } from '@/shared/components';
+import { QueueSkeleton, DetailPageSkeleton, VideoPlayer } from '@/shared/components';
 import { ContentStatus } from '@/shared/types';
 import { Badge, Button, Typography } from '@/shared/ui';
 import { useNavigate, useParams, useRouteContext, useSearch } from '@tanstack/react-router';
@@ -334,11 +334,12 @@ function DetailPageComponent() {
           {/* UI Overlay */}
           <div className="ui-overlay">
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2">
+              {/* <span className="flex items-center gap-2">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[#00ff66] shadow-[0_0_10px_#00ff66]" />{' '}
                 GHI
-              </span>
-              <span>{new Date().toLocaleTimeString()}</span>
+              </span> */}
+              <div />
+              <span>{new Date(item.created_at).toLocaleTimeString()}</span>
             </div>
             <div className="scanline" />
             <div className="text-right">
@@ -351,7 +352,14 @@ function DetailPageComponent() {
           </div>
 
           {/* Media Content */}
-          <video src={item.media_url} className="video-mock" autoPlay muted loop />
+          {/* <video src={item.media_url} className="video-mock" autoPlay muted loop /> */}
+          <VideoPlayer
+            url={item.media_url}
+            poster={item.thumbnail_url}
+            title={item.title}
+            aspectRatio="16/9"
+            className="video-mock"
+          />
         </div>
 
         {/* Close Button */}

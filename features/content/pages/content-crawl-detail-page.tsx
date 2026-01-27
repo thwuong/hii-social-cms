@@ -6,7 +6,7 @@ import { AlertTriangle, Globe, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { DetailPageSkeleton } from '@/shared/components';
+import { DetailPageSkeleton, VideoPlayer } from '@/shared/components';
 import {
   ActivityLogModal,
   Queue,
@@ -190,7 +190,14 @@ function DetailPageComponent() {
           </div>
 
           {/* Media Content */}
-          <video src={contentDetails.media_url} className="video-mock" autoPlay muted loop />
+          {/* <video src={contentDetails.media_url} className="video-mock" autoPlay muted loop /> */}
+          <VideoPlayer
+            url={contentDetails.media_url}
+            poster={contentDetails.thumbnail_url}
+            title={contentDetails.title}
+            aspectRatio="16/9"
+            className="video-mock"
+          />
         </div>
 
         {/* Close Button */}
