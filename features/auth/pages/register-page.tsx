@@ -25,37 +25,37 @@ function RegisterPageComponent() {
 
   // Password strength indicators
   const passwordChecks = [
-    { label: 'At least 6 characters', valid: password?.length >= 6 },
-    { label: 'At least 1 uppercase letter', valid: /[A-Z]/.test(password || '') },
-    { label: 'At least 1 lowercase letter', valid: /[a-z]/.test(password || '') },
-    { label: 'At least 1 number', valid: /[0-9]/.test(password || '') },
+    { label: 'Ít nhất 6 ký tự', valid: password?.length >= 6 },
+    { label: 'Ít nhất 1 chữ hoa', valid: /[A-Z]/.test(password || '') },
+    { label: 'Ít nhất 1 chữ thường', valid: /[a-z]/.test(password || '') },
+    { label: 'Ít nhất 1 số', valid: /[0-9]/.test(password || '') },
   ];
   const onSubmit = async (data: RegisterFormData) => {
-    const toastId = toast.loading('REGISTERING...');
+    const toastId = toast.loading('ĐANG ĐĂNG KÝ...');
 
     try {
       // TODO: Call API register
       registerMutation.mutate(data, {
         onSuccess: () => {
           toast.dismiss(toastId);
-          toast.success('ACCOUNT CREATED', {
-            description: `Welcome ${data.firstName} ${data.lastName} to the system`,
+          toast.success('TÀI KHOẢN ĐÃ ĐƯỢC TẠO', {
+            description: `Chào mừng ${data.firstName} ${data.lastName} đến với hệ thống`,
             duration: 3000,
           });
           // navigate({ to: '/dashboard' });
         },
         onError: () => {
           toast.dismiss(toastId);
-          toast.error('REGISTRATION FAILED', {
-            description: 'Email already exists. Please try again.',
+          toast.error('ĐĂNG KÝ THẤT BẠI', {
+            description: 'Tên đăng nhập đã tồn tại. Vui lòng thử lại.',
             duration: 4000,
           });
         },
       });
     } catch (error) {
       toast.dismiss(toastId);
-      toast.error('SYSTEM ERROR', {
-        description: 'An error occurred, please try again',
+      toast.error('LỖI HỆ THỐNG', {
+        description: 'Đã xảy ra lỗi, vui lòng thử lại',
         duration: 4000,
       });
     }
@@ -70,10 +70,10 @@ function RegisterPageComponent() {
             variant="h1"
             className="mb-2 font-mono text-2xl font-black tracking-wider text-white uppercase"
           >
-            CREATE ACCOUNT
+            TẠO TÀI KHOẢN
           </Typography>
           <Typography variant="muted" className="font-mono text-[10px] text-zinc-600 uppercase">
-            Create new user profile
+            Tạo tài khoản mới
           </Typography>
         </div>
 
@@ -98,24 +98,24 @@ function RegisterPageComponent() {
               <div className="col-span-1">
                 <FormField
                   control={control}
-                  label="First name"
-                  placeholder="John"
+                  label="Họ"
+                  placeholder="Nhập họ..."
                   {...register('firstName')}
                 />
               </div>
               <div className="col-span-1">
                 <FormField
                   control={control}
-                  label="Last name"
-                  placeholder="Doe"
+                  label="Tên"
+                  placeholder="Nhập tên..."
                   {...register('lastName')}
                 />
               </div>
               <div className="col-span-2">
                 <FormField
                   control={control}
-                  label="Username"
-                  placeholder="john.doe"
+                  label="Tên đăng nhập"
+                  placeholder="Nhập tên đăng nhập..."
                   {...register('username')}
                 />
               </div>
@@ -123,15 +123,15 @@ function RegisterPageComponent() {
                 <FormField
                   control={control}
                   label="Email"
-                  placeholder="john.doe@example.com"
+                  placeholder="Nhập email..."
                   {...register('email')}
                 />
               </div>
               <div className="col-span-2">
                 <FormField
                   control={control}
-                  label="Password"
-                  placeholder="••••••••"
+                  label="Mật khẩu"
+                  placeholder="Nhập mật khẩu..."
                   type="password"
                   {...register('password')}
                 />
@@ -161,7 +161,7 @@ function RegisterPageComponent() {
               <div className="col-span-2">
                 <FormField
                   control={control}
-                  label="Confirm Password"
+                  label="Xác nhận mật khẩu"
                   placeholder="••••••••"
                   type="password"
                   {...register('confirmPassword')}
@@ -175,10 +175,10 @@ function RegisterPageComponent() {
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <span className="h-2 w-2 animate-pulse rounded-full bg-black" />
-                    PROCESSING...
+                    ĐANG XỬ LÝ...
                   </span>
                 ) : (
-                  'CREATE ACCOUNT'
+                  'TẠO TÀI KHOẢN'
                 )}
               </Button>
             </div>
@@ -187,13 +187,13 @@ function RegisterPageComponent() {
           {/* Login Link */}
           <div className="mt-8 border-t border-white/10 pt-6 text-center">
             <Typography variant="small" className="font-mono text-xs text-zinc-600">
-              Already have an account?{' '}
+              Đã có tài khoản?{' '}
               <button
                 type="button"
                 onClick={() => navigate({ to: '/login' })}
                 className="text-white underline transition-colors hover:text-zinc-400"
               >
-                Login
+                Đăng nhập
               </button>
             </Typography>
           </div>
@@ -202,7 +202,7 @@ function RegisterPageComponent() {
         {/* Footer Info */}
         <div className="mt-6 text-center">
           <Typography variant="tiny" className="font-mono text-[9px] text-zinc-700 uppercase">
-            CARBON_KINETIC_SYSTEM :: v2.4.1
+            HII_SOCIAL_SYSTEM :: v1.0.0
           </Typography>
         </div>
       </div>

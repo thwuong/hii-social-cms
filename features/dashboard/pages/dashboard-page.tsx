@@ -4,17 +4,25 @@ import { useNavigate, useRouteContext } from '@tanstack/react-router';
 import { ArrowUpRight, Zap } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import { useContentStore } from '@/features/content/stores/useContentStore';
 import { CustomTooltip, KPICard, StatItem } from '../components';
 
 function DashboardPage() {
   const navigate = useNavigate();
   const { items } = useRouteContext({ strict: false });
+  const { setFilters } = useContentStore();
 
   const handleNavigate = (filter: { status?: string; source?: string }) => {
-    navigate({
-      to: '/content',
-      search: filter,
-    });
+    setFilters('status', filter.status);
+    if (filter.status === ContentStatus.DRAFT) {
+      navigate({
+        to: '/review',
+      });
+    } else {
+      navigate({
+        to: '/content',
+      });
+    }
   };
 
   const [startDate] = useState(() => {

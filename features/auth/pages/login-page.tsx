@@ -26,28 +26,29 @@ function LoginPageComponent() {
   const serverError = loginMutation.error?.message;
 
   const onSubmit = async (data: LoginFormData) => {
-    const toastId = toast.loading('LOGGING IN...');
+    const toastId = toast.loading('ĐANG ĐĂNG NHẬP...');
     try {
       loginMutation.mutate(data, {
         onSuccess: () => {
           toast.dismiss(toastId);
-          toast.success('LOGIN SUCCESS', {
-            description: 'Welcome back to the system',
+          toast.success('ĐĂNG NHẬP THÀNH CÔNG', {
+            description: 'Chào mừng bạn trở lại',
             duration: 3000,
           });
         },
         onError: () => {
           toast.dismiss(toastId);
-          toast.error('LOGIN FAILED', {
-            description: 'Email or password is incorrect',
+          toast.error('ĐĂNG NHẬP THẤT BẠI', {
+            description: 'Tên đăng nhập hoặc mật khẩu không đúng',
             duration: 4000,
           });
         },
       });
     } catch (error) {
       toast.dismiss(toastId);
-      toast.error('SYSTEM ERROR', {
-        description: 'An error occurred, please try again',
+      toast.error('LỖI HỆ THỐNG', {
+        description: 'Đã xảy ra lỗi, vui lòng thử lại',
+        duration: 4000,
       });
     }
   };
@@ -61,10 +62,10 @@ function LoginPageComponent() {
             variant="h1"
             className="mb-2 font-mono text-2xl font-black tracking-wider text-white uppercase"
           >
-            ACCESS SYSTEM
+            Hii Social
           </Typography>
           <Typography variant="muted" className="font-mono text-[10px] text-zinc-600 uppercase">
-            Verify identity to continue
+            Xác thực danh tính để tiếp tục
           </Typography>
         </div>
 
@@ -84,14 +85,14 @@ function LoginPageComponent() {
               {/* Email Field */}
               <FormField
                 control={control}
-                label="Email"
-                placeholder="user@system.io"
+                label="Tên đăng nhập"
+                placeholder="Nhập tên đăng nhập..."
                 {...register('username')}
               />
               <FormField
                 control={control}
-                label="Password"
-                placeholder="••••••••"
+                label="Mật khẩu"
+                placeholder="Nhập mật khẩu..."
                 type="password"
                 {...register('password')}
               />
@@ -102,10 +103,10 @@ function LoginPageComponent() {
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-black" />
-                  PROCESSING...
+                  ĐANG XỬ LÝ...
                 </span>
               ) : (
-                'LOGIN'
+                'ĐĂNG NHẬP'
               )}
             </Button>
           </form>
@@ -113,13 +114,13 @@ function LoginPageComponent() {
           {/* Register Link */}
           <div className="mt-8 border-t border-white/10 pt-6 text-center">
             <Typography variant="small" className="font-mono text-xs text-zinc-600">
-              Don't have an account?{' '}
+              Không có tài khoản?{' '}
               <button
                 type="button"
                 onClick={() => navigate({ to: '/register' })}
                 className="text-white underline transition-colors hover:text-zinc-400"
               >
-                Register now
+                Đăng ký ngay
               </button>
             </Typography>
           </div>
@@ -128,7 +129,7 @@ function LoginPageComponent() {
         {/* Footer Info */}
         <div className="mt-6 text-center">
           <Typography variant="tiny" className="font-mono text-[9px] text-zinc-700 uppercase">
-            CARBON_KINETIC_SYSTEM :: v2.4.1
+            HII_SOCIAL_SYSTEM :: v1.0.0
           </Typography>
         </div>
       </div>

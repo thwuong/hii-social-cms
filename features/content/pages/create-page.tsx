@@ -50,7 +50,7 @@ function CreatePageComponent() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl py-8">
+    <div className="mx-auto w-full py-8">
       <Card>
         <CardHeader>
           <CardTitle>GIAO_THỨC_TÀI_NGUYÊN_MỚI</CardTitle>
