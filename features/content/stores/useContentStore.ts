@@ -9,7 +9,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 const defaultFilters: ContentState['filters'] = {
-  cursor: '',
+  page_size: 20,
   limit: 20,
   search: '',
   sorted: 'asc',
@@ -23,7 +23,7 @@ const defaultFilters: ContentState['filters'] = {
 interface ContentState {
   // State
   filters: {
-    cursor: string;
+    page_size: number;
     limit: number;
     search?: string;
     sorted: 'asc' | 'desc';

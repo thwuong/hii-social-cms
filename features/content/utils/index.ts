@@ -23,7 +23,7 @@ export const transformCrawlContent = (content: Video): ContentItem => {
     original_source_url: content.original_url,
     created_at: content.created_at,
     created_by: content.publish_metadata.data.updated_by,
-    status: ContentStatus.PENDING_REVIEW,
+    status: content.download_status as ContentStatus,
     category: '',
     tags: content.publish_metadata.data.tags,
     visibility: 'public',

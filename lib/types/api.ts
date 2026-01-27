@@ -16,6 +16,7 @@ interface PaginationRequest {
   sort_order?: 'asc' | 'desc';
   sort_by?: 'created_at' | 'updated_at';
   search?: string;
+  is_previewed?: boolean;
 }
 
 interface Pagination {

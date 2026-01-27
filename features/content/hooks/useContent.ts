@@ -101,6 +101,9 @@ export const useApproveContents = () => {
     mutationFn: (payload: ApproveContentBatchPayload) => contentService.approveContents(payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.content.all, filters] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.content.details, variables.reel_ids],
+      });
     },
   });
 };
@@ -125,7 +128,7 @@ export const useRejectContents = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.content.all, filters] });
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.content.details, variables.reel_id],
+        queryKey: [queryKeys.content.details, variables.reel_ids],
       });
     },
   });

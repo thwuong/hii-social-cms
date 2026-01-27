@@ -8,3 +8,5 @@ export * from './login';
 export * from './register';
 export * from './review.detail.$contentId';
 export * from './review';
+export * from './report';
+export * from './report.detail.$reportId';

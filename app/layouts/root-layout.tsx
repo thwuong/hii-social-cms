@@ -7,6 +7,8 @@ import {
   contentDetailRoute,
   loginRoute,
   registerRoute,
+  reportDetailRoute,
+  reportRoute,
   reviewDetailRoute,
   auditRoute,
   createContentRoute,
@@ -38,6 +40,8 @@ const routeTree = rootRoute.addChildren([
     createContentRoute,
     reviewRoute,
     reviewDetailRoute,
+    reportRoute,
+    reportDetailRoute,
   ]),
 ]);
 

@@ -1,10 +1,10 @@
-import { LayoutGrid, Rows, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Filter, LayoutGrid, Rows, Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Media from '@/features/content/components/media';
-import { ContentItem, ContentStatus } from '@/features/content/types';
-import ContentGrid from '@/shared/components/content-grid';
+import { ContentItem } from '@/features/content/types';
 import { ContentGridSkeleton, ContentTableSkeleton } from '@/shared/components';
+import ContentGrid from '@/shared/components/content-grid';
 import { useInfiniteScroll } from '@/shared/hooks';
 import {
   Button,
@@ -14,8 +14,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Typography,
 } from '@/shared/ui';
-import { useNavigate, useRouteContext } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { debounce } from 'lodash';
 import { toast } from 'sonner';
 import { ContentTable, RejectConfirmationModal } from '../components';
@@ -25,15 +26,6 @@ import { useCrawlStore } from '../stores/useCrawlStore';
 function ContentCrawlPageComponent() {
   const navigate = useNavigate();
 
-  const {
-    items,
-    categories: _categories,
-    service,
-    currentUser,
-    refreshData,
-  } = useRouteContext({
-    strict: false,
-  });
   const {
     data: crawlContent,
     isLoading: _isLoadingCrawlContent,
@@ -55,7 +47,7 @@ function ContentCrawlPageComponent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isBatchRejectModalOpen, setIsBatchRejectModalOpen] = useState(false);
 
-  const { setContentDetails } = useCrawlStore();
+  const { setContentDetails, resetFilters } = useCrawlStore();
 
   const { mutate: makeVideoCrawler } = useMakeVideoCrawler();
 
@@ -123,7 +115,6 @@ function ContentCrawlPageComponent() {
           description: `Đã duyệt ${eligibleApprovals.length} video`,
         });
         setSelectedIds([]);
-        refreshData();
       })
       .catch(() => {
         toast.dismiss(toastId);
@@ -178,7 +169,6 @@ function ContentCrawlPageComponent() {
         });
         setSelectedIds([]);
         setIsBatchRejectModalOpen(false);
-        refreshData();
       })
       .catch(() => {
         toast.dismiss(toastId);
@@ -205,15 +195,49 @@ function ContentCrawlPageComponent() {
     { id: 'asc', label: 'Mới nhất' },
     { id: 'desc', label: 'Cũ nhất' },
   ];
+
+  const categoryOptions = [
+    { id: 'false', label: 'Chưa xem trước' },
+    { id: 'true', label: 'Đã xem trước' },
+  ];
+
   // Count selected items for approve/reject
   const batchApproveCount = crawlContent.filter((i: ContentItem) =>
     selectedIds.includes(i.id)
   ).length;
   const batchRejectCount = batchApproveCount; // Same for crawl page
 
+  useEffect(() => {
+    return () => {
+      resetFilters();
+    };
+  }, []);
+
   return (
     <div className="relative space-y-8">
       <div className="flex flex-col gap-6">
+        {/* Status Filter */}
+        <div className="space-y-3">
+          <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
+            <Filter size={10} /> Lọc Xem Trước
+          </Typography>
+          <div className="flex flex-wrap gap-1">
+            {categoryOptions?.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setFilters('is_previewed', tab.id)}
+                className={`flex items-center gap-2 border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
+                  filters.is_previewed === tab.id
+                    ? 'border-white bg-white text-black'
+                    : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex-1">
             <div className="group relative">
@@ -267,24 +291,19 @@ function ContentCrawlPageComponent() {
         </div>
       </div>
 
-      {_isLoadingCrawlContent ? (
-        viewMode === 'table' ? (
-          <ContentTableSkeleton rows={10} />
-        ) : (
-          <ContentGridSkeleton count={12} />
-        )
-      ) : viewMode === 'table' ? (
+      {_isLoadingCrawlContent && viewMode === 'table' && <ContentTableSkeleton rows={10} />}
+      {_isLoadingCrawlContent && viewMode === 'grid' && <ContentGridSkeleton count={12} />}
+      {!_isLoadingCrawlContent && viewMode === 'table' && (
         <ContentTable
           items={crawlContent}
           onView={handleNavigateToDetail}
           selectedIds={selectedIds}
-          onToggleSelect={handleToggleSelect}
-          onToggleAll={() => handleSelectAll(crawlContent)}
-          loadMoreRef={loadMoreRef}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
         />
-      ) : (
+      )}
+      {!_isLoadingCrawlContent && viewMode === 'grid' && (
         <ContentGrid
           isEmpty={crawlContent.length === 0}
           loadMoreRef={loadMoreRef}
@@ -297,7 +316,6 @@ function ContentCrawlPageComponent() {
                 item={item}
                 onView={() => handleNavigateToDetail(item)}
                 isSelected={selectedIds.includes(item.id)}
-                onToggleSelect={handleToggleSelect}
                 key={item.content_id}
               />
             );

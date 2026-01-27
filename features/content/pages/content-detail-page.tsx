@@ -80,6 +80,7 @@ function DetailPageComponent() {
         onSuccess: () => {
           toast.dismiss(toastId);
           toast.success('Duyệt nội dung thành công');
+          navigate({ to: '/content' });
         },
         onError: () => {
           toast.dismiss(toastId);
@@ -115,6 +116,7 @@ function DetailPageComponent() {
             toast.success('Từ chối nội dung thành công');
             setIsRejectModalOpen(false);
             setPendingRejectId(null);
+            navigate({ to: '/content' });
           },
           onError: () => {
             toast.error('Từ chối nội dung thất bại');
@@ -134,9 +136,8 @@ function DetailPageComponent() {
   };
 
   const handleBatchApprove = () => {
-    const eligibleApprovals = realContent?.filter(
-      (contentItem) =>
-        selectedIds.includes(contentItem.id) && contentItem.status === ContentStatus.PENDING_REVIEW
+    const eligibleApprovals = realContent?.filter((contentItem) =>
+      selectedIds.includes(contentItem.id)
     );
 
     if (!eligibleApprovals || eligibleApprovals.length === 0) {
@@ -150,7 +151,7 @@ function DetailPageComponent() {
 
     approveContents(
       {
-        reel_id: eligibleApprovals.map((contentItem) => contentItem.id),
+        reel_ids: eligibleApprovals.map((contentItem) => contentItem.id),
         reason: 'Approved by admin',
       },
       {
@@ -160,6 +161,7 @@ function DetailPageComponent() {
             description: `Đã duyệt ${eligibleApprovals.length} nội dung`,
           });
           setSelectedIds([]);
+          navigate({ to: '/content' });
         },
         onError: () => {
           toast.dismiss(toastId);
@@ -172,11 +174,8 @@ function DetailPageComponent() {
   };
 
   const handleBatchReject = () => {
-    const eligibleRejections = realContent?.filter(
-      (contentItem) =>
-        selectedIds.includes(contentItem.id) &&
-        (contentItem.status === ContentStatus.PENDING_REVIEW ||
-          contentItem.status === ContentStatus.APPROVED)
+    const eligibleRejections = realContent?.filter((contentItem) =>
+      selectedIds.includes(contentItem.id)
     );
 
     if (!eligibleRejections || eligibleRejections.length === 0) {
@@ -191,11 +190,8 @@ function DetailPageComponent() {
   };
 
   const handleConfirmBatchReject = (reason: string) => {
-    const eligibleRejections = realContent?.filter(
-      (contentItem) =>
-        selectedIds.includes(contentItem.id) &&
-        (contentItem.status === ContentStatus.PENDING_REVIEW ||
-          contentItem.status === ContentStatus.APPROVED)
+    const eligibleRejections = realContent?.filter((contentItem) =>
+      selectedIds.includes(contentItem.id)
     );
 
     if (!eligibleRejections || eligibleRejections.length === 0) return;
@@ -204,7 +200,7 @@ function DetailPageComponent() {
 
     rejectContents(
       {
-        reel_id: eligibleRejections.map((contentItem) => contentItem.id),
+        reel_ids: eligibleRejections.map((contentItem) => contentItem.id),
         reason,
       },
       {
@@ -215,6 +211,7 @@ function DetailPageComponent() {
           });
           setSelectedIds([]);
           setIsBatchRejectModalOpen(false);
+          navigate({ to: '/content' });
         },
         onError: () => {
           toast.dismiss(toastId);
@@ -227,15 +224,9 @@ function DetailPageComponent() {
   };
 
   // Count items eligible for approve/reject
-  const batchApproveCount = realContent?.filter(
-    (i) => selectedIds.includes(i.id) && i.status === ContentStatus.PENDING_REVIEW
-  ).length;
+  const batchApproveCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
 
-  const batchRejectCount = realContent?.filter(
-    (i) =>
-      selectedIds.includes(i.id) &&
-      (i.status === ContentStatus.PENDING_REVIEW || i.status === ContentStatus.APPROVED)
-  ).length;
+  const batchRejectCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
 
   const handleScheduleConfirm = (scheduledTime: string) => {
     if (!item) return;

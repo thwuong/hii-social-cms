@@ -1,4 +1,4 @@
-import { Button, ContentItem, ContentStatus, MediaType, STATUS_LABELS } from '@/shared';
+import { Button, ContentItem, MediaType, STATUS_LABELS, Typography } from '@/shared';
 import { ImageIcon, LinkIcon, MoreHorizontal, Type, Video } from 'lucide-react';
 
 function MediaIcon({ type }: { type: MediaType }) {
@@ -20,42 +20,46 @@ type ContentRowProps = {
   item: ContentItem;
   selectedIds: string[];
   onView: () => void;
-  onToggleSelect: (id: string) => void;
+  onToggleSelect?: (id: string) => void;
 };
 function ContentRow({ item, selectedIds, onView, onToggleSelect }: ContentRowProps) {
-  const isPending = item.status === ContentStatus.PENDING_REVIEW;
-
   return (
     <tr
       className={`group cursor-pointer transition-colors hover:bg-[#111] ${selectedIds.includes(item.id.toString()) ? 'bg-white/5' : ''}`}
       onClick={() => onView()}
     >
-      <td className="p-6 align-middle" onClick={(e) => e.stopPropagation()}>
-        {isPending ? (
-          <input
-            type="checkbox"
-            className="h-3 w-3 cursor-pointer rounded-none border-zinc-700 bg-transparent accent-white"
-            checked={selectedIds.includes(item.id)}
-            onChange={() => onToggleSelect(item.id)}
-          />
-        ) : (
-          <div className="h-3 w-3" />
-        )}
-      </td>
+      {onToggleSelect && (
+        <td className="p-6 align-middle" onClick={(e) => e.stopPropagation()}>
+          {onToggleSelect ? (
+            <input
+              type="checkbox"
+              className="h-3 w-3 cursor-pointer rounded-none border-zinc-700 bg-transparent accent-white"
+              checked={selectedIds.includes(item.id)}
+              onChange={() => onToggleSelect(item.id)}
+            />
+          ) : (
+            <div className="h-3 w-3" />
+          )}
+        </td>
+      )}
       <td className="p-6 align-middle">
         <div className="flex max-w-[300px] flex-col">
-          <span className="mb-1 truncate font-bold text-white transition-colors group-hover:text-white">
-            {item.title}
-          </span>
-          <span className="font-mono text-[10px] text-zinc-600 uppercase">
-            ID: {item.content_id}
-          </span>
+          <Typography className="line-clamp-2 leading-normal text-white">{item.title}</Typography>
+
+          <Typography
+            variant="small"
+            className="line-clamp-2 font-mono leading-normal text-zinc-500"
+          >
+            {item.short_description}
+          </Typography>
         </div>
       </td>
       <td className="p-6 align-middle">
         <div className="flex items-center gap-2">
           <MediaIcon type={item.media_type} />
-          <span className="font-mono text-[10px] text-zinc-400 uppercase">{item.category}</span>
+          <Typography variant="tiny" className="font-mono leading-normal text-zinc-400 uppercase">
+            {item.media_type}
+          </Typography>
         </div>
       </td>
       <td className="p-6 align-middle">

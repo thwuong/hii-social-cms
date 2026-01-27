@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate, useRouteContext } from '@tanstack/react-router';
-import ContentTable from '@/features/content/components/content-table';
+import { Typography } from '@/shared';
 import { ContentItem } from '@/shared/types';
+import { useNavigate, useRouteContext } from '@tanstack/react-router';
+import { useState } from 'react';
 
 function AuditPageComponent() {
   const navigate = useNavigate();
@@ -28,13 +28,19 @@ function AuditPageComponent() {
 
   return (
     <div className="animate-in fade-in">
-      <ContentTable
-        items={items}
-        onView={handleNavigateToDetail}
-        selectedIds={selectedIds}
-        onToggleSelect={handleToggleSelect}
-        onToggleAll={() => handleSelectAll(items)}
-      />
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div>
+            <Typography variant="h2" className="text-white">
+              AUDIT
+            </Typography>
+            <Typography variant="small" className="text-muted-foreground font-mono">
+              Quản lý các hoạt động audit của hệ thống
+            </Typography>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

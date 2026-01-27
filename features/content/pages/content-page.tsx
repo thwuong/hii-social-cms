@@ -1,9 +1,14 @@
 import { Filter, Hash, Layers, LayoutGrid, Rows, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import ContentTable from '@/features/content/components/content-table';
 import { ContentItem, ContentStatus } from '@/features/content/types';
-import { ContentGrid, ContentGridSkeleton, ContentTableSkeleton } from '@/shared/components';
+import {
+  ContentGrid,
+  ContentGridSkeleton,
+  ContentTableSkeleton,
+  FilterSkeleton,
+} from '@/shared/components';
 import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
 import {
   Button,
@@ -105,10 +110,7 @@ function ContentPageComponent() {
 
   const handleSelectAll = (visibleItems: ContentItem[]) => {
     // Only select pending items
-    const pendingItems = visibleItems.filter(
-      (item) => item.status === ContentStatus.PENDING_REVIEW
-    );
-    const visibleIds = pendingItems.map((i) => i.id);
+    const visibleIds = visibleItems.map((i) => i.id);
 
     if (visibleIds.every((id) => selectedIds.includes(id.toString()))) {
       setSelectedIds(selectedIds.filter((id) => !visibleIds.includes(id.toString())));
@@ -119,10 +121,7 @@ function ContentPageComponent() {
   };
 
   const handleBatchApprove = () => {
-    const eligibleApprovals = items?.filter(
-      (item: ContentItem) =>
-        selectedIds.includes(item.id) && item.status === ContentStatus.PENDING_REVIEW
-    );
+    const eligibleApprovals = items?.filter((item: ContentItem) => selectedIds.includes(item.id));
 
     if (!eligibleApprovals || eligibleApprovals.length === 0) {
       toast.error('KHÔNG CÓ NỘI DUNG HỢP LỆ', {
@@ -135,7 +134,7 @@ function ContentPageComponent() {
 
     approveContents(
       {
-        reel_id: eligibleApprovals.map((item) => item.id),
+        reel_ids: eligibleApprovals.map((item) => item.id),
         reason: 'Approved by admin',
       },
       {
@@ -187,7 +186,7 @@ function ContentPageComponent() {
 
     rejectContents(
       {
-        reel_id: eligibleRejections.map((item) => item.id),
+        reel_ids: eligibleRejections.map((item) => item.id),
         reason,
       },
       {
@@ -234,76 +233,86 @@ function ContentPageComponent() {
   }, [approvingStatus]);
 
   // Count items eligible for approve (PENDING_REVIEW only)
-  const batchApproveCount = items?.filter(
-    (i: ContentItem) => selectedIds.includes(i.id) && i.status === ContentStatus.PENDING_REVIEW
-  ).length;
+  const batchApproveCount = items?.filter((i: ContentItem) => selectedIds.includes(i.id)).length;
 
   // Count items eligible for reject (PENDING_REVIEW or APPROVED)
-  const batchRejectCount = items?.filter(
-    (i: ContentItem) =>
-      selectedIds.includes(i.id) &&
-      (i.status === ContentStatus.PENDING_REVIEW || i.status === ContentStatus.APPROVED)
-  ).length;
+  const batchRejectCount = items?.filter((i: ContentItem) => selectedIds.includes(i.id)).length;
+
+  const { resetFilters } = useContentStore();
+
+  useEffect(() => {
+    return () => {
+      resetFilters();
+    };
+  }, []);
 
   return (
     <div className="relative space-y-8">
       <div className="flex flex-col gap-6">
         {/* Status Filter */}
-        <div className="space-y-3">
-          <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
-            <Filter size={10} /> Lọc Trạng Thái
-          </Typography>
-          <div className="flex flex-wrap gap-1">
-            {statusTabs?.map((tab) => (
-              <button
-                key={tab.slug}
-                type="button"
-                onClick={() => setFilters('approving_status', tab.slug)}
-                className={`flex items-center gap-2 border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
-                  filters.approving_status === tab.slug
-                    ? 'border-white bg-white text-black'
-                    : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                {tab.name}
-              </button>
-            ))}
+        {isLoading ? (
+          <FilterSkeleton count={6} label="Lọc Trạng Thái" />
+        ) : (
+          <div className="space-y-3">
+            <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
+              <Filter size={10} /> Lọc Trạng Thái
+            </Typography>
+            <div className="flex flex-wrap gap-1">
+              {statusTabs?.map((tab) => (
+                <button
+                  key={tab.slug}
+                  type="button"
+                  onClick={() => setFilters('approving_status', tab.slug)}
+                  className={`flex items-center gap-2 border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
+                    filters.approving_status === tab.slug
+                      ? 'border-white bg-white text-black'
+                      : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  {tab.name}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Category Filter */}
-        <div className="space-y-3">
-          <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
-            <Hash size={10} /> Lọc Danh Mục
-          </Typography>
-          <div className="flex flex-wrap gap-1">
-            <button
-              type="button"
-              onClick={() => setFilters('tags', [])}
-              className={`border px-3 py-1 font-mono text-[10px] uppercase transition-all ${
-                filters.tags.length === 0
-                  ? 'border-white bg-white text-black'
-                  : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
-              }`}
-            >
-              TẤT CẢ
-            </button>
-            {categories.map((cat) => (
+        {isLoading ? (
+          <FilterSkeleton count={5} label="Lọc Danh Mục" />
+        ) : (
+          <div className="space-y-3">
+            <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
+              <Hash size={10} /> Lọc Danh Mục
+            </Typography>
+            <div className="flex flex-wrap gap-1">
               <button
-                key={cat.id}
                 type="button"
-                onClick={() => toggleCategory(cat.id)}
+                onClick={() => setFilters('tags', [])}
                 className={`border px-3 py-1 font-mono text-[10px] uppercase transition-all ${
-                  filters.tags.includes(cat.id)
+                  filters.tags.length === 0
                     ? 'border-white bg-white text-black'
                     : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
                 }`}
               >
-                {cat.name}
+                TẤT CẢ
               </button>
-            ))}
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => toggleCategory(cat.id)}
+                  className={`border px-3 py-1 font-mono text-[10px] uppercase transition-all ${
+                    filters.tags.includes(cat.id)
+                      ? 'border-white bg-white text-black'
+                      : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex flex-col gap-4 border-t border-white/10 pt-6 md:flex-row">
           <div className="flex-1">
@@ -368,11 +377,19 @@ function ContentPageComponent() {
           items={items || []}
           onView={handleNavigateToDetail}
           selectedIds={selectedIds}
-          onToggleSelect={handleToggleSelect}
-          onToggleAll={() => handleSelectAll(items || [])}
-          loadMoreRef={loadMoreRef}
+          onToggleSelect={
+            filters.approving_status === ContentStatus.PENDING_REVIEW
+              ? handleToggleSelect
+              : undefined
+          }
+          onToggleAll={
+            filters.approving_status === ContentStatus.PENDING_REVIEW
+              ? () => handleSelectAll(items || [])
+              : undefined
+          }
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
         />
       )}
 

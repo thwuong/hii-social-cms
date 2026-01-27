@@ -204,5 +204,5 @@ export interface ApproveContentPayload {
 
 export interface ApproveContentBatchPayload {
   reason: string;
-  reel_id: string[];
+  reel_ids: string[];
 }

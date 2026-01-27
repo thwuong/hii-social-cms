@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'text' | 'circular' | 'rectangular';
+  variant?: 'text' | 'circular' | 'rectangular' | 'square';
 }
 
 /**
@@ -16,6 +16,7 @@ export function Skeleton({ className, variant = 'rectangular', ...props }: Skele
         variant === 'text' && 'h-4 rounded',
         variant === 'circular' && 'rounded-full',
         variant === 'rectangular' && 'rounded',
+        variant === 'square' && 'rounded-none',
         className
       )}
       {...props}

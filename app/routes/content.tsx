@@ -11,10 +11,4 @@ export const contentRoute = createRoute({
       <ContentPageComponent />
     </ContentProvider>
   ),
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      status: (search.status as string) || 'ALL',
-      source: (search.source as string) || 'ALL',
-    };
-  },
 });

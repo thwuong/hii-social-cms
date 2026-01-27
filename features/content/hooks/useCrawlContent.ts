@@ -18,7 +18,11 @@ const useCrawlContent = () => {
     queryKey: [queryKeys.contentCrawl.all, filters],
     queryFn: ({ pageParam = 1 }) =>
       crawlService.getContentCrawler({ ...filters, page: pageParam }) as Promise<PaginatedResponse>,
-    getNextPageParam: (lastPage: PaginatedResponse) => lastPage.pagination.page + 1,
+    getNextPageParam: (lastPage: PaginatedResponse) => {
+      const totalPages = lastPage.pagination.total_page;
+      const currentPage = lastPage.pagination.page;
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
     initialPageParam: 1,
   });
 

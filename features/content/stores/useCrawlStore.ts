@@ -8,6 +8,15 @@ import { ContentItem } from '@/shared';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+const defaultFilters: CrawlState['filters'] = {
+  page: 1,
+  page_size: 20,
+  sort_order: 'asc',
+  sort_by: 'created_at',
+  limit: 20,
+  search: '',
+  is_previewed: 'false',
+};
 interface CrawlState {
   // State
   filters: {
@@ -17,6 +26,7 @@ interface CrawlState {
     sort_by: 'created_at' | 'updated_at';
     limit: number;
     search?: string;
+    is_previewed?: string;
   };
   selectedIds: string[];
   contentDetails: ContentItem | null;
@@ -35,14 +45,7 @@ interface CrawlState {
 export const useCrawlStore = create<CrawlState>()(
   persist(
     (set) => ({
-      filters: {
-        page: 1,
-        page_size: 20,
-        sort_order: 'asc',
-        sort_by: 'created_at',
-        limit: 20,
-        search: '',
-      },
+      filters: defaultFilters,
       selectedIds: [],
       contentDetails: null,
       setFilters: (key: keyof CrawlState['filters'], value: any) =>
@@ -55,7 +58,7 @@ export const useCrawlStore = create<CrawlState>()(
 
       resetFilters: () =>
         set({
-          filters: { page: 1, page_size: 10, sort_order: 'asc', sort_by: 'created_at', limit: 10 },
+          filters: defaultFilters,
         }),
       resetSelectedIds: () => set({ selectedIds: [] }),
       resetContentDetails: () => set({ contentDetails: null }),

@@ -7,7 +7,6 @@
 // UI
 export * from './ui';
 
-// Components
 export * from './components';
 
 // Hooks

@@ -13,3 +13,4 @@ export { ContentGridSkeleton } from './content-grid-skeleton';
 export { ContentTableSkeleton } from './content-table-skeleton';
 export { QueueSkeleton } from './queue-skeleton';
 export { DetailPageSkeleton } from './detail-page-skeleton';
+export { default as FilterSkeleton } from './filter-skeleton';
