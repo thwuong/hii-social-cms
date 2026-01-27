@@ -8,7 +8,6 @@ import type {
   ReportDetailResponse,
   ReportReasonsPayload,
   ReportReasonsResponse,
-  Video,
 } from '../types';
 
 export const reportService = {
@@ -42,7 +41,7 @@ export const reportService = {
 
   // Accept reports - hide videos
   acceptReport: async (payload: AcceptReportPayload): Promise<void> => {
-    await api.put<void>('reels/dashboard/videos/hidden', {
+    await api.put<void>('reels/dashboard/videos/hidden-batch', {
       is_hidden: true,
       video_ids: payload.video_ids,
     });
@@ -50,7 +49,7 @@ export const reportService = {
 
   // Reject reports - keep videos visible
   rejectReport: async (payload: RejectReportPayload): Promise<void> => {
-    await api.put<void>('reels/dashboard/videos/hidden', {
+    await api.put<void>('reels/dashboard/videos/hidden-batch', {
       is_hidden: false,
       video_ids: payload.video_ids,
     });

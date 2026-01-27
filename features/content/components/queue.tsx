@@ -118,7 +118,7 @@ function QueueItem({ qItem, activeItem, isSelected, onToggleSelect }: QueueItemP
           {qItem.short_description}
         </Typography>
         <Typography className="text-muted-foreground" variant="tiny">
-          {qItem.category}
+          {qItem.tags.join(', ')}
         </Typography>
       </div>
     </div>

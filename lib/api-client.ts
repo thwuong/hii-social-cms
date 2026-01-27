@@ -127,11 +127,14 @@ async function refreshAccessToken(): Promise<string | null> {
 
     const responseData = (await response.json()) as ApiResponse<LoginResponse>;
     const { data } = responseData;
+
     if (!data) {
       console.error('No data returned from refresh token response');
       tokenManager.clearTokens();
       return null;
     }
+    useAuthStore.getState().setToken(data.accessToken);
+    useAuthStore.getState().setRefreshToken(data.refreshToken);
 
     tokenManager.setTokens(data.accessToken, data.refreshToken);
     return data.accessToken;
@@ -164,6 +167,37 @@ export async function getValidToken(isRefresh = false): Promise<string | null> {
   });
 
   return refreshTokenPromise;
+}
+
+// Retry request function
+async function retryRequest(request: Request, newToken: string) {
+  // Clone request để giữ body stream
+  const clonedRequest = request.clone();
+
+  // Get body content if exists
+  let bodyContent: string | FormData | Blob | ArrayBuffer | null = null;
+  const contentType = clonedRequest.headers.get('content-type');
+
+  if (clonedRequest.body) {
+    if (contentType?.includes('application/json')) {
+      bodyContent = await clonedRequest.text();
+    } else if (contentType?.includes('multipart/form-data')) {
+      bodyContent = await clonedRequest.formData();
+    } else {
+      bodyContent = await clonedRequest.blob();
+    }
+  }
+
+  // Create new headers with updated token
+  const newHeaders = new Headers(request.headers);
+  newHeaders.set('Authorization', `Bearer ${newToken}`);
+
+  // Retry request với token mới và body preserved
+  return ky(request.url, {
+    method: request.method,
+    headers: newHeaders,
+    body: bodyContent,
+  });
 }
 
 /**
@@ -247,15 +281,7 @@ export const apiClient = ky.create({
           const newToken = await getValidToken(true);
 
           if (newToken) {
-            // Retry request với token mới
-            const newRequest = new Request(request.url, {
-              method: request.method,
-              headers: request.headers,
-              body: request.body,
-            });
-            newRequest.headers.set('Authorization', `Bearer ${newToken}`);
-
-            return ky(newRequest);
+            return retryRequest(request, newToken);
           }
 
           // Không thể refresh -> redirect to login

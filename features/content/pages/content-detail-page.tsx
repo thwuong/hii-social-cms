@@ -438,7 +438,7 @@ function DetailPageComponent() {
             <Button
               variant="default"
               onClick={() => handleUpdateStatus(ContentStatus.APPROVED)}
-              disabled={isPublishingContent}
+              disabled={isPublishingContent || item.status === ContentStatus.PUBLISHED}
             >
               Đăng ngay
             </Button>
