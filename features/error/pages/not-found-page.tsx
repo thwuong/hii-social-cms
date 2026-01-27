@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { AlertTriangle, Home, ArrowLeft } from 'lucide-react';
 import { Button, Typography } from '@/shared/ui';
 
@@ -10,10 +10,11 @@ import { Button, Typography } from '@/shared/ui';
  */
 export function NotFoundPage() {
   const navigate = useNavigate();
+  const { history } = useRouter();
 
   const handleGoBack = () => {
     if (window.history.length > 1) {
-      navigate({ to: -1 as any });
+      history.back();
     } else {
       navigate({ to: '/' });
     }
