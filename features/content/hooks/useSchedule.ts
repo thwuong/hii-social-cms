@@ -3,8 +3,8 @@ import { contentService } from '../services/content-service';
 import { queryKeys } from '../query-keys';
 
 interface ScheduleContentPayload {
-  contentId: string;
-  scheduledTime: string;
+  reel_id: string;
+  scheduled_at: string;
 }
 
 /**
@@ -14,12 +14,17 @@ export const useScheduleContent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ contentId, scheduledTime }: ScheduleContentPayload) =>
-      contentService.scheduleContent(contentId, scheduledTime),
-    onSuccess: () => {
+    mutationFn: ({
+      reel_id,
+      scheduled_at,
+    }: ScheduleContentPayload & { approving_status: string }) =>
+      contentService.scheduleContent({ reel_id, scheduled_at }),
+    onSuccess: (_, variables) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: queryKeys.content.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.content.list() });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.content.details, variables.reel_id, variables.approving_status],
+      });
     },
   });
 };

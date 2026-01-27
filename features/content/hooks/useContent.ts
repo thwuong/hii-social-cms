@@ -7,6 +7,7 @@ import {
   ApproveContentPayload,
   ContentStatus,
   GetContentResponse,
+  PublishContentPayload,
 } from '../types';
 import { transformReelContent } from '../utils';
 import { useContentStore } from '../stores/useContentStore';
@@ -17,7 +18,7 @@ export const useContent = (status?: ContentStatus) => {
   const approvingStatus = status || filters.approving_status;
   const contentQuery = useInfiniteQuery({
     queryKey: [
-      queryKeys.content.all,
+      queryKeys.content.lists,
       {
         ...filters,
         approving_status: approvingStatus,
@@ -50,7 +51,7 @@ export const useCreateContent = () => {
   return useMutation({
     mutationFn: ({ data }: { data: ContentSchema }) => contentService.createContent(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.contentCrawl.all });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.contentCrawl.lists] });
     },
   });
 };
@@ -87,7 +88,7 @@ export const useApproveContent = () => {
   return useMutation({
     mutationFn: (payload: ApproveContentPayload) => contentService.approveContent(payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.content.all, filters] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.content.lists, filters] });
       queryClient.invalidateQueries({
         queryKey: [queryKeys.content.details, variables.reel_id],
       });
@@ -100,7 +101,7 @@ export const useApproveContents = () => {
   return useMutation({
     mutationFn: (payload: ApproveContentBatchPayload) => contentService.approveContents(payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.content.all, filters] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.content.lists, filters] });
       queryClient.invalidateQueries({
         queryKey: [queryKeys.content.details, variables.reel_ids],
       });
@@ -113,7 +114,7 @@ export const useRejectContent = () => {
   return useMutation({
     mutationFn: (payload: ApproveContentPayload) => contentService.rejectContent(payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.content.all, filters] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.content.lists, filters] });
       queryClient.invalidateQueries({
         queryKey: [queryKeys.content.details, variables.reel_id],
       });
@@ -126,7 +127,20 @@ export const useRejectContents = () => {
   return useMutation({
     mutationFn: (payload: ApproveContentBatchPayload) => contentService.rejectContents(payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.content.all, filters] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.content.lists, filters] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.content.details, variables.reel_ids],
+      });
+    },
+  });
+};
+
+export const usePublishContent = () => {
+  const { filters } = useContentStore();
+  return useMutation({
+    mutationFn: (payload: PublishContentPayload) => contentService.publishContent(payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.content.lists, filters] });
       queryClient.invalidateQueries({
         queryKey: [queryKeys.content.details, variables.reel_ids],
       });

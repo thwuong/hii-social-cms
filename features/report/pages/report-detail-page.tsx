@@ -1,7 +1,7 @@
 import { Badge, Button, Typography } from '@/shared/ui';
 import { VideoPlayer } from '@/shared/components';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { AlertTriangle, Check, MessageSquare, Video, X, XCircle } from 'lucide-react';
+import { AlertTriangle, MessageSquare, Video, X, XCircle, Check } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { RejectConfirmationModal } from '@/features/content/components';
@@ -17,62 +17,34 @@ function ReportDetailPage() {
 
   const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [selectedVideoIds, setSelectedVideoIds] = useState<string[]>([]);
 
   const { mutate: acceptReport, isPending: isAccepting } = useAcceptReport();
   const { mutate: rejectReport, isPending: isRejecting } = useRejectReport();
 
-  // Get pending reports only (for selection)
+  // Get pending reports only
   const pendingReports = report?.reports.filter((r) => r.status === ReportStatus.PENDING) || [];
-
   const hasPendingReports = pendingReports.length > 0;
-
-  // Toggle single report selection
-  const handleToggleSelect = (videoId: string) => {
-    setSelectedVideoIds((prev) =>
-      prev.includes(videoId) ? prev.filter((id) => id !== videoId) : [...prev, videoId]
-    );
-  };
-
-  // Toggle all pending reports
-  const handleSelectAll = () => {
-    if (selectedVideoIds.length === pendingReports.length) {
-      setSelectedVideoIds([]);
-    } else {
-      setSelectedVideoIds(pendingReports.map((r) => r.video_id));
-    }
-  };
-
-  const allSelected =
-    pendingReports.length > 0 && selectedVideoIds.length === pendingReports.length;
 
   const handleAccept = () => {
     if (!report) return;
 
-    // If no selection, accept all pending reports
-    const videoIds =
-      selectedVideoIds.length > 0 ? selectedVideoIds : pendingReports.map((r) => r.video_id);
+    // Only accept THIS video (video_info.id)
+    const videoId = report.video_info.id;
 
-    if (videoIds.length === 0) {
-      toast.error('Không có báo cáo nào để xử lý');
-      return;
-    }
-
-    const toastId = toast.loading(`Đang xử lý ${videoIds.length} báo cáo...`);
+    const toastId = toast.loading('Đang xử lý báo cáo...');
 
     acceptReport(
       {
         is_hidden: true,
-        video_ids: videoIds,
+        video_ids: [videoId], // Only this video
       },
       {
         onSuccess: () => {
           toast.dismiss(toastId);
           toast.success('CHẤP NHẬN THÀNH CÔNG', {
-            description: `${videoIds.length} video đã được ẩn khỏi hệ thống`,
+            description: 'Video đã được ẩn khỏi hệ thống',
           });
           setIsAcceptModalOpen(false);
-          setSelectedVideoIds([]);
           navigate({ to: '/report' });
         },
         onError: () => {
@@ -88,30 +60,23 @@ function ReportDetailPage() {
   const handleReject = (_reason: string) => {
     if (!report) return;
 
-    // If no selection, reject all pending reports
-    const videoIds =
-      selectedVideoIds.length > 0 ? selectedVideoIds : pendingReports.map((r) => r.video_id);
+    // Only reject THIS video (video_info.id)
+    const videoId = report.video_info.id;
 
-    if (videoIds.length === 0) {
-      toast.error('Không có báo cáo nào để xử lý');
-      return;
-    }
-
-    const toastId = toast.loading(`Đang xử lý ${videoIds.length} báo cáo...`);
+    const toastId = toast.loading('Đang xử lý báo cáo...');
 
     rejectReport(
       {
         is_hidden: false,
-        video_ids: videoIds,
+        video_ids: [videoId], // Only this video
       },
       {
         onSuccess: () => {
           toast.dismiss(toastId);
           toast.success('TỪ CHỐI THÀNH CÔNG', {
-            description: `${videoIds.length} video vẫn hiển thị bình thường`,
+            description: 'Video vẫn hiển thị bình thường',
           });
           setIsRejectModalOpen(false);
-          setSelectedVideoIds([]);
           navigate({ to: '/report' });
         },
         onError: () => {
@@ -239,45 +204,15 @@ function ReportDetailPage() {
 
           {/* All Reports Section */}
           <div className="space-y-4 border-t border-white/10 pt-6">
-            <div className="flex items-center justify-between">
-              <Typography variant="tiny" className="font-mono text-zinc-500 uppercase">
-                <MessageSquare size={12} className="mr-2 inline" />
-                DANH SÁCH BÁO CÁO ({reportCount})
-              </Typography>
-
-              {/* Select All Checkbox - Only if has pending reports */}
-              {hasPendingReports && (
-                <button
-                  type="button"
-                  onClick={handleSelectAll}
-                  className="flex items-center gap-2 font-mono text-xs text-zinc-400 transition-colors hover:text-white"
-                >
-                  <div
-                    className={`flex h-5 w-5 items-center justify-center border transition-all ${
-                      allSelected
-                        ? 'border-white bg-white'
-                        : 'border-white/20 bg-transparent hover:border-white'
-                    }`}
-                  >
-                    {allSelected && <Check size={12} className="text-black" />}
-                  </div>
-                  <span className="uppercase">
-                    {allSelected ? 'Bỏ Chọn Tất Cả' : 'Chọn Tất Cả'}
-                  </span>
-                </button>
-              )}
-            </div>
+            <Typography variant="tiny" className="font-mono text-zinc-500 uppercase">
+              <MessageSquare size={12} className="mr-2 inline" />
+              DANH SÁCH BÁO CÁO ({reportCount})
+            </Typography>
 
             <div className="space-y-3">
               {report.reports && report.reports.length > 0 ? (
                 report.reports.map((reportItem, index) => (
-                  <ReportItem
-                    key={reportItem.id}
-                    report={reportItem}
-                    index={index}
-                    isSelected={selectedVideoIds.includes(reportItem.id)}
-                    onToggleSelect={handleToggleSelect}
-                  />
+                  <ReportItem key={reportItem.id} report={reportItem} index={index} />
                 ))
               ) : (
                 <div className="border border-white/10 bg-black/50 p-8 text-center">
@@ -300,7 +235,6 @@ function ReportDetailPage() {
               >
                 <Check size={16} className="mr-2" />
                 CHẤP NHẬN - ẨN VIDEO
-                {selectedVideoIds.length > 0 && ` (${selectedVideoIds.length})`}
               </Button>
               <Button
                 variant="destructive"
@@ -309,7 +243,6 @@ function ReportDetailPage() {
               >
                 <XCircle size={16} className="mr-2" />
                 TỪ CHỐI BÁO CÁO
-                {selectedVideoIds.length > 0 && ` (${selectedVideoIds.length})`}
               </Button>
             </div>
           )}
@@ -321,7 +254,7 @@ function ReportDetailPage() {
         isOpen={isAcceptModalOpen}
         onClose={() => setIsAcceptModalOpen(false)}
         onConfirm={handleAccept}
-        count={selectedVideoIds.length > 0 ? selectedVideoIds.length : pendingReports.length}
+        count={1}
       />
 
       <RejectConfirmationModal

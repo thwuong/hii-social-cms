@@ -1,15 +1,25 @@
 import { Badge, Typography } from '@/shared/ui';
-import { AlertTriangle, Clock, User } from 'lucide-react';
+import { AlertTriangle, Check, Clock, User } from 'lucide-react';
 import type { ReportStatus, Video } from '../types';
 import { formatDate, getReportStatusColor } from '../utils';
 
 interface ReportCardProps {
   report: Video;
   onView: () => void;
+  isSelected?: boolean;
+  onToggleSelect?: (videoId: string) => void;
 }
 
-function ReportCard({ report, onView }: ReportCardProps) {
+function ReportCard({ report, onView, isSelected, onToggleSelect }: ReportCardProps) {
   const statusColor = getReportStatusColor(report.video_info.status as ReportStatus);
+  const isPending = report.reports.some((r) => r.status === 'pending');
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleSelect) {
+      onToggleSelect(report.video_id);
+    }
+  };
 
   return (
     <button
@@ -19,6 +29,17 @@ function ReportCard({ report, onView }: ReportCardProps) {
     >
       {/* Hover Line */}
       <div className="absolute top-0 left-0 z-20 h-[1px] w-full origin-left scale-x-0 transform bg-white transition-transform duration-500 group-hover:scale-x-100" />
+
+      {/* Selection Checkbox - Only for pending reports */}
+      {isPending && onToggleSelect && (
+        <button
+          type="button"
+          onClick={handleCheckboxClick}
+          className="absolute top-3 right-3 z-30 flex h-6 w-6 cursor-pointer items-center justify-center border border-white/20 bg-black/80 backdrop-blur transition-all hover:border-white"
+        >
+          {isSelected && <Check size={14} className="text-white" />}
+        </button>
+      )}
 
       {/* Video Thumbnail */}
       <div className="relative mb-4 aspect-video overflow-hidden border border-white/5 bg-[#111]">

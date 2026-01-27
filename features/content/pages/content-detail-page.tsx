@@ -18,6 +18,7 @@ import {
   useApproveContents,
   useContent,
   useContentDetails,
+  usePublishContent,
   useRejectContent,
   useRejectContents,
 } from '../hooks/useContent';
@@ -65,7 +66,8 @@ function DetailPageComponent() {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [_pendingRejectId, setPendingRejectId] = useState<string | null>(null);
 
-  const scheduleContentMutation = useScheduleContent();
+  const { mutate: scheduleContent, isPending: isSchedulingContent } = useScheduleContent();
+  const { mutate: publishContent, isPending: isPublishingContent } = usePublishContent();
 
   const approveContentHandler = () => {
     if (!item) return;
@@ -90,6 +92,27 @@ function DetailPageComponent() {
     );
   };
 
+  const publishContentHandler = () => {
+    if (!item) return;
+    const toastId = toast.loading(`Đang đăng nội dung ${item.id}...`);
+    publishContent(
+      {
+        reel_ids: [item.id],
+      },
+      {
+        onSuccess: () => {
+          toast.dismiss(toastId);
+          toast.success('Đăng nội dung thành công');
+          navigate({ to: '/content' });
+        },
+        onError: () => {
+          toast.dismiss(toastId);
+          toast.error('Đăng nội dung thất bại');
+        },
+      }
+    );
+  };
+
   const handleUpdateStatus = (nextStatus: ContentStatus) => {
     if (!item) return;
     switch (nextStatus) {
@@ -98,6 +121,9 @@ function DetailPageComponent() {
         break;
       case ContentStatus.APPROVED:
         approveContentHandler();
+        break;
+      case ContentStatus.PUBLISHED:
+        publishContentHandler();
         break;
       default:
         break;
@@ -233,10 +259,11 @@ function DetailPageComponent() {
 
     const toastId = toast.loading('ĐANG_LÊN_LỊCH...');
 
-    scheduleContentMutation.mutate(
+    scheduleContent(
       {
-        contentId: item.content_id,
-        scheduledTime,
+        reel_id: item.id,
+        scheduled_at: scheduledTime,
+        approving_status: searchParams?.approving_status as string,
       },
       {
         onSuccess: () => {
@@ -388,21 +415,32 @@ function DetailPageComponent() {
 
         {/* ACTIONS */}
         <div className="actions">
-          <Button
-            variant="destructive"
-            onClick={() => handleUpdateStatus(ContentStatus.REJECTED)}
-            disabled={isRejected}
-          >
-            TỪ CHỐI
-          </Button>
+          {item.status === ContentStatus.PENDING_REVIEW && (
+            <Button
+              variant="destructive"
+              onClick={() => handleUpdateStatus(ContentStatus.REJECTED)}
+              disabled={isRejected}
+            >
+              TỪ CHỐI
+            </Button>
+          )}
           {item.status !== ContentStatus.PENDING_REVIEW && (
             <Button
               variant="outline"
               onClick={() => setIsScheduleModalOpen(true)}
-              disabled={item.status === ContentStatus.PUBLISHED}
+              disabled={item.status === ContentStatus.PUBLISHED || isSchedulingContent}
               className="border-white/20 text-white hover:bg-white/10"
             >
               LÊN LỊCH
+            </Button>
+          )}
+          {item.status !== ContentStatus.PENDING_REVIEW && (
+            <Button
+              variant="default"
+              onClick={() => handleUpdateStatus(ContentStatus.APPROVED)}
+              disabled={isPublishingContent}
+            >
+              Đăng ngay
             </Button>
           )}
           {item.status === ContentStatus.PENDING_REVIEW && (

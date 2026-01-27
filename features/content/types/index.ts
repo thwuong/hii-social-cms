@@ -8,7 +8,7 @@ import { Pagination } from '@/lib/types/api';
 
 export * from '@/shared/types';
 export interface PublishContentPayload {
-  reel_id: string[];
+  reel_ids: string[];
 }
 
 export interface ScheduleContentPayload {
