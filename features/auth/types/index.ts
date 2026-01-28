@@ -4,6 +4,8 @@
  * Re-export shared types for auth feature
  */
 
+import { UserRole } from '@/shared';
+
 export * from '@/shared/types';
 
 export interface User {
@@ -16,6 +18,7 @@ export interface User {
   gender: string;
   createdAt: string;
   updatedAt: string;
+  role?: UserRole;
 }
 export interface LoginResponse {
   accessToken: string;

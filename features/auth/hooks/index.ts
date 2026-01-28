@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import authService from '../services/auth-service';
 import { LoginFormData, RegisterFormData } from '../schemas/auth.schema';
 import { useAuthStore } from '../stores/useAuthStore';
+import { UserRole } from '..';
 
 export const useLogin = () => {
   const { login } = useAuthStore();
@@ -10,7 +11,14 @@ export const useLogin = () => {
   const loginMutation = useMutation({
     mutationFn: (data: LoginFormData) => authService.login(data.username, data.password),
     onSuccess: (data) => {
-      login(data.user, data.accessToken, data.refreshToken);
+      login(
+        {
+          ...data.user,
+          role: UserRole.ADMIN,
+        },
+        data.accessToken,
+        data.refreshToken
+      );
     },
   });
 
@@ -38,7 +46,14 @@ export const useRegister = () => {
   const registerMutation = useMutation({
     mutationFn: (data: RegisterFormData) => authService.register(data),
     onSuccess: (data) => {
-      login(data.user, data.accessToken, data.refreshToken);
+      login(
+        {
+          ...data.user,
+          role: UserRole.ADMIN,
+        },
+        data.accessToken,
+        data.refreshToken
+      );
     },
   });
 
@@ -57,7 +72,10 @@ export const useGetCurrentUser = () => {
 
   useEffect(() => {
     if (getCurrentUserQuery.data) {
-      updateUser(getCurrentUserQuery.data);
+      updateUser({
+        ...getCurrentUserQuery.data,
+        role: UserRole.ADMIN,
+      });
     }
   }, [getCurrentUserQuery.data, updateUser]);
 
