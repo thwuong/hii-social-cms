@@ -5,6 +5,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ArrowUpRight, Zap } from 'lucide-react';
 import { useMemo } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
+import { DashboardSkeleton } from '@/shared/components';
 import { CustomTooltip, KPICard, StatItem } from '../components';
 import { useDashboardStats, useDashboardTimeseries } from '../hooks';
 import { TimeseriesItem } from '../types';
@@ -12,8 +13,10 @@ import { TimeseriesItem } from '../types';
 function DashboardPage() {
   const navigate = useNavigate();
 
-  const { data: stats } = useDashboardStats();
-  const { data: timeseries } = useDashboardTimeseries();
+  const { data: stats, isLoading: isLoadingStats } = useDashboardStats();
+  const { data: timeseries, isLoading: isLoadingTimeseries } = useDashboardTimeseries();
+
+  const isLoading = isLoadingStats || isLoadingTimeseries;
 
   const handleNavigate = (filter: { status?: string; source?: string }) => {
     if (filter.status === ContentStatus.DRAFT) {
@@ -59,6 +62,11 @@ function DashboardPage() {
       count,
     }));
   }, [timeseries]);
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -186,14 +194,18 @@ function DashboardPage() {
         />
 
         {/* Create New Action */}
-        <div className="group relative flex cursor-pointer flex-col justify-between overflow-hidden bg-white p-8 transition-colors hover:bg-zinc-200">
+        <button
+          type="button"
+          onClick={() => navigate({ to: '/create' })}
+          className="group relative flex cursor-pointer flex-col justify-between overflow-hidden bg-white p-8 text-left transition-colors hover:bg-zinc-200"
+        >
           <div className="flex items-start justify-between">
             <Typography variant="tiny" className="text-black uppercase">
               THAO TÁC
             </Typography>
             <Zap className="h-4 w-4 text-black" />
           </div>
-          <div onClick={() => navigate({ to: '/create' })}>
+          <div>
             <Typography variant="h3" size="xlarge" className="mb-1 text-black">
               Tạo Mới
             </Typography>
@@ -201,7 +213,7 @@ function DashboardPage() {
               THỦ CÔNG
             </Typography>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );
