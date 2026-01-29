@@ -57,6 +57,12 @@ function DetailPageComponent() {
     id: contentId,
     approving_status: searchParams?.approving_status as string,
   });
+
+  // Count items eligible for approve/reject
+  const batchApproveCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
+
+  const batchRejectCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
+
   const navigate = useNavigate();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -78,9 +84,9 @@ function DetailPageComponent() {
     });
   };
 
-  const approveContentHandler = () => {
+  const handleApproveContent = () => {
     if (!item) return;
-    const toastId = toast.loading(`Duyệt 1 nội dung ...`);
+    const toastId = toast.loading(`Đang duyệt nội dung...`);
 
     approveContents(
       {
@@ -96,7 +102,8 @@ function DetailPageComponent() {
         onSuccess: () => {
           toast.dismiss(toastId);
           toast.success('Duyệt nội dung thành công');
-          const nextItem = realContent?.find((c) => c.id !== item.id);
+          const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
+          const nextItem = realContent?.[itemIndex + 1];
           if (nextItem) {
             navigate({
               to: '/content/detail/$contentId',
@@ -106,6 +113,7 @@ function DetailPageComponent() {
           } else {
             navigate({ to: '/content' });
           }
+          setSelectedCategories([]);
         },
         onError: () => {
           toast.dismiss(toastId);
@@ -115,9 +123,9 @@ function DetailPageComponent() {
     );
   };
 
-  const publishContentHandler = () => {
+  const handlePublishContent = () => {
     if (!item) return;
-    const toastId = toast.loading(`Đang đăng nội dung ${item.id}...`);
+    const toastId = toast.loading(`Đang đăng nội dung...`);
     publishContent(
       {
         reel_ids: [item.id],
@@ -126,7 +134,8 @@ function DetailPageComponent() {
         onSuccess: () => {
           toast.dismiss(toastId);
           toast.success('Đăng nội dung thành công');
-          const nextItem = realContent?.find((c) => c.id !== item.id);
+          const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
+          const nextItem = realContent?.[itemIndex + 1];
           if (nextItem) {
             navigate({
               to: '/content/detail/$contentId',
@@ -145,23 +154,6 @@ function DetailPageComponent() {
     );
   };
 
-  const handleUpdateStatus = (nextStatus: ContentStatus) => {
-    if (!item) return;
-    switch (nextStatus) {
-      case ContentStatus.REJECTED:
-        setIsRejectModalOpen(true);
-        break;
-      case ContentStatus.APPROVED:
-        approveContentHandler();
-        break;
-      case ContentStatus.PUBLISHED:
-        publishContentHandler();
-        break;
-      default:
-        break;
-    }
-  };
-
   const handleConfirmReject = (reason: string) => {
     if (item) {
       rejectContents(
@@ -174,7 +166,8 @@ function DetailPageComponent() {
             toast.success('Từ chối nội dung thành công');
             setIsRejectModalOpen(false);
             setPendingRejectId(null);
-            const nextItem = realContent?.find((c) => c.id !== item.id);
+            const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
+            const nextItem = realContent?.[itemIndex + 1];
             if (nextItem) {
               navigate({
                 to: '/content/detail/$contentId',
@@ -184,6 +177,7 @@ function DetailPageComponent() {
             } else {
               navigate({ to: '/content' });
             }
+            setSelectedCategories([]);
           },
           onError: () => {
             toast.error('Từ chối nội dung thất bại');
@@ -235,6 +229,7 @@ function DetailPageComponent() {
             description: `Đã duyệt ${eligibleApprovals.length} nội dung`,
           });
           setSelectedIds([]);
+          setSelectedCategories([]);
           const nextItem = realContent?.find((c) => !eligibleApprovals.includes(c));
           if (nextItem) {
             navigate({
@@ -292,7 +287,6 @@ function DetailPageComponent() {
           toast.success('TỪ CHỐI THÀNH CÔNG', {
             description: `Đã từ chối ${eligibleRejections.length} nội dung`,
           });
-          setSelectedIds([]);
           setIsBatchRejectModalOpen(false);
           const nextItem = realContent?.find((c) => !eligibleRejections.includes(c));
           if (nextItem) {
@@ -304,6 +298,7 @@ function DetailPageComponent() {
           } else {
             navigate({ to: '/content' });
           }
+          setSelectedIds([]);
         },
         onError: () => {
           toast.dismiss(toastId);
@@ -314,11 +309,6 @@ function DetailPageComponent() {
       }
     );
   };
-
-  // Count items eligible for approve/reject
-  const batchApproveCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
-
-  const batchRejectCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
 
   const handleScheduleConfirm = (scheduledTime: string) => {
     if (!item) return;
@@ -339,7 +329,9 @@ function DetailPageComponent() {
             duration: 4000,
           });
           setIsScheduleModalOpen(false);
-          const nextItem = realContent?.find((c) => c.id !== item.id);
+          setSelectedCategories([]);
+          const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
+          const nextItem = realContent?.[itemIndex + 1];
           if (nextItem) {
             navigate({
               to: '/content/detail/$contentId',
@@ -359,6 +351,23 @@ function DetailPageComponent() {
         },
       }
     );
+  };
+
+  const handleUpdateStatus = (nextStatus: ContentStatus) => {
+    if (!item) return;
+    switch (nextStatus) {
+      case ContentStatus.REJECTED:
+        setIsRejectModalOpen(true);
+        break;
+      case ContentStatus.APPROVED:
+        handleApproveContent();
+        break;
+      case ContentStatus.PUBLISHED:
+        handlePublishContent();
+        break;
+      default:
+        break;
+    }
   };
 
   if (isLoadingContentDetails) {
