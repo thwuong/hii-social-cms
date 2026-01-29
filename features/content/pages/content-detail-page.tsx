@@ -170,11 +170,15 @@ function DetailPageComponent() {
           toast.success('Đăng nội dung thành công');
           const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
           const nextItem = realContent?.[itemIndex + 1];
-          if (nextItem) {
+          const previousItem = realContent?.[itemIndex - 1];
+          if (nextItem || previousItem) {
+            const nextItemId = nextItem?.id || previousItem?.id;
+            const nextItemApprovingStatus =
+              nextItem?.approving_status || previousItem?.approving_status;
             navigate({
               to: '/content/detail/$contentId',
-              params: { contentId: nextItem.id },
-              search: { approving_status: nextItem?.approving_status as string },
+              params: { contentId: nextItemId },
+              search: { approving_status: nextItemApprovingStatus as string },
             });
           } else {
             navigate({ to: '/content' });
