@@ -35,6 +35,8 @@ interface ContentState {
   };
   selectedIds: string[];
   contentDetails: ContentItem | null;
+  viewMode: 'table' | 'grid';
+  setViewMode: (mode: 'table' | 'grid') => void;
 
   setFilters: (key: keyof ContentState['filters'], value: any) => void;
   setSelectedIds: (ids: string[]) => void;
@@ -53,6 +55,8 @@ export const useContentStore = create<ContentState>()(
       filters: defaultFilters,
       selectedIds: [],
       contentDetails: null,
+      viewMode: 'grid',
+      setViewMode: (mode: 'table' | 'grid') => set({ viewMode: mode }),
       setFilters: (key: keyof ContentState['filters'], value: any) =>
         set((state) => ({ filters: { ...state.filters, [key]: value } })),
       setSelectedIds: (ids: string[]) => set({ selectedIds: ids }),

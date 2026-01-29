@@ -84,7 +84,7 @@ function Media({ item, onView, isSelected, onToggleSelect }: MediaProps) {
           </Badge>
         )}
       </div>
-      <div className="absolute top-3 left-4">
+      <div className="absolute top-4 left-4 flex size-fit">
         <Badge
           className={cn('cursor-pointer', STATUS_COLORS[item.status])}
           onClick={() => onView()}

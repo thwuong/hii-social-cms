@@ -255,7 +255,7 @@ function ReportListPage() {
           <div className="group relative">
             <Search className="absolute top-2.5 left-3 h-4 w-4 text-zinc-600 transition-colors group-hover:text-white" />
             <Input
-              placeholder="TÌM_KIẾM_BÁO_CÁO..."
+              placeholder="TÌM KIẾM..."
               className="h-10 border-white/10 bg-black pl-10 font-mono text-xs text-white uppercase focus:border-white"
               value={searchQuery}
             />

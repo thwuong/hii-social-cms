@@ -6,7 +6,7 @@ const contentSearchSchema = z.object({
   sort: z.string().optional().default('created_at'),
   sort_order: z.string().optional().default('asc'),
   approving_status: z.string().optional().default(''),
-  tags: z.array(z.string()).optional().default([]),
+  categories: z.array(z.string()).optional().default([]),
   platform: z.string().optional().default(''),
 });
 
