@@ -55,6 +55,7 @@ export const useCreateContent = () => {
     mutationFn: ({ data }: { data: ContentSchema }) => contentService.createContent(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.contentCrawl.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.content.all });
     },
   });
 };
