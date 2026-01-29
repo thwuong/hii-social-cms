@@ -6,12 +6,7 @@ import { ContentGrid, ContentGridSkeleton, ContentTableSkeleton } from '@/shared
 import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
 import { useNavigate, useRouteContext, useSearch } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import {
-  ContentHeader,
-  FloatingBatchActionBar,
-  RejectConfirmationModal,
-  useContentContext,
-} from '../components';
+import { ContentHeader, FloatingBatchActionBar, RejectConfirmationModal } from '../components';
 import Media from '../components/media';
 import { useApproveContents, useContent, useRejectContents } from '../hooks/useContent';
 import { ContentSearchSchema } from '../schemas';
@@ -45,7 +40,6 @@ function ContentPageComponent() {
     strict: false,
   });
 
-  const { categories } = useContentContext();
   const filters: ContentSearchSchema = useSearch({ strict: false });
 
   const { selectedIds, setSelectedIds, viewMode } = useContentStore((state) => state);
@@ -85,8 +79,6 @@ function ContentPageComponent() {
     }
   };
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
   const handleBatchApprove = () => {
     const eligibleApprovals = items?.filter((item: ContentItem) => selectedIds.includes(item.id));
 
@@ -101,7 +93,6 @@ function ContentPageComponent() {
 
     const reelIds = eligibleApprovals.map((item) => ({
       reel_id: item.id,
-      categories: selectedCategories,
     }));
 
     approveContents(
@@ -246,12 +237,7 @@ function ContentPageComponent() {
         onReject={handleBatchReject}
         onCancel={() => {
           setSelectedIds([]);
-          setSelectedCategories([]);
         }}
-        categories={categories.map((cat) => cat.name)}
-        showCategorySelector
-        onCategoriesChange={(cats: string[]) => setSelectedCategories(cats)}
-        selectedCategories={selectedCategories}
       />
 
       {/* Batch Reject Confirmation Modal */}

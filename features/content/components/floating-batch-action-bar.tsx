@@ -1,5 +1,4 @@
 import { Button } from '@/shared/ui';
-import { Check, Tag, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export interface FloatingBatchActionBarProps {
@@ -17,16 +16,10 @@ export interface FloatingBatchActionBarProps {
   onReject: () => void;
   onCancel: () => void;
 
-  // Categories (optional)
-  categories?: string[];
-  onCategoriesChange?: (categories: string[]) => void;
-
   // Customization
   approveLabel?: string;
   rejectLabel?: string;
   cancelLabel?: string;
-  showCategorySelector?: boolean;
-  selectedCategories?: string[];
 }
 
 /**
@@ -56,17 +49,10 @@ export function FloatingBatchActionBar({
   onApprove,
   onReject,
   onCancel,
-  categories = [],
-  onCategoriesChange,
   approveLabel = 'DUYỆT',
   rejectLabel = 'TỪ CHỐI',
   cancelLabel = 'HỦY',
-  showCategorySelector = false,
-  selectedCategories: initialSelectedCategories = [],
 }: FloatingBatchActionBarProps) {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    initialSelectedCategories || []
-  );
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -87,35 +73,6 @@ export function FloatingBatchActionBar({
     };
   }, [isCategoryDropdownOpen]);
 
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories((prev) => {
-      const newCategories = prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category];
-
-      // Notify parent
-      if (onCategoriesChange) {
-        onCategoriesChange(newCategories);
-      }
-
-      return newCategories;
-    });
-  };
-
-  const handleClearCategories = () => {
-    setSelectedCategories([]);
-    if (onCategoriesChange) {
-      onCategoriesChange([]);
-    }
-  };
-
-  useEffect(() => {
-    if (initialSelectedCategories) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedCategories(initialSelectedCategories);
-    }
-  }, [initialSelectedCategories]);
-
   if (selectedCount === 0) return null;
 
   return (
@@ -125,81 +82,9 @@ export function FloatingBatchActionBar({
 
       <div className="h-4 w-[1px] bg-white/20" />
 
-      {/* Category Selector (Optional) */}
-      {showCategorySelector && categories.length > 0 && (
-        <>
-          <div ref={dropdownRef} className="relative">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
-            >
-              <Tag size={14} />
-              <span>
-                DANH MỤC {selectedCategories.length > 0 && `(${selectedCategories.length})`}
-              </span>
-            </Button>
-
-            {/* Dropdown Menu */}
-            {isCategoryDropdownOpen && (
-              <div className="absolute bottom-full left-0 mb-2 w-66 border border-white/20 bg-zinc-900 shadow-2xl">
-                {/* Header */}
-                <div className="flex items-center justify-between border-b border-white/10 p-3">
-                  <span className="font-mono text-xs text-white uppercase">Chọn danh mục</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsCategoryDropdownOpen(false)}
-                    className="text-zinc-400 transition-colors hover:text-white"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-
-                {/* Categories List */}
-                <div className="max-h-64 overflow-y-auto">
-                  {categories.map((category) => {
-                    const isSelected = selectedCategories.includes(category);
-                    return (
-                      <button
-                        key={category}
-                        type="button"
-                        onClick={() => handleCategoryToggle(category)}
-                        className="flex w-full items-center justify-between p-3 font-mono text-xs text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
-                      >
-                        <span>{category}</span>
-                        {isSelected && <Check size={14} className="text-green-500" />}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Footer */}
-                {selectedCategories.length > 0 && (
-                  <div className="border-t border-white/10 p-2">
-                    <button
-                      type="button"
-                      onClick={handleClearCategories}
-                      className="w-full bg-zinc-800 p-2 font-mono text-xs text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-white"
-                    >
-                      XÓA TẤT CẢ
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="h-4 w-[1px] bg-white/20" />
-        </>
-      )}
-
       {/* Approve Button */}
       {approveCount !== undefined && (
-        <Button
-          variant="default"
-          onClick={onApprove}
-          disabled={approveCount === 0 || isApproving || selectedCategories.length === 0}
-        >
+        <Button variant="default" onClick={onApprove} disabled={approveCount === 0 || isApproving}>
           {isApproving ? `ĐANG ${approveLabel}...` : `${approveLabel} (${approveCount || 0})`}
         </Button>
       )}
@@ -221,7 +106,6 @@ export function FloatingBatchActionBar({
         variant="ghost"
         className="text-zinc-400 hover:text-white"
         onClick={() => {
-          handleClearCategories();
           onCancel();
         }}
       >

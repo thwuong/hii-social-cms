@@ -155,6 +155,8 @@ export interface Reel {
   total_comments: number;
   oldest_unread_comment: number;
   liked: boolean;
+  platforms: string[];
+  categories: string[];
 }
 
 // Platform Types
@@ -200,7 +202,6 @@ export interface Category {
 export interface ApproveContentPayload {
   reason: string;
   reel_id: string;
-  categories: string[];
 }
 
 export interface ApproveContentBatchPayload {
@@ -208,7 +209,6 @@ export interface ApproveContentBatchPayload {
   reel_ids: [
     {
       reel_id: string;
-      categories: string[];
     },
   ];
 }

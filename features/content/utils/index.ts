@@ -43,6 +43,7 @@ export const transformCrawlContent = (content: Video): ContentItem => {
     visibility: 'public',
     moderation_notes: '',
     details_link: `/review/detail`,
+    categories: [],
   };
 };
 
@@ -57,7 +58,7 @@ export const transformReelContent = (content: Reel): ContentItem => {
     media_url: content.media?.[0].url,
     source_type: SourceType.MANUAL,
     source_platform: content.type as SourcePlatform,
-    target_platforms: content.tags as SourcePlatform[],
+    target_platforms: content.platforms as SourcePlatform[],
     original_source_url: '',
     created_at: content.created_at,
     created_by: content.updated_by,
@@ -69,6 +70,7 @@ export const transformReelContent = (content: Reel): ContentItem => {
     moderation_notes: '',
     details_link: `/content/detail`,
     scheduled_at: content.scheduled_at,
+    categories: content.categories || [],
   };
 };
 

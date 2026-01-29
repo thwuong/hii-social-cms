@@ -59,6 +59,7 @@ export interface ContentItem {
   thumbnail_url?: string;
   details_link?: string;
   scheduled_at?: string;
+  categories?: string[];
 }
 export interface User {
   id: string;

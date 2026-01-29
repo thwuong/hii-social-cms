@@ -40,7 +40,6 @@ function DetailPageComponent() {
     isFetchingNextPage,
   } = useContent(searchParams?.approving_status as ContentStatus);
 
-  const { categories } = useContentContext();
   // Batch operations
   const { mutate: approveContents, isPending: isApprovingBatch } = useApproveContents();
   const { mutate: rejectContents, isPending: isRejectingBatch } = useRejectContents();
@@ -95,8 +94,6 @@ function DetailPageComponent() {
 
   const navigate = useNavigate();
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [isBatchRejectModalOpen, setIsBatchRejectModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
@@ -104,15 +101,6 @@ function DetailPageComponent() {
 
   const { mutate: scheduleContent, isPending: isSchedulingContent } = useScheduleContent();
   const { mutate: publishContent, isPending: isPublishingContent } = usePublishContent();
-
-  const handleToggleCategory = (categoryId: string) => {
-    setSelectedCategories((prev) => {
-      if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId);
-      }
-      return [...prev, categoryId];
-    });
-  };
 
   const handleApproveContent = () => {
     if (!item) return;
@@ -123,7 +111,6 @@ function DetailPageComponent() {
         reel_ids: [
           {
             reel_id: item.id,
-            categories: selectedCategories,
           },
         ],
         reason: 'Ok',
@@ -147,7 +134,6 @@ function DetailPageComponent() {
           } else {
             navigate({ to: '/content' });
           }
-          setSelectedCategories([]);
         },
         onError: () => {
           toast.dismiss(toastId);
@@ -219,7 +205,6 @@ function DetailPageComponent() {
             } else {
               navigate({ to: '/content' });
             }
-            setSelectedCategories([]);
           },
           onError: () => {
             toast.error('Từ chối nội dung thất bại');
@@ -255,7 +240,6 @@ function DetailPageComponent() {
     const reelIds = eligibleApprovals.map((contentItem) => {
       return {
         reel_id: contentItem.id,
-        categories: selectedCategories,
       };
     });
 
@@ -271,7 +255,6 @@ function DetailPageComponent() {
             description: `Đã duyệt ${eligibleApprovals.length} nội dung`,
           });
           setSelectedIds([]);
-          setSelectedCategories([]);
           const nextItem = realContent?.find((c) => !eligibleApprovals.includes(c));
           if (nextItem) {
             navigate({
@@ -371,7 +354,6 @@ function DetailPageComponent() {
             duration: 4000,
           });
           setIsScheduleModalOpen(false);
-          setSelectedCategories([]);
           const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
           const nextItem = realContent?.[itemIndex + 1];
           const previousItem = realContent?.[itemIndex - 1];
@@ -521,12 +503,30 @@ function DetailPageComponent() {
             MẠNG LƯỚI PHÂN PHỐI
           </Typography>
           <div className="flex flex-wrap gap-1.5">
-            <Badge variant="outline">
-              <Globe size={10} />
-              {item.category}
-            </Badge>
+            {item.target_platforms.map((platform: string) => (
+              <Badge variant="outline" key={platform}>
+                <Globe size={10} />
+                {platform}
+              </Badge>
+            ))}
           </div>
         </div>
+
+        {/* CATEGORIES */}
+        {!!item.categories?.length && (
+          <div className="flex flex-col gap-2">
+            <Typography variant="tiny" className="text-muted-foreground font-medium">
+              DANH MỤC
+            </Typography>
+            <div className="flex flex-wrap gap-1.5">
+              {item.categories.map((category: string) => (
+                <Badge variant="outline" key={category}>
+                  {category}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* TAGS */}
         {!!item.tags?.length && (
@@ -538,33 +538,6 @@ function DetailPageComponent() {
               {item.tags?.map((tag: string) => (
                 <Badge key={tag} variant="outline">
                   {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* CATEGORIES */}
-        {!!categories?.length && item.status === ContentStatus.PENDING_REVIEW && (
-          <div className="flex flex-col gap-2">
-            <Typography variant="tiny" className="text-muted-foreground font-medium">
-              DANH MỤC
-            </Typography>
-            <Typography
-              variant="tiny"
-              className="text-toast-warning flex items-center gap-2 font-medium"
-            >
-              <AlertCircle size={10} /> Vui lòng chọt ít nhất 1 danh mục để duyệt nội dung
-            </Typography>
-            <div className="flex flex-wrap gap-1.5">
-              {categories.map((category) => (
-                <Badge
-                  key={category.id}
-                  variant={selectedCategories.includes(category.name) ? 'default' : 'outline'}
-                  onClick={() => handleToggleCategory(category.name)}
-                  className="cursor-pointer transition-colors"
-                >
-                  {category.name}
                 </Badge>
               ))}
             </div>
@@ -613,7 +586,7 @@ function DetailPageComponent() {
             <Button
               variant="default"
               onClick={() => handleUpdateStatus(ContentStatus.APPROVED)}
-              disabled={isApprovingBatch || selectedCategories.length === 0}
+              disabled={isApprovingBatch}
             >
               {isApprovingBatch ? 'ĐANG DUYỆT...' : 'DUYỆT'}
             </Button>
@@ -645,7 +618,6 @@ function DetailPageComponent() {
 
       {/* Floating Batch Action Bar */}
       <FloatingBatchActionBar
-        showCategorySelector
         selectedCount={selectedIds.length}
         approveCount={batchApproveCount}
         rejectCount={batchRejectCount}
@@ -655,11 +627,7 @@ function DetailPageComponent() {
         onReject={handleBatchReject}
         onCancel={() => {
           setSelectedIds([]);
-          setSelectedCategories([]);
         }}
-        categories={categories.map((cat) => cat.name)}
-        onCategoriesChange={(cats: string[]) => setSelectedCategories(cats)}
-        selectedCategories={selectedCategories}
       />
     </div>
   );

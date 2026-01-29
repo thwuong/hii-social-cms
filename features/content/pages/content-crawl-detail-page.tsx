@@ -5,7 +5,7 @@ import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
 import { ContentStatus, UserRole } from '@/shared/types';
 import { Badge, Button, Textarea, Typography } from '@/shared/ui';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { AlertTriangle, Globe, X } from 'lucide-react';
+import { AlertTriangle, Globe, Hash, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
@@ -67,7 +67,7 @@ function DetailPageComponent() {
     }
   }, [contentDetails, crawlContent, hasNextPage, fetchNextPage, isFetched]);
 
-  const allTags = [...(contentDetails?.tags || []), ...categories.map((c) => c.slug)];
+  const allTags = contentDetails?.tags;
   const { register, handleSubmit, setValue, watch } = useForm<ContentSchema>({
     values: contentDetails
       ? {
@@ -80,14 +80,16 @@ function DetailPageComponent() {
           platforms: platforms?.map((p) => p.api_key) || [],
           status: ContentStatus.PRIVATE,
           id: contentDetails?.id || '',
+          categories: [],
         }
       : undefined,
   });
 
   const watchPlatforms = watch('platforms');
   const watchTags = watch('tags');
+  const watchCategories = watch('categories');
 
-  const handleUpdateMetadata = (key: 'platforms' | 'tags', value: string) => {
+  const handleUpdateMetadata = (key: 'platforms' | 'tags' | 'categories', value: any) => {
     const isExist = watch(key).includes(value);
     if (isExist) {
       setValue(
@@ -102,6 +104,7 @@ function DetailPageComponent() {
   const onSubmit = (data: ContentSchema) => {
     const toastId = toast.loading(`Khởi tạo nội dung...`);
     const { id, ...rest } = data;
+
     createContent(
       {
         data: rest,
@@ -267,14 +270,36 @@ function DetailPageComponent() {
           </div>
         </div>
 
+        <div className="space-y-3">
+          <Typography variant="tiny" className="text-muted-foreground font-medium">
+            DANH MỤC
+          </Typography>
+          <div className="flex flex-wrap gap-1">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => handleUpdateMetadata('categories', cat.name)}
+                className={`border px-3 py-1 font-mono text-[10px] transition-all ${
+                  watchCategories.includes(cat.name)
+                    ? 'border-white bg-white text-black'
+                    : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* TAGS */}
         <div className="flex flex-col gap-2">
           <Typography variant="tiny" className="text-muted-foreground font-medium">
             THẺ PHÂN LOẠI
           </Typography>
           <div className="flex flex-wrap gap-1.5">
-            {!allTags.length && <p className="text-muted-foreground">Không có thẻ phân loại</p>}
-            {allTags.map((tag: string) => (
+            {!allTags?.length && <p className="text-muted-foreground">Không có thẻ phân loại</p>}
+            {allTags?.map((tag: string) => (
               <Badge
                 key={tag}
                 variant={watchTags?.includes(tag) ? 'default' : 'outline'}
@@ -307,7 +332,8 @@ function DetailPageComponent() {
               contentDetails.status === ContentStatus.APPROVED ||
               contentDetails.status === ContentStatus.PUBLISHED ||
               !watchPlatforms?.length ||
-              !watchTags?.length
+              !watchTags?.length ||
+              !watchCategories?.length
             }
           >
             DUYỆT
