@@ -24,7 +24,7 @@ function QueueList({
   onToggleSelect,
 }: QueueListProps) {
   return (
-    <div className="custom-scrollbar flex flex-col overflow-y-auto">
+    <div className="custom-scrollbar queue-list flex flex-col overflow-y-auto">
       {queueItems.map((qItem) => (
         <QueueItem
           key={qItem.content_id}
@@ -81,9 +81,10 @@ function QueueItem({ qItem, activeItem, isSelected, onToggleSelect }: QueueItemP
       role="button"
       tabIndex={0}
       className={cn(
-        'group relative flex cursor-pointer items-center gap-3 p-4 transition-all duration-300',
+        'group relative flex w-full cursor-pointer items-center gap-3 p-4 transition-all duration-300',
         activeItem &&
-          'after:bg-accent bg-foreground/5 after:absolute after:top-0 after:bottom-0 after:left-0 after:w-0.5 after:shadow-md'
+          'after:bg-accent bg-foreground/5 after:absolute after:top-0 after:bottom-0 after:left-0 after:w-0.5 after:shadow-md',
+        activeItem && 'queue-item-active'
       )}
       onClick={handleClick}
       onKeyDown={(e) => {
@@ -112,7 +113,7 @@ function QueueItem({ qItem, activeItem, isSelected, onToggleSelect }: QueueItemP
         alt="thumb"
         loading="lazy"
       />
-      <div className="flex flex-1 flex-col gap-2">
+      <div className="flex flex-1 flex-col gap-2 overflow-hidden">
         <Typography className="line-clamp-1 font-bold text-white" variant="small">
           {qItem.title}
         </Typography>

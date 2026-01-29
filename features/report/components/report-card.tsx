@@ -1,7 +1,7 @@
 import { Badge, Typography } from '@/shared/ui';
 import { AlertTriangle, Check, Clock, User } from 'lucide-react';
 import type { ReportStatus, Video } from '../types';
-import { formatDate, getReportStatusColor } from '../utils';
+import { formatDate, getReportStatusColor, REPORT_STATUS_LABELS } from '../utils';
 
 interface ReportCardProps {
   report: Video;
@@ -65,9 +65,9 @@ function ReportCard({ report, onView, isSelected, onToggleSelect }: ReportCardPr
           <Badge variant="destructive" className="font-mono text-[10px] uppercase">
             {report.report_count} BÁO CÁO
           </Badge>
-          <Badge variant="outline" className={`font-mono text-[10px] uppercase ${statusColor}`}>
-            {report.reports[0].status}
-          </Badge>
+          {/* <Badge variant="outline" className={`font-mono text-[10px] uppercase ${statusColor}`}>
+            {REPORT_STATUS_LABELS[report.reports[0].status as ReportStatus]}
+          </Badge> */}
         </div>
 
         {/* Latest Reporter Info */}

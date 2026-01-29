@@ -8,6 +8,20 @@ import {
   Video,
 } from '../types';
 
+const checkScheduledAtValidTime = (scheduledAt: string) => {
+  return new Date(scheduledAt).getTime() > new Date().getTime();
+};
+
+const contentStatus = (content: Reel) => {
+  if (checkScheduledAtValidTime(content.scheduled_at)) {
+    return ContentStatus.SCHEDULED;
+  }
+  if (content.status === ContentStatus.PUBLISHED) {
+    return ContentStatus.PUBLISHED;
+  }
+  return content.approving_status as ContentStatus;
+};
+
 export const transformCrawlContent = (content: Video): ContentItem => {
   return {
     id: content.id.toString(),
@@ -47,13 +61,8 @@ export const transformReelContent = (content: Reel): ContentItem => {
     original_source_url: '',
     created_at: content.created_at,
     created_by: content.updated_by,
-    approving_status: content.scheduled_at
-      ? ContentStatus.SCHEDULED
-      : (content.approving_status as ContentStatus),
-    status:
-      content.status === ContentStatus.PUBLISHED
-        ? content.status
-        : (content.approving_status as ContentStatus),
+    approving_status: content.approving_status as ContentStatus,
+    status: content.approving_status as ContentStatus,
     category: content.type,
     tags: content.tags || [],
     visibility: 'public',

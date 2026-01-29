@@ -26,7 +26,7 @@ function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 flex-col border-r border-white/10 bg-black/80 p-6 backdrop-blur-md sm:flex">
       <div className="mb-16 flex items-center gap-3">
         <div className="h-3 w-3 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
-        <span className="text-xl font-black tracking-tighter text-white">CARBON.</span>
+        <span className="text-xl font-black tracking-tighter text-white">Hii Social CMS.</span>
       </div>
 
       <nav className="flex flex-1 flex-col">

@@ -36,6 +36,12 @@ const typographyVariants = cva('', {
   },
 });
 
+const isTagValid = (variant: string) => {
+  return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'div', 'blockquote', 'code'].includes(
+    variant
+  );
+};
+
 export interface TypographyProps
   extends React.HTMLAttributes<HTMLElement>, VariantProps<typeof typographyVariants> {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'blockquote' | 'code';
@@ -44,7 +50,8 @@ export interface TypographyProps
 const Typography = React.forwardRef<HTMLElement, TypographyProps>(
   ({ className, variant, size, as, ...props }, ref) => {
     // Tự động chọn tag HTML phù hợp với variant
-    const Component = (as || (variant as keyof JSX.IntrinsicElements) || 'p') as React.ElementType;
+    const Component = (as ||
+      (isTagValid(variant as keyof JSX.IntrinsicElements) ? variant : 'p')) as React.ElementType;
 
     return React.createElement(Component, {
       className: cn(typographyVariants({ variant, size, className })),

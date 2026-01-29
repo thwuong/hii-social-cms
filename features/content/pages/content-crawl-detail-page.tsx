@@ -8,6 +8,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { AlertTriangle, Globe, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 import { Queue, useContentContext, WorkflowSteps } from '../components';
 import { useCreateContent } from '../hooks/useContent';
 import { useCrawlContent, useGetContentCrawlerDetails } from '../hooks/useCrawlContent';
@@ -40,7 +41,29 @@ function DetailPageComponent() {
 
   const { platforms, categories } = useContentContext();
 
-  const { data: contentDetails } = useGetContentCrawlerDetails(Number(contentId));
+  const { data: contentDetails, isFetched } = useGetContentCrawlerDetails(Number(contentId));
+
+  useEffect(() => {
+    if (!crawlContent || !contentDetails) return;
+
+    const itemIndex = crawlContent?.findIndex((c) => c.id === contentDetails.id) || 0;
+    if (itemIndex >= 0) {
+      const queueList = document.querySelector('.queue-list');
+      const activeItem = document.querySelector('.queue-item-active');
+      if (activeItem && isFetched) {
+        requestAnimationFrame(() => {
+          const activeItemRect = activeItem.getBoundingClientRect();
+          const top = activeItemRect.top - (queueList?.clientHeight || 0) / 2;
+          queueList?.scrollTo({ top, behavior: 'smooth' });
+        });
+      }
+      return;
+    }
+
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  }, [contentDetails, crawlContent, hasNextPage, fetchNextPage, isFetched]);
 
   const allTags = [...(contentDetails?.tags || []), ...categories.map((c) => c.slug)];
   const { register, handleSubmit, setValue, watch } = useForm<ContentSchema>({

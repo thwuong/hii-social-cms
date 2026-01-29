@@ -4,7 +4,7 @@ import { ContentStatus } from '@/shared/types';
 import { Badge, Button, Typography } from '@/shared/ui';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { AlertCircle, AlertTriangle, Globe, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { STATUS_LABELS } from '@/shared';
 import {
@@ -53,10 +53,37 @@ function DetailPageComponent() {
     threshold: 200,
   });
 
-  const { data: item, isLoading: isLoadingContentDetails } = useContentDetails({
+  const {
+    data: item,
+    isLoading: isLoadingContentDetails,
+    isFetched,
+  } = useContentDetails({
     id: contentId,
     approving_status: searchParams?.approving_status as string,
   });
+
+  useEffect(() => {
+    if (!realContent || !item) return;
+
+    const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
+    if (itemIndex >= 0) {
+      const queueList = document.querySelector('.queue-list');
+      const activeItem = document.querySelector('.queue-item-active');
+      if (activeItem && isFetched) {
+        requestAnimationFrame(() => {
+          const activeItemRect = activeItem.getBoundingClientRect();
+          // scroll to the active item, but keep the center of the queue visible
+          const top = activeItemRect.top - (queueList?.clientHeight || 0) / 2;
+          queueList?.scrollTo({ top, behavior: 'smooth' });
+        });
+      }
+      return;
+    }
+
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  }, [item, realContent, hasNextPage, fetchNextPage, isFetched]);
 
   // Count items eligible for approve/reject
   const batchApproveCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;

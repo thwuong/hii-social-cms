@@ -34,7 +34,7 @@ export const useContent = (overrideStatus?: ContentStatus) => {
     getNextPageParam: (lastPage: GetContentResponse, allPages: GetContentResponse[]) => {
       const totalPages = allPages[allPages.length - 1].total_page;
       const currentPage = lastPage.page;
-      return currentPage < totalPages ? currentPage + 1 : undefined;
+      return totalPages > currentPage ? currentPage + 1 : undefined;
     },
     placeholderData: keepPreviousData,
     initialPageParam: 1,

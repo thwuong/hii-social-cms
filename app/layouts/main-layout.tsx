@@ -16,7 +16,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-white/10 bg-black/80 px-4 backdrop-blur sm:hidden">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-white" />
-            <span className="font-bold tracking-tighter text-white">CARBON.</span>
+            <span className="font-bold tracking-tighter text-white">Hii Social CMS.</span>
           </div>
         </header>
 

@@ -237,7 +237,7 @@ function ReportListPage() {
               <button
                 key={option.id}
                 type="button"
-                onClick={() => setFilters('status', option.id as any)}
+                // onClick={() => setFilters('status', option.id as any)}
                 className={`border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
                   filters.cursor === option.id
                     ? 'border-white bg-white text-black'
