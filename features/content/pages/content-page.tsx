@@ -3,9 +3,10 @@ import { useState } from 'react';
 import ContentTable from '@/features/content/components/content-table';
 import { ApproveContentBatchPayload, ContentItem, ContentStatus } from '@/features/content/types';
 import { ContentGrid, ContentGridSkeleton, ContentTableSkeleton } from '@/shared/components';
-import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
+// import { useInfiniteScroll } from '@/shared/hooks';
 import { useNavigate, useRouteContext, useSearch } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { ContentHeader, FloatingBatchActionBar, RejectConfirmationModal } from '../components';
 import Media from '../components/media';
 import { useApproveContents, useContent, useRejectContents } from '../hooks/useContent';
@@ -24,14 +25,6 @@ function ContentPageComponent() {
     isFetchingNextPage,
   } = useContent();
 
-  // Infinite scroll
-  const loadMoreRef = useInfiniteScroll({
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    threshold: 300,
-  });
-
   const {
     service: _service,
     currentUser: _currentUser,
@@ -45,6 +38,13 @@ function ContentPageComponent() {
   const { selectedIds, setSelectedIds, viewMode } = useContentStore((state) => state);
 
   const [isBatchRejectModalOpen, setIsBatchRejectModalOpen] = useState(false);
+
+  // Infinite scroll for Grid view
+  const [loadMoreRef] = useInfiniteScroll({
+    hasNextPage,
+    onLoadMore: fetchNextPage,
+    loading: isFetchingNextPage,
+  });
 
   // Batch mutations
   const { mutate: approveContents, isPending: isApprovingBatch } = useApproveContents();
@@ -200,7 +200,7 @@ function ContentPageComponent() {
           }
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
-          fetchNextPage={fetchNextPage}
+          loadMoreRef={loadMoreRef}
         />
       )}
 

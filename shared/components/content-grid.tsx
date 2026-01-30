@@ -3,7 +3,7 @@ import React from 'react';
 interface ContentGridProps {
   children: React.ReactNode;
   isEmpty: boolean;
-  loadMoreRef?: React.RefObject<HTMLDivElement>;
+  loadMoreRef?: React.Ref<HTMLDivElement>;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
 }

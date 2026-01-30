@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { ImageIcon, LinkIcon, Type, Video } from 'lucide-react';
 import React from 'react';
 
-interface ContentTableProps {
+interface DraftContentTableProps {
   items: ContentItem[];
   onView: (id: ContentItem) => void;
   selectedIds: string[];
@@ -58,12 +58,8 @@ function MediaTypeCell({ row }: { row: ContentItem }) {
 }
 
 // Source Platform Cell Component (outside render)
-function TargetPlatformsCell({ row }: { row: ContentItem }) {
-  return (
-    <div className="font-mono text-[10px] text-zinc-400 uppercase">
-      {row.target_platforms?.join(', ')}
-    </div>
-  );
+function SourcePlatformCell({ row }: { row: ContentItem }) {
+  return <div className="font-mono text-[10px] text-zinc-400 uppercase">{row.source_platform}</div>;
 }
 
 // Status Cell Component (outside render)
@@ -75,6 +71,14 @@ function StatusCell({ row }: { row: ContentItem }) {
   );
 }
 
+// Created At Cell Component (outside render)
+function CreatedAtCell({ row }: { row: ContentItem }) {
+  return (
+    <div className="font-mono text-[10px] text-zinc-400 uppercase">
+      {format(new Date(row.created_at), 'dd/MM/yyyy HH:mm')}
+    </div>
+  );
+}
 // Actions Cell Component (outside render)
 // function ActionsCell() {
 //   return (
@@ -88,13 +92,6 @@ function StatusCell({ row }: { row: ContentItem }) {
 //   );
 // }
 
-function CreatedAtCell({ row }: { row: ContentItem }) {
-  return (
-    <div className="font-mono text-[10px] text-zinc-400 uppercase">
-      {format(new Date(row.created_at), 'dd/MM/yyyy HH:mm')}
-    </div>
-  );
-}
 // Define columns outside component (static configuration)
 const contentTableColumns: DataTableColumn<ContentItem>[] = [
   {
@@ -114,20 +111,12 @@ const contentTableColumns: DataTableColumn<ContentItem>[] = [
     cell: (row) => <MediaTypeCell row={row} />,
   },
   {
-    id: 'target_platforms',
-    header: 'Nơi Đăng',
+    id: 'source_platform',
+    header: 'Nguồn',
     enableSorting: true,
     sortFn: (a, b) => a.source_platform.localeCompare(b.source_platform),
     accessorFn: (row) => row.source_platform,
-    cell: (row) => <TargetPlatformsCell row={row} />,
-  },
-  {
-    id: 'created_at',
-    header: 'Ngày Tạo',
-    enableSorting: true,
-    sortFn: (a, b) => a.created_at.localeCompare(b.created_at),
-    accessorFn: (row) => row.created_at,
-    cell: (row) => <CreatedAtCell row={row} />,
+    cell: (row) => <SourcePlatformCell row={row} />,
   },
   {
     id: 'status',
@@ -136,6 +125,14 @@ const contentTableColumns: DataTableColumn<ContentItem>[] = [
     sortFn: (a, b) => a.status.localeCompare(b.status),
     accessorFn: (row) => row.status,
     cell: (row) => <StatusCell row={row} />,
+  },
+  {
+    id: 'created_at',
+    header: 'Ngày Tạo',
+    enableSorting: true,
+    sortFn: (a, b) => a.created_at.localeCompare(b.created_at),
+    accessorFn: (row) => row.created_at,
+    cell: (row) => <CreatedAtCell row={row} />,
   },
   // {
   //   id: 'actions',
@@ -146,7 +143,7 @@ const contentTableColumns: DataTableColumn<ContentItem>[] = [
   // },
 ];
 
-const ContentTable: React.FC<ContentTableProps> = ({
+const DraftContentTable: React.FC<DraftContentTableProps> = ({
   items,
   onView,
   selectedIds,
@@ -174,4 +171,4 @@ const ContentTable: React.FC<ContentTableProps> = ({
   );
 };
 
-export default ContentTable;
+export default DraftContentTable;

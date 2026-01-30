@@ -14,16 +14,11 @@ export function ContentTableSkeleton({ rows = 10 }: ContentTableSkeletonProps) {
       <table className="w-full">
         <thead className="border-b border-white/20 bg-black/80">
           <tr>
-            <th className="p-3 text-left">
-              <div className="h-4 w-4 bg-white/10" />
-            </th>
-            <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Thumbnail</th>
             <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Content</th>
             <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Category</th>
             <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Platform</th>
-            <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Status</th>
             <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Date</th>
-            <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Actions</th>
+            <th className="p-3 text-left font-mono text-xs text-zinc-500 uppercase">Status</th>
           </tr>
         </thead>
         <tbody>

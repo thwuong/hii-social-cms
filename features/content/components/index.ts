@@ -15,3 +15,5 @@ export { ContentProvider, useContentContext } from './content-context';
 export { ScheduleModal } from './schedule-modal';
 export { FloatingBatchActionBar } from './floating-batch-action-bar';
 export { default as ContentHeader } from './content-header';
+export { default as DraftContentHeader } from './draft-content-header';
+export { default as DraftContentTable } from './draft-content-table';

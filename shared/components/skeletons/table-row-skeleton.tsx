@@ -7,27 +7,12 @@ import { Skeleton } from './skeleton';
 export function TableRowSkeleton() {
   return (
     <tr className="border-b border-white/10 hover:bg-white/5">
-      {/* Checkbox */}
-      <td className="p-3">
-        <Skeleton className="h-4 w-4" />
-      </td>
-
-      {/* Thumbnail */}
-      <td className="p-3">
-        <Skeleton className="h-16 w-28" />
-      </td>
-
       {/* Content */}
       <td className="p-3">
         <div className="space-y-2">
           <Skeleton className="h-4 w-48" />
           <Skeleton className="h-3 w-32" />
         </div>
-      </td>
-
-      {/* Category */}
-      <td className="p-3">
-        <Skeleton className="h-5 w-20" />
       </td>
 
       {/* Platform */}

@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import Media from '@/features/content/components/media';
 import { ContentItem } from '@/features/content/types';
 import { ContentGridSkeleton, ContentTableSkeleton } from '@/shared/components';
 import ContentGrid from '@/shared/components/content-grid';
-import { useInfiniteScroll } from '@/shared/hooks';
 import { Button } from '@/shared/ui';
 import { useNavigate } from '@tanstack/react-router';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { toast } from 'sonner';
-import { ContentTable, RejectConfirmationModal } from '../components';
+import { DraftContentTable, RejectConfirmationModal } from '../components';
 import DraftContentHeader from '../components/draft-content-header';
 import { useDraftContent, useMakeDraftContentPreview } from '../hooks/useDraftContent';
 import { useDraftContentStore } from '../stores/useDraftContentStore';
@@ -25,14 +25,14 @@ function ContentCrawlPageComponent() {
     isFetchingNextPage,
   } = useDraftContent();
 
-  // Infinite scroll
-  const loadMoreRef = useInfiniteScroll({
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    threshold: 300,
-  });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Infinite scroll for Grid view only
+  const [loadMoreRef] = useInfiniteScroll({
+    hasNextPage,
+    onLoadMore: fetchNextPage,
+    loading: isFetchingNextPage,
+  });
   const [isBatchRejectModalOpen, setIsBatchRejectModalOpen] = useState(false);
 
   const { viewMode } = useDraftContentStore();
@@ -163,13 +163,13 @@ function ContentCrawlPageComponent() {
       {_isLoadingCrawlContent && viewMode === 'table' && <ContentTableSkeleton rows={10} />}
       {_isLoadingCrawlContent && viewMode === 'grid' && <ContentGridSkeleton count={12} />}
       {!_isLoadingCrawlContent && viewMode === 'table' && (
-        <ContentTable
+        <DraftContentTable
           items={crawlContent}
           onView={handleNavigateToDetail}
           selectedIds={selectedIds}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
-          fetchNextPage={fetchNextPage}
+          loadMoreRef={loadMoreRef}
         />
       )}
       {!_isLoadingCrawlContent && viewMode === 'grid' && (
