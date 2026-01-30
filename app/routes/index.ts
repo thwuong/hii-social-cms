@@ -11,3 +11,5 @@ export * from './draft-content';
 export * from './report';
 export * from './report.detail.$reportId';
 export * from './not-found';
+export * from './playlists';
+export * from './playlists.$playlistId';

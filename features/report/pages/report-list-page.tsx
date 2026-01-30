@@ -281,7 +281,7 @@ function ReportListPage() {
         </div>
       )}
       {!isLoading && !!reports?.length && (
-        <div className="grid flex-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid flex-1 grid-rows-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {reports.map((report) => (
             <ReportCard
               key={report.video_id}

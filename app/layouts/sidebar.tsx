@@ -13,6 +13,7 @@ function Sidebar() {
     { id: 'dashboard', path: '/dashboard', label: 'Tổng Quan' },
     { id: 'content', path: '/content', label: 'Tài Nguyên' },
     { id: 'review', path: '/draft', label: 'Xét duyệt tài nguyên' },
+    { id: 'playlists', path: '/playlists', label: 'Danh sách phát' },
     { id: 'report', path: '/report', label: 'Báo Cáo Vi Phạm' },
     { id: 'audit', path: '/audit', label: 'Nhật Ký Hệ Thống' },
   ];

@@ -13,6 +13,8 @@ import {
   reportRoute,
   draftContentDetailRoute,
   draftContentRoute,
+  playlistsRoute,
+  playlistDetailRoute,
 } from '../routes';
 import { mainLayoutRoute } from '../routes/_main';
 import { rootRoute, type RouterContext } from '../routes/_root';
@@ -43,6 +45,8 @@ const routeTree = rootRoute.addChildren([
     draftContentDetailRoute,
     reportRoute,
     reportDetailRoute,
+    playlistsRoute,
+    playlistDetailRoute,
   ]),
 ]);
 
