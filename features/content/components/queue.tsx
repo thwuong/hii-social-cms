@@ -6,7 +6,7 @@ import { Check, ListVideo } from 'lucide-react';
 type QueueListProps = {
   queueItems: ContentItem[];
   item: ContentItem;
-  loadMoreRef?: React.RefObject<HTMLDivElement>;
+  loadMoreRef?: React.Ref<HTMLDivElement>;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   selectedIds?: string[];
@@ -128,7 +128,7 @@ function QueueItem({ qItem, activeItem, isSelected, onToggleSelect }: QueueItemP
 type QueueProps = {
   queueItems: ContentItem[];
   item: ContentItem;
-  loadMoreRef?: React.RefObject<HTMLDivElement>;
+  loadMoreRef?: React.Ref<HTMLDivElement>;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
 };

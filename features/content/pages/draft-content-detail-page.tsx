@@ -1,7 +1,6 @@
 import { useUser } from '@/features/auth/stores/useAuthStore';
 import { STATUS_LABELS } from '@/shared';
 import { DetailPageSkeleton, FilterSkeleton, VideoPlayer } from '@/shared/components';
-import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll';
 import { ContentStatus, UserRole } from '@/shared/types';
 import { Badge, Button, Textarea, Typography } from '@/shared/ui';
 import { useNavigate, useParams } from '@tanstack/react-router';
@@ -9,6 +8,7 @@ import { AlertTriangle, Globe, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Queue, useContentContext, WorkflowSteps } from '../components';
 import { useCreateContent } from '../hooks/useContent';
 import { useDraftContent, useGetDraftContentDetails } from '../hooks/useDraftContent';
@@ -25,11 +25,10 @@ function DetailPageComponent() {
   } = useDraftContent();
 
   // Infinite scroll for queue
-  const loadMoreRef = useInfiniteScroll({
+  const [loadMoreRef] = useInfiniteScroll({
     hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    threshold: 200,
+    onLoadMore: fetchNextPage,
+    loading: isFetchingNextPage,
   });
 
   const { mutate: createContent } = useCreateContent();

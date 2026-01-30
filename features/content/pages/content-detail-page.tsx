@@ -1,12 +1,12 @@
 import { STATUS_LABELS } from '@/shared';
 import { DetailPageSkeleton, QueueSkeleton, VideoPlayer } from '@/shared/components';
-import { useInfiniteScroll } from '@/shared/hooks';
 import { ContentStatus } from '@/shared/types';
 import { Badge, Button, Typography } from '@/shared/ui';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { AlertTriangle, Globe, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { Queue, RejectConfirmationModal, ScheduleModal, WorkflowSteps } from '../components';
 import {
   useApproveContents,
@@ -37,11 +37,10 @@ function DetailPageComponent() {
   const { mutate: rejectContents, isPending: isRejectingBatch } = useRejectContents();
   const { selectedIds, setSelectedIds } = useContentStore((state) => state);
 
-  const loadMoreRef = useInfiniteScroll({
+  const [loadMoreRef] = useInfiniteScroll({
     hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    threshold: 200,
+    onLoadMore: fetchNextPage,
+    loading: isFetchingNextPage,
   });
 
   const {

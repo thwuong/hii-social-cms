@@ -1,10 +1,10 @@
 import { RejectConfirmationModal } from '@/features/content/components';
-import { useInfiniteScroll } from '@/shared/hooks';
 import { Button, Input, Typography } from '@/shared/ui';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { AlertTriangle, Check, Filter, Search, Tag, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { AcceptConfirmationModal, ReportCard } from '../components';
 import {
   useAcceptReport,
@@ -27,11 +27,10 @@ function ReportListPage() {
   const filters: ReportSearchSchema = useSearch({ strict: false });
   const { data: reports, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useReports();
 
-  const loadMoreRef = useInfiniteScroll({
+  const [loadMoreRef] = useInfiniteScroll({
     hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    threshold: 300,
+    onLoadMore: fetchNextPage,
+    loading: isFetchingNextPage,
   });
 
   const handleFilterStatus = (status: ReportStatus) => {
@@ -165,9 +164,9 @@ function ReportListPage() {
   ];
 
   return (
-    <div className="relative space-y-8">
+    <div className="relative flex h-full flex-col space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="sticky top-0 z-10 flex items-center justify-between bg-black/80 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-8 w-8 text-red-500" />
           <div>
@@ -282,22 +281,19 @@ function ReportListPage() {
         </div>
       )}
       {!isLoading && !!reports?.length && (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {reports.map((report) => (
-              <ReportCard
-                key={report.video_id}
-                report={report}
-                onView={() => handleViewDetail(report.video_id)}
-                isSelected={selectedVideoIds.includes(report.video_id)}
-                onToggleSelect={handleToggleSelect}
-              />
-            ))}
-          </div>
-
+        <div className="grid flex-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {reports.map((report) => (
+            <ReportCard
+              key={report.video_id}
+              report={report}
+              onView={() => handleViewDetail(report.video_id)}
+              isSelected={selectedVideoIds.includes(report.video_id)}
+              onToggleSelect={handleToggleSelect}
+            />
+          ))}
           {/* Infinite Scroll Trigger */}
           {loadMoreRef && (
-            <div ref={loadMoreRef} className="flex justify-center py-8">
+            <div ref={loadMoreRef} className="col-span-full flex justify-center py-8">
               {isFetchingNextPage && (
                 <div className="flex items-center gap-2 font-mono text-[10px] text-white uppercase">
                   <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
@@ -311,7 +307,7 @@ function ReportListPage() {
               )}
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Floating Batch Action Bar */}
