@@ -1,20 +1,13 @@
+import { STATUS_LABELS } from '@/shared';
 import { DetailPageSkeleton, QueueSkeleton, VideoPlayer } from '@/shared/components';
 import { useInfiniteScroll } from '@/shared/hooks';
 import { ContentStatus } from '@/shared/types';
 import { Badge, Button, Typography } from '@/shared/ui';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
-import { AlertCircle, AlertTriangle, Globe, X } from 'lucide-react';
+import { AlertTriangle, Globe, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { STATUS_LABELS } from '@/shared';
-import {
-  FloatingBatchActionBar,
-  Queue,
-  RejectConfirmationModal,
-  ScheduleModal,
-  useContentContext,
-  WorkflowSteps,
-} from '../components';
+import { Queue, RejectConfirmationModal, ScheduleModal, WorkflowSteps } from '../components';
 import {
   useApproveContents,
   useContent,
@@ -25,7 +18,6 @@ import {
 import { useScheduleContent } from '../hooks/useSchedule';
 import { ContentDetailSearchSchema } from '../schemas';
 import { useContentStore } from '../stores/useContentStore';
-import { ApproveContentBatchPayload } from '../types';
 
 function DetailPageComponent() {
   const { contentId } = useParams({ strict: false });
@@ -86,11 +78,6 @@ function DetailPageComponent() {
       fetchNextPage();
     }
   }, [item, realContent, hasNextPage, fetchNextPage, isFetched]);
-
-  // Count items eligible for approve/reject
-  const batchApproveCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
-
-  const batchRejectCount = realContent?.filter((i) => selectedIds.includes(i.id)).length;
 
   const navigate = useNavigate();
 
@@ -212,84 +199,6 @@ function DetailPageComponent() {
         }
       );
     }
-  };
-
-  const handleToggleSelect = (id: string) => {
-    const isExists = selectedIds.includes(id);
-    if (isExists) {
-      setSelectedIds(selectedIds.filter((x) => x !== id));
-    } else {
-      setSelectedIds([...selectedIds, id]);
-    }
-  };
-
-  const handleBatchApprove = () => {
-    const eligibleApprovals = realContent?.filter((contentItem) =>
-      selectedIds.includes(contentItem.id)
-    );
-
-    if (!eligibleApprovals || eligibleApprovals.length === 0) {
-      toast.error('KHÔNG CÓ NỘI DUNG HỢP LỆ', {
-        description: 'Chỉ có thể duyệt nội dung ở trạng thái CHỜ DUYỆT',
-      });
-      return;
-    }
-
-    const toastId = toast.loading(`Đang duyệt ${eligibleApprovals.length} nội dung...`);
-
-    const reelIds = eligibleApprovals.map((contentItem) => {
-      return {
-        reel_id: contentItem.id,
-      };
-    });
-
-    approveContents(
-      {
-        reel_ids: reelIds as ApproveContentBatchPayload['reel_ids'],
-        reason: 'Approved by admin',
-      },
-      {
-        onSuccess: () => {
-          toast.dismiss(toastId);
-          toast.success('DUYỆT THÀNH CÔNG', {
-            description: `Đã duyệt ${eligibleApprovals.length} nội dung`,
-          });
-          setSelectedIds([]);
-          const nextItem = realContent?.find((c) => !eligibleApprovals.includes(c));
-          if (nextItem) {
-            navigate({
-              to: '/content/detail/$contentId',
-              params: { contentId: nextItem.id },
-              search: { approving_status: nextItem?.approving_status as string },
-            });
-          } else {
-            navigate({ to: '/content' });
-          }
-        },
-        onError: () => {
-          toast.dismiss(toastId);
-          toast.error('DUYỆT THẤT BẠI', {
-            description: 'Không thể duyệt nội dung. Vui lòng thử lại.',
-          });
-        },
-      }
-    );
-  };
-
-  const handleBatchReject = () => {
-    const eligibleRejections = realContent?.filter((contentItem) =>
-      selectedIds.includes(contentItem.id)
-    );
-
-    if (!eligibleRejections || eligibleRejections.length === 0) {
-      toast.error('KHÔNG CÓ NỘI DUNG HỢP LỆ', {
-        description: 'Chỉ có thể từ chối nội dung ở trạng thái CHỜ DUYỆT hoặc ĐÃ DUYỆT',
-      });
-      return;
-    }
-
-    // Show confirmation modal
-    setIsBatchRejectModalOpen(true);
   };
 
   const handleConfirmBatchReject = (reason: string) => {
@@ -432,8 +341,6 @@ function DetailPageComponent() {
             hasNextPage={hasNextPage}
             isFetchingNextPage={isFetchingNextPage}
             loadMoreRef={loadMoreRef}
-            selectedIds={selectedIds}
-            onToggleSelect={handleToggleSelect}
           />
         )}
       </aside>
@@ -498,19 +405,21 @@ function DetailPageComponent() {
         </div>
 
         {/* DISTRIBUTION NETWORKS */}
-        <div className="flex flex-col gap-2">
-          <Typography variant="tiny" className="text-muted-foreground font-medium">
-            MẠNG LƯỚI PHÂN PHỐI
-          </Typography>
-          <div className="flex flex-wrap gap-1.5">
-            {item.target_platforms.map((platform: string) => (
-              <Badge variant="outline" key={platform}>
-                <Globe size={10} />
-                {platform}
-              </Badge>
-            ))}
+        {!!item.target_platforms?.length && (
+          <div className="flex flex-col gap-2">
+            <Typography variant="tiny" className="text-muted-foreground font-medium">
+              MẠNG LƯỚI PHÂN PHỐI
+            </Typography>
+            <div className="flex flex-wrap gap-1.5">
+              {item.target_platforms?.map((platform: string) => (
+                <Badge variant="outline" key={platform}>
+                  <Globe size={10} />
+                  {platform}
+                </Badge>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* CATEGORIES */}
         {!!item.categories?.length && (
@@ -558,7 +467,7 @@ function DetailPageComponent() {
             <Button
               variant="destructive"
               onClick={() => handleUpdateStatus(ContentStatus.REJECTED)}
-              disabled={isRejected}
+              disabled={isRejected || isRejectingBatch}
             >
               TỪ CHỐI
             </Button>
@@ -614,20 +523,6 @@ function DetailPageComponent() {
         isOpen={isBatchRejectModalOpen}
         onClose={() => setIsBatchRejectModalOpen(false)}
         onConfirm={handleConfirmBatchReject}
-      />
-
-      {/* Floating Batch Action Bar */}
-      <FloatingBatchActionBar
-        selectedCount={selectedIds.length}
-        approveCount={batchApproveCount}
-        rejectCount={batchRejectCount}
-        isApproving={isApprovingBatch}
-        isRejecting={isRejectingBatch}
-        onApprove={handleBatchApprove}
-        onReject={handleBatchReject}
-        onCancel={() => {
-          setSelectedIds([]);
-        }}
       />
     </div>
   );

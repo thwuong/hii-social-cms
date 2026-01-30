@@ -134,19 +134,9 @@ type QueueProps = {
   loadMoreRef?: React.RefObject<HTMLDivElement>;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
-  selectedIds?: string[];
-  onToggleSelect?: (id: string) => void;
 };
 
-function Queue({
-  queueItems,
-  item,
-  loadMoreRef,
-  hasNextPage,
-  isFetchingNextPage,
-  selectedIds,
-  onToggleSelect,
-}: QueueProps) {
+function Queue({ queueItems, item, loadMoreRef, hasNextPage, isFetchingNextPage }: QueueProps) {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <Typography className="flex items-center gap-2 p-4 font-medium" variant="tiny">
@@ -160,8 +150,6 @@ function Queue({
         loadMoreRef={loadMoreRef}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
-        selectedIds={selectedIds}
-        onToggleSelect={onToggleSelect}
       />
     </div>
   );
