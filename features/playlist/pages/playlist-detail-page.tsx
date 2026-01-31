@@ -1,11 +1,13 @@
 import { ThumbnailUpload, VideoPlayer } from '@/shared/components';
-import { Button, Label, Textarea, Typography } from '@/shared/ui';
+import { Button, CarouselContent, Label, Textarea, Typography } from '@/shared/ui';
 import FormField from '@/shared/ui/form-field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { ArrowLeft, Plus, Save, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { MediaType } from '@/shared';
+import { MediaCarousel } from '@/features/content';
 import {
   AddVideosModal,
   DeleteConfirmationModal,
@@ -18,7 +20,7 @@ import {
 import { useDeletePlaylist, usePlaylist, useUpdatePlaylist } from '../hooks/usePlaylist';
 import { updatePlaylistSchema, UpdatePlaylistSchema } from '../schema/update-playlist.schema';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
-import type { PlaylistVideo } from '../types';
+import type { PlaylistContent } from '../types';
 
 function PlaylistDetailPage() {
   const navigate = useNavigate();
@@ -40,7 +42,7 @@ function PlaylistDetailPage() {
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     type: 'video' | 'playlist' | null;
-    video: PlaylistVideo | null;
+    video: PlaylistContent | null;
   }>({
     isOpen: false,
     type: null,
@@ -68,7 +70,7 @@ function PlaylistDetailPage() {
       ? {
           name: playlist.name,
           description: playlist.description || '',
-          video_ids: playlist.videos?.map((v) => v.video_id) || [],
+          video_ids: playlist.contents?.map((v) => v.video_id) || [],
           thumbnail: playlist.thumbnail_url || '',
         }
       : undefined,
@@ -79,10 +81,10 @@ function PlaylistDetailPage() {
   const watchedVideoIds = useMemo(() => watch('video_ids') || [], [watch]);
 
   useEffect(() => {
-    if (playlist?.videos && !initialRender.current) {
+    if (playlist?.contents && !initialRender.current) {
       initialRender.current = true;
-      setActiveVideoId(playlist.videos?.[0]?.id || null);
-      setPlaylistVideos(playlist.videos || []);
+      setActiveVideoId(playlist.contents?.[0]?.id || null);
+      setPlaylistVideos(playlist.contents || []);
     }
   }, [playlist, setActiveVideoId, setPlaylistVideos]);
 
@@ -117,12 +119,12 @@ function PlaylistDetailPage() {
     reset({
       name: playlist?.name || '',
       description: playlist?.description || '',
-      video_ids: playlist?.videos?.map((v) => v.video_id) || [],
+      video_ids: playlist?.contents?.map((v) => v.video_id) || [],
       thumbnail: playlist?.thumbnail_url || '',
     });
   };
 
-  const handleAddVideo = (video: PlaylistVideo) => {
+  const handleAddVideo = (video: PlaylistContent) => {
     if (!playlistId) return;
 
     addVideoToPlaylist(playlistId, {
@@ -134,9 +136,11 @@ function PlaylistDetailPage() {
     });
   };
 
-  const handleRemoveVideo = (video: PlaylistVideo) => {
+  const handleRemoveVideo = (video: PlaylistContent) => {
+    const newVideos = playlistVideos.filter((v) => v.id !== video.id);
+
     // Check if it's the last video
-    setValue('video_ids', watchedVideoIds.filter((v) => v !== video.video_id) || [], {
+    setValue('video_ids', newVideos.map((v) => v.video_id) || [], {
       shouldDirty: true,
     });
     removeVideoFromPlaylist(playlistId, video.id);
@@ -153,11 +157,11 @@ function PlaylistDetailPage() {
     });
   };
 
-  const handlePlayVideo = (video: PlaylistVideo) => {
+  const handlePlayVideo = (video: PlaylistContent) => {
     setActiveVideoId(video.id);
   };
 
-  const handleReorder = (reorderedVideos: PlaylistVideo[]) => {
+  const handleReorder = (reorderedVideos: PlaylistContent[]) => {
     if (!playlistId) return;
 
     setPlaylistVideos(reorderedVideos);
@@ -171,7 +175,7 @@ function PlaylistDetailPage() {
   };
 
   // Get active video
-  const activeVideo = playlist?.videos?.find((v) => v.id === activeVideoId);
+  const activeVideo = playlist?.contents?.find((v) => v.id === activeVideoId);
 
   if (isLoading) return <PlaylistDetailSkeleton />;
 
@@ -197,25 +201,32 @@ function PlaylistDetailPage() {
       {!isLoading && playlist && (
         <div className="grid flex-1 gap-6 lg:grid-cols-2">
           {/* Left: Video Player & Info */}
-          <div className="space-y-6">
+          <div className="aspect-video space-y-6">
             {/* Video Player */}
-            <div className="aspect-video w-full">
-              {activeVideo ? (
+            {!activeVideo && (
+              <div className="flex h-full w-full items-center justify-center border border-white/10 bg-black">
+                <Typography variant="small" className="font-mono text-zinc-500 uppercase">
+                  Chọn video để phát
+                </Typography>
+              </div>
+            )}
+            {activeVideo &&
+              (activeVideo.type === MediaType.REEL ? (
                 <VideoPlayer
                   url={activeVideo.url}
                   poster={activeVideo.thumbnail_url}
                   title={activeVideo.title}
-                  aspectRatio="16/9"
-                  className="h-full w-full"
+                  aspectRatio="video"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center border border-white/10 bg-black">
-                  <Typography variant="small" className="font-mono text-zinc-500 uppercase">
-                    Chọn video để phát
-                  </Typography>
-                </div>
-              )}
-            </div>
+                <MediaCarousel
+                  media={activeVideo.media}
+                  title={activeVideo.title}
+                  aspectRatio="video"
+                  size="lg"
+                  objectFit="contain"
+                />
+              ))}
 
             {/* Active Video Info */}
             {activeVideo && (
@@ -268,14 +279,14 @@ function PlaylistDetailPage() {
             className="h-fit space-y-4 border border-white/10 bg-black p-6"
           >
             <Typography variant="h4" className="font-mono uppercase">
-              Thông Tin Playlist
+              Thông Tin Danh Sách Phát
             </Typography>
 
             {/* Name */}
             <div className="space-y-2">
               <FormField
                 control={control}
-                label="Tên Playlist"
+                label="Tên Danh Sách Phát"
                 placeholder="Nhập tên đăng nhập..."
                 {...register('name')}
               />
@@ -283,7 +294,7 @@ function PlaylistDetailPage() {
 
             {/* Description */}
             <div className="space-y-2">
-              <Label className="font-mono text-xs text-zinc-400 uppercase">Mô Tả</Label>
+              <Label className="text-xs">Mô Tả</Label>
               <Textarea
                 {...register('description')}
                 onChange={(e) => setValue('description', e.target.value, { shouldDirty: true })}
@@ -296,7 +307,7 @@ function PlaylistDetailPage() {
 
             {/* Thumbnail */}
             <div className="space-y-2">
-              <Label className="font-mono text-xs text-zinc-400 uppercase">Thumbnail</Label>
+              <Label className="text-xs">Ảnh đại diện</Label>
               <ThumbnailUpload
                 value={watch('thumbnail')}
                 onChange={(base64: string) => setValue('thumbnail', base64, { shouldDirty: true })}

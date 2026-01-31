@@ -153,9 +153,9 @@ export function AddToPlaylistModal({
                       >
                         {/* Thumbnail */}
                         <div className="h-16 w-28 flex-shrink-0 overflow-hidden bg-black">
-                          {playlist.thumbnail ? (
+                          {playlist.thumbnail_url ? (
                             <img
-                              src={playlist.thumbnail}
+                              src={playlist.thumbnail_url}
                               alt={playlist.name}
                               className="h-full w-full object-cover"
                             />

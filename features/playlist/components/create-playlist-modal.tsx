@@ -10,6 +10,7 @@ interface CreatePlaylistModalProps {
   onClose: () => void;
   onSubmit: (payload: CreatePlaylistDto, onSuccess?: () => void) => void;
   selectedVideoIds?: string[];
+  isCreating: boolean;
 }
 
 export function CreatePlaylistModal({
@@ -17,6 +18,7 @@ export function CreatePlaylistModal({
   onClose,
   onSubmit,
   selectedVideoIds = [],
+  isCreating,
 }: CreatePlaylistModalProps) {
   const {
     control,
@@ -57,7 +59,7 @@ export function CreatePlaylistModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 p-6">
           <Typography variant="h4" className="font-mono uppercase">
-            Tạo Playlist Mới
+            Tạo Danh Sách Phát Mới
           </Typography>
         </div>
 
@@ -85,10 +87,11 @@ export function CreatePlaylistModal({
           <Button
             type="submit"
             onClick={handleSubmit(onSubmitForm)}
+            isLoading={isCreating}
             disabled={!isValid || !isDirty}
             className="border-white bg-white font-mono text-black uppercase hover:bg-zinc-200"
           >
-            Tạo Playlist
+            Tạo Danh Sách Phát
           </Button>
         </div>
       </DialogContent>

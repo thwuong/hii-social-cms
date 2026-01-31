@@ -1,16 +1,15 @@
-// import { useContent } from '@/features/content/hooks/useContent';
-// import { ContentStatus } from '@/shared/types';
-import { Button, Dialog, DialogContent, Input, Typography } from '@/shared/ui';
-import { Search, Video, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { ContentStatus } from '@/shared';
 import { useContent } from '@/features/content/hooks/useContent';
-import { PlaylistVideo } from '../types';
+import { ContentItem, ContentStatus, MediaType } from '@/shared';
+import { Button, Dialog, DialogContent, Input, Typography } from '@/shared/ui';
+import { Search, Video } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { PlaylistContent } from '../types';
 
 interface AddVideosModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddVideo: (video: PlaylistVideo) => void;
+  onAddVideo: (video: PlaylistContent) => void;
   existingVideoIds: string[];
 }
 
@@ -23,7 +22,19 @@ export function AddVideosModal({
   const [searchQuery, setSearchQuery] = useState('');
 
   // Get published videos
-  const { data: videos, isLoading } = useContent(ContentStatus.PUBLISHED);
+  const {
+    data: videos,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useContent(ContentStatus.PUBLISHED);
+
+  const [loadMoreRef] = useInfiniteScroll({
+    hasNextPage,
+    onLoadMore: fetchNextPage,
+    loading: isFetchingNextPage,
+  });
 
   // Filter out existing videos and apply search
   const availableVideos = useMemo(() => {
@@ -43,14 +54,25 @@ export function AddVideosModal({
     onClose();
   };
 
-  const handleAddVideo = (video: PlaylistVideo) => {
-    onAddVideo(video);
+  const handleAddVideo = (video: ContentItem) => {
+    onAddVideo({
+      ...video,
+      position: availableVideos.length,
+      video_id: video.id,
+      created_at: video.created_at,
+      id: video.id,
+      thumbnail_url: video.thumbnail_url || '',
+      duration: 0,
+      url: video.media?.[0]?.url || '',
+      type: video.media_type as MediaType,
+      media: video.media || [],
+    });
     handleClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl border-white/20 bg-black p-0">
+      <DialogContent className="!max-w-2xl border-white/20 bg-black p-0">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 p-6">
           <Typography variant="h4" className="font-mono uppercase">
@@ -91,7 +113,7 @@ export function AddVideosModal({
           )}
 
           {!isLoading && availableVideos.length > 0 && (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {availableVideos.map((video) => (
                 <div
                   key={video.id}
@@ -118,30 +140,38 @@ export function AddVideosModal({
                       {video.title}
                     </Typography>
                     <Typography variant="tiny" className="mt-1 font-mono text-zinc-500">
-                      {video.source_platform}
+                      {video.target_platforms?.join(', ')}
                     </Typography>
                   </div>
 
                   {/* Add Button */}
                   <Button
                     size="sm"
-                    onClick={() =>
-                      handleAddVideo({
-                        ...video,
-                        position: availableVideos.length,
-                        video_id: video.id,
-                        created_at: video.created_at,
-                        id: video.id,
-                        thumbnail_url: video.thumbnail_url || '',
-                        duration: 0,
-                      })
-                    }
+                    onClick={() => handleAddVideo(video)}
                     className="border-white bg-white font-mono text-xs text-black uppercase hover:bg-zinc-200"
                   >
                     Thêm
                   </Button>
                 </div>
               ))}
+              {hasNextPage && (
+                <div ref={loadMoreRef} className="h-10">
+                  {isFetchingNextPage && (
+                    <div className="flex items-center justify-center">
+                      <Typography variant="small" className="font-mono text-zinc-500">
+                        Đang tải thêm...
+                      </Typography>
+                    </div>
+                  )}
+                  {!isFetchingNextPage && hasNextPage && (
+                    <div className="flex items-center justify-center">
+                      <Typography variant="small" className="font-mono text-zinc-500">
+                        Cuộn xuống để tải thêm
+                      </Typography>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

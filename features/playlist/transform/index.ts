@@ -1,7 +1,8 @@
+import { MediaType } from '@/shared';
 import { PlaylistDetailDto, PlaylistDto, PlaylistVideoDto } from '../dto';
-import { Playlist, PlaylistVideo } from '../types';
+import { Playlist, PlaylistContent } from '../types';
 
-const transformPlaylistVideo = (video: PlaylistVideoDto): PlaylistVideo => {
+const transformPlaylistVideo = (video: PlaylistVideoDto): PlaylistContent => {
   return {
     id: video.video_id,
     video_id: video.video_id,
@@ -11,6 +12,8 @@ const transformPlaylistVideo = (video: PlaylistVideoDto): PlaylistVideo => {
     position: video.position,
     created_at: video.added_at,
     url: video.video.media[0].url,
+    media: video.video.media,
+    type: video.video.type as MediaType,
   };
 };
 
@@ -31,13 +34,13 @@ export const transformPlaylistList = (playlists: PlaylistDto[]): Playlist[] => {
   return playlists.map(transformPlaylist);
 };
 
-export const transformPlaylistVideoList = (videos: PlaylistVideoDto[]): PlaylistVideo[] => {
+export const transformPlaylistVideoList = (videos: PlaylistVideoDto[]): PlaylistContent[] => {
   return videos.map(transformPlaylistVideo);
 };
 
 export const transformPlaylistDetail = (playlist: PlaylistDetailDto): Playlist => {
   return {
     ...transformPlaylist(playlist.playlist),
-    videos: transformPlaylistVideoList(playlist.videos),
+    contents: transformPlaylistVideoList(playlist.videos),
   };
 };

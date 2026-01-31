@@ -19,4 +19,5 @@ export * from './select';
 export * from './table';
 export * from './textarea';
 export * from './typography';
+export * from './checkbox';
 export { Toaster } from './toaster';

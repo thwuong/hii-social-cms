@@ -1,40 +1,166 @@
 import { cn } from '@/lib';
 import { Typography } from '@/shared';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/shared/ui';
-import { FileVideo, Image as ImageIcon } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem } from '@/shared/ui';
 import { useState } from 'react';
 import { Media } from '../types';
+
+/**
+ * Aspect ratio presets
+ */
+type AspectRatio = 'square' | 'video' | 'portrait' | 'landscape' | 'ultrawide' | 'custom';
+
+/**
+ * Size variants for the carousel container
+ */
+type SizeVariant = 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'auto';
 
 interface MediaCarouselProps {
   media: Media[];
   title?: string;
   className?: string;
+
+  /**
+   * Aspect ratio của media items
+   * @default 'portrait'
+   */
+  aspectRatio?: AspectRatio;
+
+  /**
+   * Custom aspect ratio (e.g., '16/9', '4/3')
+   * Only used when aspectRatio='custom'
+   */
+  customAspectRatio?: string;
+
+  /**
+   * Size variant cho carousel container
+   * @default 'full'
+   */
+  size?: SizeVariant;
+
+  /**
+   * Custom height (e.g., '400px', '50vh')
+   * Overrides size variant
+   */
+  height?: string;
+
+  /**
+   * Custom width (e.g., '600px', '80%')
+   */
+  width?: string;
+
+  /**
+   * Object fit cho images
+   * @default 'cover'
+   */
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+
+  /**
+   * Hiển thị indicators
+   * @default true
+   */
+  showIndicators?: boolean;
+
+  /**
+   * Hiển thị counter (e.g., "1 / 5")
+   * @default false
+   */
+  showCounter?: boolean;
 }
+
+/**
+ * Get aspect ratio class
+ */
+const getAspectRatioClass = (ratio: AspectRatio, custom?: string): string => {
+  const ratios: Record<AspectRatio, string> = {
+    square: 'aspect-square',
+    video: 'aspect-video', // 16:9
+    portrait: 'aspect-[9/16]',
+    landscape: 'aspect-[16/9]',
+    ultrawide: 'aspect-[21/9]',
+    custom: custom ? `aspect-[${custom}]` : 'aspect-video',
+  };
+
+  return ratios[ratio];
+};
+
+/**
+ * Get size class for container
+ */
+const getSizeClass = (size: SizeVariant): string => {
+  const sizes: Record<SizeVariant, string> = {
+    sm: 'max-h-[300px]',
+    md: 'max-h-[400px]',
+    lg: 'max-h-[500px]',
+    xl: 'max-h-[600px]',
+    full: 'h-full',
+    auto: 'h-auto',
+  };
+
+  return sizes[size];
+};
 
 /**
  * MediaCarousel Component
  *
- * Hiển thị carousel cho article content với nhiều media items (images/videos)
+ * Dynamic-sized carousel cho article content với nhiều media items
  *
  * Features:
+ * - Dynamic aspect ratios (square, video, portrait, landscape, custom)
+ * - Flexible sizing (sm, md, lg, xl, full, auto, custom)
  * - Responsive carousel với navigation
  * - Support images và videos
  * - Lazy loading
- * - Indicator dots
+ * - Indicator dots hoặc counter
  * - Keyboard navigation
+ * - Customizable object-fit
+ *
+ * @example
+ * ```tsx
+ * // Portrait (9:16) - default
+ * <MediaCarousel media={media} />
+ *
+ * // Square with medium size
+ * <MediaCarousel media={media} aspectRatio="square" size="md" />
+ *
+ * // Video (16:9) with custom height
+ * <MediaCarousel media={media} aspectRatio="video" height="500px" />
+ *
+ * // Custom aspect ratio
+ * <MediaCarousel media={media} aspectRatio="custom" customAspectRatio="4/3" />
+ *
+ * // Full width with counter
+ * <MediaCarousel media={media} size="full" showCounter />
+ * ```
  */
-export function MediaCarousel({ media, title, className }: MediaCarouselProps) {
+export function MediaCarousel({
+  media,
+  title,
+  className,
+  aspectRatio = 'portrait',
+  customAspectRatio,
+  size = 'full',
+  height,
+  width,
+  objectFit = 'cover',
+  showIndicators = true,
+  showCounter = false,
+}: MediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Empty state
   if (!media || media.length === 0) {
     return (
-      <div className="flex h-96 items-center justify-center border border-white/10 bg-black">
+      <div
+        className={cn(
+          'flex items-center justify-center border border-white/10 bg-black',
+          !height && getSizeClass(size),
+          className
+        )}
+        style={{
+          height,
+          width,
+        }}
+      >
         <Typography variant="small" className="text-zinc-500 uppercase">
           Không có media
         </Typography>
@@ -42,8 +168,17 @@ export function MediaCarousel({ media, title, className }: MediaCarouselProps) {
     );
   }
 
+  const aspectClass = getAspectRatioClass(aspectRatio, customAspectRatio);
+  const objectFitClass = `object-${objectFit}`;
+
   return (
-    <div className={cn('flex h-full w-full flex-col', className)}>
+    <div
+      className={cn('flex w-full flex-col', !height && getSizeClass(size), className)}
+      style={{
+        height,
+        width,
+      }}
+    >
       <Carousel
         opts={{
           align: 'start',
@@ -60,11 +195,16 @@ export function MediaCarousel({ media, title, className }: MediaCarouselProps) {
         <CarouselContent className="ml-0 w-full">
           {media.map((item, index) => (
             <CarouselItem key={`carousel-item-${index + 1}`} className="pl-0">
-              <div className="relative flex aspect-[9/16] w-full flex-col items-center justify-center overflow-hidden border border-white/10 bg-black">
+              <div
+                className={cn(
+                  'relative flex w-full flex-col items-center justify-center overflow-hidden border border-white/10 bg-black',
+                  aspectClass
+                )}
+              >
                 <img
                   src={item.url || item.download_url}
                   alt={title || `Media ${index + 1}`}
-                  className="h-auto object-cover"
+                  className={cn('h-full w-full', objectFitClass)}
                   loading="lazy"
                 />
               </div>
@@ -73,8 +213,17 @@ export function MediaCarousel({ media, title, className }: MediaCarouselProps) {
         </CarouselContent>
       </Carousel>
 
+      {/* Counter */}
+      {showCounter && media.length > 1 && (
+        <div className="mt-4 flex items-center justify-center">
+          <Typography variant="small" className="font-mono text-zinc-400">
+            {currentIndex + 1} / {media.length}
+          </Typography>
+        </div>
+      )}
+
       {/* Indicators */}
-      {media.length > 1 && (
+      {showIndicators && !showCounter && media.length > 1 && (
         <div className="mt-6 flex items-center justify-center gap-2">
           {media.map((_, index) => (
             <button

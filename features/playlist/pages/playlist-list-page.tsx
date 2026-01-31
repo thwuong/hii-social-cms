@@ -160,6 +160,7 @@ function PlaylistListPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreatePlaylist}
+        isCreating={isCreating}
       />
 
       <DeleteConfirmationModal

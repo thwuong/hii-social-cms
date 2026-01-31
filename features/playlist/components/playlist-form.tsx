@@ -55,12 +55,12 @@ export function PlaylistForm({
 
       {/* Description Field */}
       <div className="space-y-2">
-        <Label htmlFor="playlist-description" className="font-mono text-xs text-zinc-400 uppercase">
+        <Label htmlFor="playlist-description" className="text-xs">
           Mô Tả
         </Label>
         <Textarea
           id="playlist-description"
-          placeholder="Nhập mô tả playlist..."
+          placeholder="Nhập mô tả danh sách phát..."
           value={watch('description')}
           onChange={(e) => setValue('description', e.target.value)}
           className="border-white/20 bg-zinc-900 font-mono text-white"
@@ -70,7 +70,7 @@ export function PlaylistForm({
 
       {/* Thumbnail Upload */}
       <div className="space-y-2">
-        <Label className="font-mono text-xs text-zinc-400 uppercase">Thumbnail</Label>
+        <Label className="text-xs">Ảnh đại diện</Label>
         <ThumbnailUpload
           value={watch('thumbnail')}
           onChange={(base64: string) =>

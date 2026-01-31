@@ -118,7 +118,7 @@ export function ThumbnailUpload({
         </button>
       ) : (
         // Filled State - Preview with Delete
-        <div className="group relative h-40 overflow-hidden border border-white/20 bg-black">
+        <div className="group relative aspect-video overflow-hidden border border-white/20 bg-black">
           <img src={value} alt="Thumbnail preview" className="h-full w-full object-cover" />
           {!disabled && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">

@@ -24,7 +24,15 @@ function ContentBody({ content }: ContentBodyProps) {
 
   // Article content with media carousel
   if (isArticle && content.media && content.media.length > 0) {
-    return <MediaCarousel media={content.media} title={content.title} />;
+    return (
+      <MediaCarousel
+        media={content.media}
+        title={content.title}
+        aspectRatio="custom"
+        customAspectRatio="9/16"
+        objectFit="contain"
+      />
+    );
   }
 
   // Fallback for other media types

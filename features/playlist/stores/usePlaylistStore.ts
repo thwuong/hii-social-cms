@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Playlist, PlaylistVideo } from '../types';
+import type { Playlist, PlaylistContent } from '../types';
 
 interface PlaylistState {
   // Selected videos for creating playlist
@@ -13,8 +13,8 @@ interface PlaylistState {
   setCurrentPlaylist: (playlist: Playlist | null) => void;
 
   // Playlist videos (for detail page)
-  playlistVideos: PlaylistVideo[];
-  setPlaylistVideos: (videos: PlaylistVideo[]) => void;
+  playlistVideos: PlaylistContent[];
+  setPlaylistVideos: (videos: PlaylistContent[]) => void;
 
   // Active video in player
   activeVideoId: string | null;
@@ -27,7 +27,7 @@ interface PlaylistState {
   isCreatePlaylistModalOpen: boolean;
   setIsCreatePlaylistModalOpen: (isOpen: boolean) => void;
 
-  addVideoToPlaylist: (playlistId: string, video: PlaylistVideo) => void;
+  addVideoToPlaylist: (playlistId: string, video: PlaylistContent) => void;
   removeVideoFromPlaylist: (playlistId: string, videoId: string) => void;
 }
 
@@ -62,12 +62,17 @@ export const usePlaylistStore = create<PlaylistState>((set) => ({
   isCreatePlaylistModalOpen: false,
   setIsCreatePlaylistModalOpen: (isOpen) => set({ isCreatePlaylistModalOpen: isOpen }),
 
-  addVideoToPlaylist: (playlistId, video: PlaylistVideo) =>
+  addVideoToPlaylist: (playlistId, video: PlaylistContent) =>
     set((state) => ({
       playlistVideos: [...state.playlistVideos, video],
     })),
   removeVideoFromPlaylist: (playlistId, videoId) =>
-    set((state) => ({
-      playlistVideos: state.playlistVideos.filter((video) => video.id !== videoId),
-    })),
+    set((state) => {
+      const newVideos = state.playlistVideos.filter((video) => video.id !== videoId);
+      const formattedVideos = newVideos.map((v, index) => ({
+        ...v,
+        position: index + 1,
+      }));
+      return { playlistVideos: formattedVideos };
+    }),
 }));

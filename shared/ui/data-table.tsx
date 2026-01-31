@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import * as React from 'react';
 import { Button } from './button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
+import { Checkbox } from './checkbox';
 
 /**
  * DataTable Column Definition
@@ -184,17 +185,10 @@ export function DataTable<T>({
               {/* Selection Column */}
               {onToggleSelect && onToggleAll && (
                 <TableHead className="h-10 w-[50px] px-6">
-                  <input
-                    type="checkbox"
-                    className="h-3 w-3 cursor-pointer rounded-none border-zinc-700 bg-transparent accent-white"
+                  <Checkbox
+                    className="size-5 cursor-pointer"
                     checked={allSelected}
-                    ref={(input) => {
-                      if (input) {
-                        // eslint-disable-next-line no-param-reassign
-                        input.indeterminate = someSelected;
-                      }
-                    }}
-                    onChange={onToggleAll}
+                    onCheckedChange={onToggleAll}
                   />
                 </TableHead>
               )}
@@ -245,11 +239,10 @@ export function DataTable<T>({
                   {/* Selection Cell */}
                   {onToggleSelect && (
                     <TableCell className="px-6" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        className="h-3 w-3 cursor-pointer rounded-none border-zinc-700 bg-transparent accent-white"
+                      <Checkbox
                         checked={isSelected}
-                        onChange={() => onToggleSelect(rowId)}
+                        onCheckedChange={() => onToggleSelect(rowId)}
+                        className="size-5 cursor-pointer"
                       />
                     </TableCell>
                   )}
