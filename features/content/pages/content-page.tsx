@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 
 import ContentTable from '@/features/content/components/content-table';
 import { ContentItem, ContentStatus } from '@/shared';
-import { useAddVideoToPlaylist, useCreatePlaylist } from '@/features/playlist/hooks/usePlaylist';
+import { useAddVideosToPlaylists, useCreatePlaylist } from '@/features/playlist/hooks/usePlaylist';
 import { ContentGrid, ContentGridSkeleton, ContentTableSkeleton } from '@/shared/components';
 import { useNavigate, useRouteContext, useSearch } from '@tanstack/react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { toast } from 'sonner';
+import { CreatePlaylistSchema } from '@/features/playlist/schema/create-playlist.schema';
 import {
   AddToPlaylistModal,
   ContentHeader,
@@ -56,7 +57,7 @@ function ContentPageComponent() {
   // Batch mutations
   const { mutate: approveContents, isPending: isApprovingBatch } = useApproveContents();
   const { mutate: rejectContents, isPending: isRejectingBatch } = useRejectContents();
-  const { mutate: addVideoToPlaylist } = useAddVideoToPlaylist();
+  const { mutate: addVideosToPlaylists } = useAddVideosToPlaylists();
   const { mutate: createPlaylist } = useCreatePlaylist();
 
   const handleNavigateToDetail = (item: ContentItem) => {
@@ -209,52 +210,55 @@ function ContentPageComponent() {
     setIsAddToPlaylistModalOpen(true);
   };
 
-  const handleAddToPlaylist = (playlistId: string) => {
-    // Add each selected video to the playlist
-    let successCount = 0;
-    const totalCount = selectedIds.length;
-
-    selectedIds.forEach((videoId, index) => {
-      addVideoToPlaylist(
-        {
-          playlistId,
-          payload: { video_id: videoId },
-        },
-        {
-          onSuccess: () => {
-            successCount += 1;
-            // Show toast only after last video
-            if (index === totalCount - 1) {
-              toast.success(`Đã thêm ${successCount} video vào playlist`);
-              setSelectedIds([]);
-            }
-          },
-          onError: () => {
-            // Show toast only after last video
-            if (index === totalCount - 1) {
-              if (successCount > 0) {
-                toast.warning(`Đã thêm ${successCount}/${totalCount} video vào playlist`);
-              } else {
-                toast.error('Thêm video thất bại');
-              }
-              setSelectedIds([]);
-            }
-          },
-        }
-      );
-    });
+  const [selectedPlaylistIds, setSelectedPlaylistIds] = useState<string[]>([]);
+  const handleToggleSelectPlaylist = (playlistId: string) => {
+    const isExists = selectedPlaylistIds.includes(playlistId);
+    if (isExists) {
+      setSelectedPlaylistIds(selectedPlaylistIds.filter((id) => id !== playlistId));
+    } else {
+      setSelectedPlaylistIds([...selectedPlaylistIds, playlistId]);
+    }
   };
 
-  const handleCreatePlaylistWithVideos = (name: string, description: string) => {
+  const handleAddToPlaylist = () => {
+    // Add each selected video to the playlist
+    const totalCount = selectedIds.length;
+
+    addVideosToPlaylists(
+      {
+        payload: { video_ids: selectedIds, playlist_ids: selectedPlaylistIds },
+      },
+      {
+        onSuccess: () => {
+          // Show toast only after last video
+          toast.success(`Đã thêm ${totalCount} video vào playlist`);
+          setSelectedIds([]);
+          setSelectedPlaylistIds([]);
+        },
+        onError: () => {
+          // Show toast only after last video
+          toast.error('Thêm video vào playlist thất bại');
+        },
+      }
+    );
+  };
+
+  const handleCreatePlaylistWithVideos = (data: CreatePlaylistSchema) => {
     createPlaylist(
       {
-        name,
-        description: description || undefined,
+        name: data.name,
+        description: data.description || undefined,
         video_ids: selectedIds,
+        thumbnail: data.thumbnail || '',
       },
       {
         onSuccess: () => {
           setSelectedIds([]);
+          setSelectedPlaylistIds([]);
+          toast.success(`Đã tạo playlist ${data.name}`);
+        },
+        onError: () => {
+          toast.error('Tạo playlist thất bại');
         },
       }
     );
@@ -360,6 +364,8 @@ function ContentPageComponent() {
         isOpen={isAddToPlaylistModalOpen}
         onClose={() => setIsAddToPlaylistModalOpen(false)}
         onAddToPlaylist={handleAddToPlaylist}
+        selectedPlaylistIds={selectedPlaylistIds}
+        onToggleSelectPlaylist={handleToggleSelectPlaylist}
         onCreatePlaylist={handleCreatePlaylistWithVideos}
         selectedCount={selectedIds.length}
       />

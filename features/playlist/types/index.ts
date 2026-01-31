@@ -10,6 +10,7 @@ export interface PlaylistVideo {
   duration: number;
   position: number; // Order in playlist
   created_at: string;
+  url: string;
 }
 
 export interface Playlist {
@@ -59,6 +60,3 @@ export interface PlaylistListResponse {
 }
 
 // Playlist detail response
-export interface PlaylistDetailResponse {
-  data: Playlist;
-}

@@ -3,6 +3,7 @@
  */
 
 export { default as VideoPlayer } from './video-player';
+export { ThumbnailUpload } from './thumbnail-upload';
 
 export { default as ContentGrid } from './content-grid';
 

@@ -3,12 +3,9 @@ import { useNavigate } from '@tanstack/react-router';
 import { ListVideo, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { CreatePlaylistModal, DeleteConfirmationModal, PlaylistCard } from '../components';
-// import { useCreatePlaylist, useDeletePlaylist, usePlaylists } from '../hooks/usePlaylist';
-import {
-  useMockCreatePlaylist,
-  useMockDeletePlaylist,
-  useMockPlaylists,
-} from '../mocks/use-mock-service';
+
+import { CreatePlaylistDto } from '../dto';
+import { useCreatePlaylist, useDeletePlaylist, usePlaylists } from '../hooks/usePlaylist';
 import type { Playlist } from '../types';
 
 function PlaylistListPage() {
@@ -18,14 +15,15 @@ function PlaylistListPage() {
   const [playlistToDelete, setPlaylistToDelete] = useState<Playlist | null>(null);
 
   // Queries
-  // const { data: playlists, isLoading } = usePlaylists();
-  const { data: playlists, isLoading } = useMockPlaylists();
+  const { data: playlists, isLoading } = usePlaylists({
+    limit: 10,
+  });
 
   // Mutations
-  const { mutate: createPlaylist, isPending: isCreating } = useMockCreatePlaylist();
-  const { mutate: deletePlaylist, isPending: isDeleting } = useMockDeletePlaylist();
+  const { mutate: createPlaylist, isPending: isCreating } = useCreatePlaylist();
+  const { mutate: deletePlaylist, isPending: isDeleting } = useDeletePlaylist();
 
-  const handleCreatePlaylist = (payload: any) => {
+  const handleCreatePlaylist = (payload: CreatePlaylistDto) => {
     createPlaylist(payload);
   };
 
@@ -38,10 +36,14 @@ function PlaylistListPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = (onSuccess?: () => void) => {
     if (playlistToDelete) {
-      deletePlaylist(playlistToDelete.id);
-      setPlaylistToDelete(null);
+      deletePlaylist(playlistToDelete.id, {
+        onSuccess: () => {
+          setPlaylistToDelete(null);
+          onSuccess?.();
+        },
+      });
     }
   };
 
@@ -111,6 +113,7 @@ function PlaylistListPage() {
               playlist={playlist}
               onView={handleViewPlaylist}
               onDelete={handleDeletePlaylist}
+              isDeleting={isDeleting}
             />
           ))}
         </div>
@@ -124,6 +127,7 @@ function PlaylistListPage() {
       />
 
       <DeleteConfirmationModal
+        isDeleting={isDeleting}
         isOpen={isDeleteModalOpen}
         onClose={() => {
           setIsDeleteModalOpen(false);

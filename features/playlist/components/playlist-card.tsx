@@ -7,14 +7,12 @@ interface PlaylistCardProps {
   playlist: Playlist;
   onView: (playlist: Playlist) => void;
   onDelete: (playlist: Playlist) => void;
+  isDeleting: boolean;
 }
 
-export function PlaylistCard({ playlist, onView, onDelete }: PlaylistCardProps) {
-  const [isDeleting, setIsDeleting] = useState(false);
-
+export function PlaylistCard({ playlist, onView, onDelete, isDeleting }: PlaylistCardProps) {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsDeleting(true);
     onDelete(playlist);
   };
 

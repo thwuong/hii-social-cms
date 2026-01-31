@@ -1,12 +1,14 @@
-import { Button, Dialog, DialogContent, Input, Label, Textarea, Typography } from '@/shared/ui';
-import { X } from 'lucide-react';
-import { useState } from 'react';
-import type { CreatePlaylistPayload } from '../types';
+import { Button, Dialog, DialogContent, Typography } from '@/shared/ui';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { CreatePlaylistDto } from '../dto';
+import { CreatePlaylistSchema, createPlaylistSchema } from '../schema/create-playlist.schema';
+import { PlaylistForm } from './playlist-form';
 
 interface CreatePlaylistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (payload: CreatePlaylistPayload) => void;
+  onSubmit: (payload: CreatePlaylistDto) => void;
   selectedVideoIds?: string[];
 }
 
@@ -16,28 +18,37 @@ export function CreatePlaylistModal({
   onSubmit,
   selectedVideoIds = [],
 }: CreatePlaylistModalProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { isValid, isDirty },
+  } = useForm<CreatePlaylistSchema>({
+    resolver: zodResolver(createPlaylistSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      video_ids: [],
+      thumbnail: '',
+    },
+  });
 
-  const handleSubmit = () => {
-    if (!name.trim()) return;
-
-    onSubmit({
-      name: name.trim(),
-      description: description.trim() || undefined,
-      video_ids: selectedVideoIds,
-    });
-
-    // Reset form
-    setName('');
-    setDescription('');
+  const handleClose = () => {
+    reset();
     onClose();
   };
 
-  const handleClose = () => {
-    setName('');
-    setDescription('');
-    onClose();
+  const onSubmitForm = (data: CreatePlaylistSchema) => {
+    onSubmit({
+      ...data,
+      video_ids: selectedVideoIds,
+      thumbnail: data.thumbnail || '',
+    });
+
+    // Reset form
+    handleClose();
   };
 
   return (
@@ -51,53 +62,20 @@ export function CreatePlaylistModal({
         </div>
 
         {/* Form */}
-        <div className="space-y-6 p-6">
-          {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="playlist-name" className="font-mono text-xs text-zinc-400 uppercase">
-              Tên Playlist *
-            </Label>
-            <Input
-              id="playlist-name"
-              placeholder="Nhập tên playlist..."
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="border-white/20 bg-zinc-900 font-mono text-white"
-              autoFocus
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label
-              htmlFor="playlist-description"
-              className="font-mono text-xs text-zinc-400 uppercase"
-            >
-              Mô Tả
-            </Label>
-            <Textarea
-              id="playlist-description"
-              placeholder="Nhập mô tả playlist..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="border-white/20 bg-zinc-900 font-mono text-white"
-              rows={3}
-            />
-          </div>
-
-          {/* Video Count */}
-          {selectedVideoIds.length > 0 && (
-            <div className="flex items-center gap-2 border-t border-white/10 pt-4">
-              <Typography variant="small" className="font-mono text-zinc-500">
-                {selectedVideoIds.length} video đã chọn
-              </Typography>
-            </div>
-          )}
-        </div>
+        <form onSubmit={handleSubmit(onSubmitForm)} className="p-6">
+          <PlaylistForm
+            control={control}
+            watch={watch}
+            setValue={setValue}
+            selectedVideoCount={selectedVideoIds.length}
+            showVideoCount={selectedVideoIds.length > 0}
+          />
+        </form>
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 border-t border-white/10 p-6">
           <Button
+            type="button"
             variant="ghost"
             onClick={handleClose}
             className="font-mono uppercase hover:bg-white/10"
@@ -105,8 +83,9 @@ export function CreatePlaylistModal({
             Hủy
           </Button>
           <Button
-            onClick={handleSubmit}
-            disabled={!name.trim()}
+            type="submit"
+            onClick={handleSubmit(onSubmitForm)}
+            disabled={!isValid || !isDirty}
             className="border-white bg-white font-mono text-black uppercase hover:bg-zinc-200"
           >
             Tạo Playlist

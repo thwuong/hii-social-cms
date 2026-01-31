@@ -1,12 +1,12 @@
-import { VideoPlayer } from '@/shared/components';
-import { Button, Input, Label, Textarea, Typography } from '@/shared/ui';
+import { ThumbnailUpload, VideoPlayer } from '@/shared/components';
+import { Button, Label, Textarea, Typography } from '@/shared/ui';
+import FormField from '@/shared/ui/form-field';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { ArrowLeft, Plus, Save, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import FormField from '@/shared/ui/form-field';
-import { AddVideoModal, DeleteConfirmationModal, DraggableVideoList } from '../components';
+import { AddVideosModal, DeleteConfirmationModal, DraggableVideoList } from '../components';
 // import {
 //   useAddVideoToPlaylist,
 //   usePlaylist,
@@ -15,15 +15,10 @@ import { AddVideoModal, DeleteConfirmationModal, DraggableVideoList } from '../c
 //   useUpdatePlaylist,
 //   useDeletePlaylist,
 // } from '../hooks/usePlaylist';
-import {
-  useMockAddVideoToPlaylist,
-  useMockDeletePlaylist,
-  useMockPlaylist,
-  useMockRemoveVideoFromPlaylist,
-  useMockReorderPlaylist,
-  useMockUpdatePlaylist,
-} from '../mocks/use-mock-service';
-import { createPlaylistSchema, CreatePlaylistSchema } from '../schema/create-playlist.schema';
+import { UpdatePlaylistDto } from '../dto';
+import { useDeletePlaylist, usePlaylist, useUpdatePlaylist } from '../hooks/usePlaylist';
+import { useMockRemoveVideoFromPlaylist } from '../mocks/use-mock-service';
+import { updatePlaylistSchema, UpdatePlaylistSchema } from '../schema/update-playlist.schema';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import type { PlaylistVideo } from '../types';
 
@@ -56,52 +51,69 @@ function PlaylistDetailPage() {
 
   // Queries
   // const { data: playlist, isLoading } = usePlaylist(playlistId!);
-  const { data: playlist, isLoading, isFetched } = useMockPlaylist(playlistId!);
+  const { data: playlist, isLoading } = usePlaylist(playlistId!);
+  const initialRender = useRef(false);
 
   // Mutations
-  const { mutate: updatePlaylist, isPending: isUpdating } = useMockUpdatePlaylist();
-  const { mutate: addVideo, isPending: isAddingVideo } = useMockAddVideoToPlaylist();
-  const { mutate: removeVideo, isPending: isRemovingVideo } = useMockRemoveVideoFromPlaylist();
-  const { mutate: deletePlaylist, isPending: isDeleting } = useMockDeletePlaylist();
+  const { mutate: updatePlaylist, isPending: isUpdating } = useUpdatePlaylist();
+  const { mutate: deletePlaylist, isPending: isDeleting } = useDeletePlaylist();
 
   // Local state
   const {
     register,
     handleSubmit,
-    formState: { isDirty, errors },
+    formState: { isDirty, dirtyFields },
     watch,
     reset,
     setValue,
     control,
-  } = useForm<CreatePlaylistSchema>({
+  } = useForm<UpdatePlaylistSchema>({
     values: playlist
       ? {
           name: playlist.name,
           description: playlist.description || '',
           video_ids: playlist.videos?.map((v) => v.video_id) || [],
+          thumbnail: playlist.thumbnail_url || '',
         }
       : undefined,
-    resolver: zodResolver(createPlaylistSchema),
+    resolver: zodResolver(updatePlaylistSchema),
     mode: 'all',
   });
 
+  const watchedVideoIds = watch('video_ids') || [];
+
   useEffect(() => {
-    if (playlist && isFetched) {
+    if (playlist?.videos && !initialRender.current) {
+      initialRender.current = true;
       setActiveVideoId(playlist.videos?.[0]?.id || null);
       setPlaylistVideos(playlist.videos || []);
     }
-  }, [playlist, isFetched]);
+  }, [playlist, setActiveVideoId, setPlaylistVideos]);
 
   // Handlers
-  const handleSave = (data: CreatePlaylistSchema) => {
+  const handleSave = (data: UpdatePlaylistSchema) => {
     if (!playlistId) return;
+
+    if (playlistVideos.length === 0) {
+      setDeleteModal({
+        isOpen: true,
+        type: 'playlist',
+        video: null,
+      });
+      return;
+    }
+
+    const payload: UpdatePlaylistSchema = {};
+
+    Object.keys(dirtyFields || {}).forEach((key) => {
+      const typedKey = key as keyof UpdatePlaylistSchema;
+      // @ts-expect-error - Dynamic key assignment from form data
+      payload[typedKey] = data[typedKey];
+    });
 
     updatePlaylist({
       id: playlistId,
-      payload: {
-        name: data.name.trim(),
-        description: data.description?.trim() || undefined,
-      },
+      payload,
     });
   };
 
@@ -110,66 +122,39 @@ function PlaylistDetailPage() {
       name: playlist?.name || '',
       description: playlist?.description || '',
       video_ids: playlist?.videos?.map((v) => v.video_id) || [],
+      thumbnail: playlist?.thumbnail_url || '',
     });
   };
 
   const handleAddVideo = (video: PlaylistVideo) => {
     if (!playlistId) return;
 
-    // addVideo({
-    //   playlistId,
-    //   payload: { video_id: videoId },
-    // });
     addVideoToPlaylist(playlistId, {
       ...video,
-      position: playlistVideos.length,
+      position: playlistVideos.length + 1,
     });
-    const previousVideoIds = watch('video_ids') || [];
-    setValue('video_ids', [...previousVideoIds, video.video_id], {
+    setValue('video_ids', [...watchedVideoIds, video.video_id], {
       shouldDirty: true,
     });
   };
 
   const handleRemoveVideo = (video: PlaylistVideo) => {
     // Check if it's the last video
-    if (playlistVideos.length === 1) {
-      setDeleteModal({
-        isOpen: true,
-        type: 'playlist',
-        video,
-      });
-    } else {
-      setDeleteModal({
-        isOpen: true,
-        type: 'video',
-        video,
-      });
-    }
+    setValue('video_ids', watchedVideoIds.filter((v) => v !== video.video_id) || [], {
+      shouldDirty: true,
+    });
+    removeVideoFromPlaylist(playlistId, video.id);
   };
 
-  const handleConfirmDelete = () => {
-    if (!playlistId || !deleteModal.video) return;
+  const handleConfirmDelete = (onSuccess?: () => void) => {
+    if (!playlistId) return;
 
-    if (deleteModal.type === 'playlist') {
-      // Delete entire playlist
-      deletePlaylist(playlistId, {
-        onSuccess: () => {
-          navigate({ to: '/playlists' });
-        },
-      });
-    } else {
-      // Delete just the video
-      removeVideo({
-        playlistId,
-        videoId: deleteModal.video.video_id,
-      });
-
-      // If deleted video was active, set next video as active
-      if (activeVideoId === deleteModal.video.id && playlistVideos.length > 1) {
-        const nextVideo = playlistVideos.find((v) => v.id !== deleteModal.video!.id);
-        if (nextVideo) setActiveVideoId(nextVideo.id);
-      }
-    }
+    deletePlaylist(playlistId, {
+      onSuccess: () => {
+        onSuccess?.();
+        navigate({ to: '/playlists' });
+      },
+    });
   };
 
   const handlePlayVideo = (video: PlaylistVideo) => {
@@ -192,9 +177,8 @@ function PlaylistDetailPage() {
     // Save to backend
   };
 
-  if (!playlist) return null;
   // Get active video
-  const activeVideo = playlist.videos?.find((v) => v.id === activeVideoId);
+  const activeVideo = playlist?.videos?.find((v) => v.id === activeVideoId);
 
   return (
     <div className="flex h-full flex-col space-y-6">
@@ -230,7 +214,7 @@ function PlaylistDetailPage() {
             <div className="aspect-video w-full">
               {activeVideo ? (
                 <VideoPlayer
-                  url={activeVideo.thumbnail_url || ''}
+                  url={activeVideo.url}
                   poster={activeVideo.thumbnail_url}
                   title={activeVideo.title}
                   aspectRatio="16/9"
@@ -253,7 +237,7 @@ function PlaylistDetailPage() {
                 </Typography>
                 <div className="flex items-center gap-4 text-sm">
                   <Typography variant="small" className="font-mono text-zinc-500">
-                    Vị trí: {activeVideo.position + 1}/{playlistVideos.length}
+                    Vị trí: {activeVideo.position}/{playlistVideos.length}
                   </Typography>
                   <Typography variant="small" className="font-mono text-zinc-500">
                     Thời lượng: {Math.floor(activeVideo.duration / 60)}:
@@ -289,6 +273,17 @@ function PlaylistDetailPage() {
                   className="border-white/20"
                   placeholder="Nhập mô tả..."
                   rows={3}
+                />
+              </div>
+
+              {/* Thumbnail */}
+              <div className="space-y-2">
+                <Label className="font-mono text-xs text-zinc-400 uppercase">Thumbnail</Label>
+                <ThumbnailUpload
+                  value={watch('thumbnail')}
+                  onChange={(base64: string) =>
+                    setValue('thumbnail', base64, { shouldDirty: true })
+                  }
                 />
               </div>
 
@@ -345,7 +340,7 @@ function PlaylistDetailPage() {
       )}
 
       {/* Modals */}
-      <AddVideoModal
+      <AddVideosModal
         isOpen={isAddVideoModalOpen}
         onClose={() => setIsAddVideoModalOpen(false)}
         onAddVideo={handleAddVideo}
@@ -353,6 +348,7 @@ function PlaylistDetailPage() {
       />
 
       <DeleteConfirmationModal
+        isDeleting={isDeleting}
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, type: null, video: null })}
         onConfirm={handleConfirmDelete}

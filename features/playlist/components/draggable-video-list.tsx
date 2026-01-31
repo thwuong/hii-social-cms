@@ -51,7 +51,7 @@ export function DraggableVideoList({
 
       const reorderedVideos = arrayMove(videos, oldIndex, newIndex).map((video, index) => ({
         ...video,
-        position: index,
+        position: index + 1,
       }));
 
       onReorder(reorderedVideos);
@@ -127,7 +127,7 @@ function SortableVideoItem({ video, isActive, onPlay, onRemove }: SortableVideoI
       {/* Position */}
       <div className="flex h-8 w-8 items-center justify-center">
         <Typography variant="small" className="font-mono text-zinc-500">
-          {video.position + 1}
+          {video.position}
         </Typography>
       </div>
 

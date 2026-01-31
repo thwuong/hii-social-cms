@@ -3,27 +3,27 @@
 import { Button, Dialog, DialogContent, Input, Typography } from '@/shared/ui';
 import { Search, Video, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useMockAvailableVideos } from '../mocks/use-mock-service';
+import { ContentStatus } from '@/shared';
+import { useContent } from '@/features/content/hooks/useContent';
 import { PlaylistVideo } from '../types';
 
-interface AddVideoModalProps {
+interface AddVideosModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddVideo: (video: PlaylistVideo) => void;
   existingVideoIds: string[];
 }
 
-export function AddVideoModal({
+export function AddVideosModal({
   isOpen,
   onClose,
   onAddVideo,
   existingVideoIds,
-}: AddVideoModalProps) {
+}: AddVideosModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Get published videos
-  // const { data: videos, isLoading } = useContent(ContentStatus.PUBLISHED);
-  const { data: videos, isLoading } = useMockAvailableVideos();
+  const { data: videos, isLoading } = useContent(ContentStatus.PUBLISHED);
 
   // Filter out existing videos and apply search
   const availableVideos = useMemo(() => {
@@ -130,10 +130,10 @@ export function AddVideoModal({
                         ...video,
                         position: availableVideos.length,
                         video_id: video.id,
-                        created_at: new Date().toISOString(),
-                        id: `pv-${Date.now()}`,
-                        thumbnail_url: video.thumbnail_url,
-                        duration: video.duration,
+                        created_at: video.created_at,
+                        id: video.id,
+                        thumbnail_url: video.thumbnail_url || '',
+                        duration: 0,
                       })
                     }
                     className="border-white bg-white font-mono text-xs text-black uppercase hover:bg-zinc-200"

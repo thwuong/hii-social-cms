@@ -1,34 +1,59 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { playlistKeys } from '../query-keys';
 import { playlistService } from '../services/playlist-service';
-import type {
-  AddVideoToPlaylistPayload,
-  CreatePlaylistPayload,
-  DeleteVideoFromPlaylistPayload,
-  ReorderPlaylistPayload,
-  UpdatePlaylistPayload,
-} from '../types';
+
+import {
+  AddVideosToPlaylistsDto,
+  CreatePlaylistDto,
+  DeleteVideoFromPlaylistDto,
+  PlaylistListQueryParamsDto,
+  ReorderPlaylistDto,
+  UpdatePlaylistDto,
+} from '../dto';
+import { transformPlaylistDetail, transformPlaylistList } from '../transform';
 
 /**
  * Get all playlists
  */
-export function usePlaylists() {
-  return useQuery({
+export function usePlaylists(params: PlaylistListQueryParamsDto) {
+  const playlistsQuery = useInfiniteQuery({
     queryKey: playlistKeys.list(),
-    queryFn: () => playlistService.getPlaylists(),
+    queryFn: ({ pageParam = '' }) => playlistService.getPlaylists({ ...params, cursor: pageParam }),
+    getNextPageParam: (lastPage) => (lastPage.next_cursor ? lastPage.next_cursor : undefined),
+    initialPageParam: '',
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
+
+  return {
+    ...playlistsQuery,
+    data:
+      playlistsQuery.data?.pages.flatMap((page) => transformPlaylistList(page.playlists || [])) ||
+      [],
+  };
 }
 
 /**
  * Get playlist by ID
  */
 export function usePlaylist(id: string) {
-  return useQuery({
+  const playlistQuery = useQuery({
     queryKey: playlistKeys.detail(id),
     queryFn: () => playlistService.getPlaylistById(id),
     enabled: !!id,
   });
+  return {
+    ...playlistQuery,
+    data: playlistQuery.data ? transformPlaylistDetail(playlistQuery.data) : null,
+  };
 }
 
 /**
@@ -38,7 +63,7 @@ export function useCreatePlaylist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreatePlaylistPayload) => playlistService.createPlaylist(payload),
+    mutationFn: (payload: CreatePlaylistDto) => playlistService.createPlaylist(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistKeys.lists() });
       toast.success('TẠO PLAYLIST THÀNH CÔNG');
@@ -56,11 +81,11 @@ export function useUpdatePlaylist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdatePlaylistPayload }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: UpdatePlaylistDto }) =>
       playlistService.updatePlaylist(id, payload),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: playlistKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data.id) });
+      queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data?.playlist?.id || '') });
       toast.success('CẬP NHẬT PLAYLIST THÀNH CÔNG');
     },
     onError: () => {
@@ -79,10 +104,6 @@ export function useDeletePlaylist() {
     mutationFn: (id: string) => playlistService.deletePlaylist(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistKeys.lists() });
-      toast.success('XÓA PLAYLIST THÀNH CÔNG');
-    },
-    onError: () => {
-      toast.error('XÓA PLAYLIST THẤT BẠI');
     },
   });
 }
@@ -90,24 +111,18 @@ export function useDeletePlaylist() {
 /**
  * Add video to playlist
  */
-export function useAddVideoToPlaylist() {
+export function useAddVideosToPlaylists() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      playlistId,
-      payload,
-    }: {
-      playlistId: string;
-      payload: AddVideoToPlaylistPayload;
-    }) => playlistService.addVideoToPlaylist(playlistId, payload),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data.id) });
+    mutationFn: ({ payload }: { payload: AddVideosToPlaylistsDto }) =>
+      playlistService.addVideosToPlaylists(payload),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: playlistKeys.lists() });
-      toast.success('THÊM VIDEO THÀNH CÔNG');
+      toast.success('THÊM VIDEO VÀO PLAYLIST THÀNH CÔNG');
     },
     onError: () => {
-      toast.error('THÊM VIDEO THẤT BẠI');
+      toast.error('THÊM VIDEO VÀO PLAYLIST THẤT BẠI');
     },
   });
 }
@@ -124,10 +139,10 @@ export function useRemoveVideoFromPlaylist() {
       payload,
     }: {
       playlistId: string;
-      payload: DeleteVideoFromPlaylistPayload;
+      payload: DeleteVideoFromPlaylistDto;
     }) => playlistService.removeVideoFromPlaylist(playlistId, payload),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data.id) });
+      queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data?.playlist?.id || '') });
       queryClient.invalidateQueries({ queryKey: playlistKeys.lists() });
       toast.success('XÓA VIDEO THÀNH CÔNG');
     },
@@ -144,15 +159,10 @@ export function useReorderPlaylist() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      playlistId,
-      payload,
-    }: {
-      playlistId: string;
-      payload: ReorderPlaylistPayload;
-    }) => playlistService.reorderPlaylist(playlistId, payload),
+    mutationFn: ({ playlistId, payload }: { playlistId: string; payload: ReorderPlaylistDto }) =>
+      playlistService.reorderPlaylist(playlistId, payload),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data.id) });
+      queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data?.playlist?.id || '') });
       toast.success('THAY ĐỔI VỊ TRÍ THÀNH CÔNG');
     },
     onError: () => {

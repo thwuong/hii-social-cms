@@ -4,11 +4,12 @@ import { AlertTriangle, X } from 'lucide-react';
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (onSuccess?: () => void) => void;
   title: string;
   message: string;
   confirmText?: string;
   isDestructive?: boolean;
+  isDeleting?: boolean;
 }
 
 export function DeleteConfirmationModal({
@@ -19,10 +20,10 @@ export function DeleteConfirmationModal({
   message,
   confirmText = 'Xóa',
   isDestructive = true,
+  isDeleting = false,
 }: DeleteConfirmationModalProps) {
   const handleConfirm = () => {
-    onConfirm();
-    onClose();
+    onConfirm(onClose);
   };
 
   return (
@@ -53,6 +54,7 @@ export function DeleteConfirmationModal({
             Hủy
           </Button>
           <Button
+            isLoading={isDeleting}
             onClick={handleConfirm}
             className={
               isDestructive
