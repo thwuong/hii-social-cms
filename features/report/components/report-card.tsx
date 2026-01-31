@@ -1,7 +1,7 @@
 import { Badge, Typography } from '@/shared/ui';
 import { AlertTriangle, Check, Clock, User } from 'lucide-react';
-import type { ReportStatus, Video } from '../types';
-import { formatDate, getReportStatusColor, REPORT_STATUS_LABELS } from '../utils';
+import type { Video } from '../types';
+import { formatDate } from '../utils';
 
 interface ReportCardProps {
   report: Video;
@@ -11,7 +11,6 @@ interface ReportCardProps {
 }
 
 function ReportCard({ report, onView, isSelected, onToggleSelect }: ReportCardProps) {
-  const statusColor = getReportStatusColor(report.video_info.status as ReportStatus);
   const isPending = report.reports.some((r) => r.status === 'pending');
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
@@ -25,7 +24,7 @@ function ReportCard({ report, onView, isSelected, onToggleSelect }: ReportCardPr
     <button
       type="button"
       onClick={onView}
-      className="group relative cursor-pointer overflow-hidden border border-white/10 bg-black p-6 text-left transition-colors hover:border-white/30 hover:bg-white/5"
+      className="group relative flex cursor-pointer flex-col overflow-hidden border border-white/10 bg-black p-6 text-left transition-colors hover:border-white/30 hover:bg-white/5"
     >
       {/* Hover Line */}
       <div className="absolute top-0 left-0 z-20 h-[1px] w-full origin-left scale-x-0 transform bg-white transition-transform duration-500 group-hover:scale-x-100" />

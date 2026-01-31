@@ -166,96 +166,98 @@ function ReportListPage() {
   return (
     <div className="relative flex h-full flex-col space-y-8">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between bg-black/80 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div>
-            <Typography variant="h2" className="text-white">
-              BÁO CÁO VI PHẠM
-            </Typography>
-            <Typography variant="small" className="text-muted-foreground mt-2 font-mono">
-              Quản lý các báo cáo vi phạm từ người dùng
-            </Typography>
-          </div>
-        </div>
-
-        {/* Select All - Only show if has pending reports */}
-        {pendingReports && pendingReports.length > 0 && (
-          <button
-            type="button"
-            onClick={handleSelectAll}
-            className="flex items-center gap-2 font-mono text-xs text-zinc-400 transition-colors hover:text-white"
-          >
-            <div
-              className={`flex h-5 w-5 items-center justify-center border transition-all ${
-                allSelected
-                  ? 'border-white bg-white'
-                  : 'border-white/20 bg-transparent hover:border-white'
-              }`}
-            >
-              {allSelected && <Check size={12} className="text-black" />}
+      <div className="sticky top-0 z-50 flex flex-col gap-4 bg-black/80 py-4 backdrop-blur-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div>
+              <Typography variant="h2" className="text-white">
+                BÁO CÁO VI PHẠM
+              </Typography>
+              <Typography variant="small" className="text-muted-foreground mt-2 font-mono">
+                Quản lý các báo cáo vi phạm từ người dùng
+              </Typography>
             </div>
-            <span className="uppercase">{allSelected ? 'Bỏ Chọn Tất Cả' : 'Chọn Tất Cả'}</span>
-          </button>
-        )}
-      </div>
+          </div>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-6">
-        {/* Status Filter */}
-        <div className="space-y-3">
-          <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
-            <Filter size={10} /> Lọc Trạng Thái
-          </Typography>
-          <div className="flex flex-wrap gap-1">
-            {statusOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => handleFilterStatus(option.value as ReportStatus)}
-                className={`border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
-                  filters.status === option.value
-                    ? 'border-white bg-white text-black'
-                    : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+          {/* Select All - Only show if has pending reports */}
+          {pendingReports && pendingReports.length > 0 && (
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              className="flex items-center gap-2 font-mono text-xs text-zinc-400 transition-colors hover:text-white"
+            >
+              <div
+                className={`flex h-5 w-5 items-center justify-center border transition-all ${
+                  allSelected
+                    ? 'border-white bg-white'
+                    : 'border-white/20 bg-transparent hover:border-white'
                 }`}
               >
-                {option.label}
-              </button>
-            ))}
-          </div>
+                {allSelected && <Check size={12} className="text-black" />}
+              </div>
+              <span className="uppercase">{allSelected ? 'Bỏ Chọn Tất Cả' : 'Chọn Tất Cả'}</span>
+            </button>
+          )}
         </div>
 
-        {/* Reason Filter */}
-        <div className="space-y-3">
-          <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
-            <Tag size={10} /> Lọc Lý Do
-          </Typography>
-          <div className="flex flex-wrap gap-1">
-            {data?.reasons?.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                // onClick={() => setFilters('status', option.id as any)}
-                className={`border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
-                  filters.status === option.id
-                    ? 'border-white bg-white text-black'
-                    : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                {option.title}
-              </button>
-            ))}
+        {/* Filters */}
+        <div className="flex flex-col gap-4">
+          {/* Status Filter */}
+          <div className="space-y-3">
+            <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
+              <Filter size={10} /> Lọc Trạng Thái
+            </Typography>
+            <div className="flex flex-wrap gap-1">
+              {statusOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleFilterStatus(option.value as ReportStatus)}
+                  className={`border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
+                    filters.status === option.value
+                      ? 'border-white bg-white text-black'
+                      : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Search */}
-        <div className="border-t border-white/10 pt-6">
-          <div className="group relative">
-            <Search className="absolute top-2.5 left-3 h-4 w-4 text-zinc-600 transition-colors group-hover:text-white" />
-            <Input
-              placeholder="TÌM KIẾM..."
-              className="h-10 border-white/10 bg-black pl-10 font-mono text-xs text-white uppercase focus:border-white"
-              value={searchQuery}
-            />
+          {/* Reason Filter */}
+          <div className="space-y-3">
+            <Typography variant="tiny" className="flex items-center gap-2 font-mono text-zinc-500">
+              <Tag size={10} /> Lọc Lý Do
+            </Typography>
+            <div className="flex flex-wrap gap-1">
+              {data?.reasons?.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  // onClick={() => setFilters('status', option.id as any)}
+                  className={`border px-4 py-2 font-mono text-[10px] uppercase transition-all ${
+                    filters.status === option.id
+                      ? 'border-white bg-white text-black'
+                      : 'border-zinc-800 bg-transparent text-zinc-500 hover:border-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  {option.title}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="border-t border-white/10 pt-6">
+            <div className="group relative">
+              <Search className="absolute top-2.5 left-3 h-4 w-4 text-zinc-600 transition-colors group-hover:text-white" />
+              <Input
+                placeholder="TÌM KIẾM..."
+                className="h-10 border-white/10 bg-black pl-10 font-mono text-xs text-white uppercase focus:border-white"
+                value={searchQuery}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -280,7 +282,7 @@ function ReportListPage() {
         </div>
       )}
       {!isLoading && !!reports?.length && (
-        <div className="grid flex-1 grid-rows-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid flex-1 auto-rows-max gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {reports.map((report) => (
             <ReportCard
               key={report.video_id}
@@ -291,7 +293,7 @@ function ReportListPage() {
             />
           ))}
           {/* Infinite Scroll Trigger */}
-          {loadMoreRef && (
+          {hasNextPage && (
             <div ref={loadMoreRef} className="col-span-full flex justify-center py-8">
               {isFetchingNextPage && (
                 <div className="flex items-center gap-2 font-mono text-[10px] text-white uppercase">

@@ -17,7 +17,7 @@ const ContentGrid: React.FC<ContentGridProps> = ({
 }) => {
   return (
     <>
-      <div className="grid flex-1 grid-cols-1 grid-rows-2 gap-[2px] overflow-y-auto border border-white/10 bg-white/10 p-[1px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid flex-1 auto-rows-max grid-cols-1 gap-[2px] overflow-y-auto border border-white/10 bg-white/10 p-[1px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {children}
         {isEmpty && <EmptyState />}
       </div>
