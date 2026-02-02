@@ -2,8 +2,8 @@ import { cn } from '@/lib/utils';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import * as React from 'react';
 import { Button } from './button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
 import { Checkbox } from './checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
 
 /**
  * DataTable Column Definition
@@ -285,7 +285,7 @@ export function DataTable<T>({
             )}
 
             {/* Infinite Scroll Trigger */}
-            {loadMoreRef && sortedData.length > 0 && (
+            {hasNextPage && sortedData.length > 0 && (
               <TableRow className="border-t border-white/10 hover:bg-transparent">
                 <TableCell colSpan={colSpan} className="py-8 text-center">
                   <div ref={loadMoreRef}>

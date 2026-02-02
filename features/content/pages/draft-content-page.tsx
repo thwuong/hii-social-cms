@@ -23,6 +23,7 @@ function ContentCrawlPageComponent() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    isPlaceholderData,
   } = useDraftContent();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -170,6 +171,7 @@ function ContentCrawlPageComponent() {
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           loadMoreRef={loadMoreRef}
+          isPlaceholderData={isPlaceholderData}
         />
       )}
       {!_isLoadingCrawlContent && viewMode === 'grid' && (
@@ -178,6 +180,7 @@ function ContentCrawlPageComponent() {
           loadMoreRef={loadMoreRef}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
+          isPlaceholderData={isPlaceholderData}
         >
           {crawlContent.map((item) => {
             return (

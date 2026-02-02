@@ -1,3 +1,4 @@
+import { cn } from '@/lib';
 import React from 'react';
 
 interface ContentGridProps {
@@ -6,6 +7,7 @@ interface ContentGridProps {
   loadMoreRef?: React.Ref<HTMLDivElement>;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
+  isPlaceholderData?: boolean;
 }
 
 const ContentGrid: React.FC<ContentGridProps> = ({
@@ -14,10 +16,16 @@ const ContentGrid: React.FC<ContentGridProps> = ({
   loadMoreRef,
   hasNextPage,
   isFetchingNextPage,
+  isPlaceholderData,
 }) => {
   return (
     <>
-      <div className="grid flex-1 auto-rows-max grid-cols-1 gap-[2px] overflow-y-auto border border-white/10 bg-black/10 p-[1px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div
+        className={cn(
+          'relative grid flex-1 auto-rows-max grid-cols-1 gap-[2px] overflow-y-auto border border-white/10 bg-black/10 p-[1px] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+          isPlaceholderData && 'pointer-events-none opacity-50'
+        )}
+      >
         {children}
         {isEmpty && <EmptyState />}
       </div>

@@ -34,6 +34,7 @@ function ContentPageComponent() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    isPlaceholderData,
   } = useContent(filters);
 
   const {
@@ -320,6 +321,7 @@ function ContentPageComponent() {
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           loadMoreRef={loadMoreRef}
+          isPlaceholderData={isPlaceholderData}
         />
       )}
 
@@ -329,6 +331,7 @@ function ContentPageComponent() {
           loadMoreRef={loadMoreRef}
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
+          isPlaceholderData={isPlaceholderData}
         >
           {items?.map((item: ContentItem) => {
             const canSelect =

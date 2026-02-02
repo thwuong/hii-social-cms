@@ -1,3 +1,4 @@
+import { cn } from '@/lib';
 import { toast } from '@/shared';
 import { Typography } from '@/shared/ui';
 import { useNavigate, useSearch } from '@tanstack/react-router';
@@ -32,6 +33,7 @@ function PlaylistListPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isPlaceholderData,
   } = usePlaylists({
     limit: filters.limit,
     search: filters.search,
@@ -111,7 +113,12 @@ function PlaylistListPage() {
 
       {/* Playlist Grid */}
       {!isLoading && playlists && playlists.length > 0 && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div
+          className={cn(
+            'grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+            isPlaceholderData && 'pointer-events-none opacity-50'
+          )}
+        >
           {isCreating && <PlaylistCardSkeleton />}
           {playlists.map((playlist) => (
             <PlaylistCard

@@ -1,4 +1,5 @@
 import { RejectConfirmationModal } from '@/features/content/components';
+import { cn } from '@/lib';
 import { Button, Input, Typography } from '@/shared/ui';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { AlertTriangle, Check, Filter, Search, Tag, XCircle } from 'lucide-react';
@@ -25,7 +26,14 @@ function ReportListPage() {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   const filters: ReportSearchSchema = useSearch({ strict: false });
-  const { data: reports, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useReports();
+  const {
+    data: reports,
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isPlaceholderData,
+  } = useReports();
 
   const [loadMoreRef] = useInfiniteScroll({
     hasNextPage,
@@ -282,7 +290,12 @@ function ReportListPage() {
         </div>
       )}
       {!isLoading && !!reports?.length && (
-        <div className="grid flex-1 auto-rows-max gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div
+          className={cn(
+            'grid flex-1 auto-rows-max gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+            isPlaceholderData && 'pointer-events-none opacity-50'
+          )}
+        >
           {reports.map((report) => (
             <ReportCard
               key={report.video_id}

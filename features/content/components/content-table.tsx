@@ -15,6 +15,7 @@ interface ContentTableProps {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   loadMoreRef: React.Ref<HTMLDivElement>;
+  isPlaceholderData?: boolean;
 }
 
 // Media Icon Component (outside render)
@@ -38,9 +39,6 @@ function TitleCell({ row }: { row: ContentItem }) {
   return (
     <div className="flex max-w-[300px] flex-col whitespace-normal">
       <Typography className="line-clamp-1 leading-normal text-white">{row.title}</Typography>
-      <Typography variant="small" className="line-clamp-2 font-mono leading-normal text-zinc-500">
-        {row.short_description}
-      </Typography>
     </div>
   );
 }
@@ -155,6 +153,7 @@ const ContentTable: React.FC<ContentTableProps> = ({
   hasNextPage,
   isFetchingNextPage,
   loadMoreRef,
+  isPlaceholderData,
 }) => {
   return (
     <DataTable
@@ -170,6 +169,7 @@ const ContentTable: React.FC<ContentTableProps> = ({
       hasNextPage={hasNextPage}
       isFetchingNextPage={isFetchingNextPage}
       loadMoreRef={loadMoreRef}
+      className={cn(isPlaceholderData && 'pointer-events-none opacity-50')}
     />
   );
 };
