@@ -60,6 +60,7 @@ export interface PlaylistListQueryParamsDto {
   limit?: number;
   sort?: string;
   search?: string;
+  sorted?: string;
 }
 
 export interface PlaylistListResponseDto {

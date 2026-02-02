@@ -67,9 +67,6 @@ function Media({ item, onView, isSelected, onToggleSelect }: MediaProps) {
         >
           {item.title}
         </Typography>
-        <Typography variant="small" className="line-clamp-2 font-mono text-ellipsis text-zinc-500">
-          {item.short_description}
-        </Typography>
       </div>
       {/* Meta */}
       <div className="flex flex-wrap items-center gap-1 font-mono text-[10px] text-zinc-500">

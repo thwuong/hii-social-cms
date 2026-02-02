@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 
 const typographyVariants = cva('', {
   variants: {
@@ -21,8 +21,7 @@ const typographyVariants = cva('', {
       tiny: 'text-tiny text-muted-foreground font-mono',
     },
     size: {
-      tiny: 'text-tiny',
-      xsmall: 'text-xs',
+      tiny: 'text-xs',
       small: 'text-sm',
       medium: 'text-base',
       large: 'text-lg',

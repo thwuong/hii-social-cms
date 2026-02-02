@@ -5,15 +5,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SortOrder,
   Typography,
 } from '@/shared';
 import { useNavigate, useSearch } from '@tanstack/react-router';
+import { debounce } from 'lodash';
 import { Plus, Search } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
-import { debounce } from 'lodash';
-import { PlaylistSearchSchema } from '../schema';
 import { PLAYLIST_SORT_OPTIONS } from '../contants';
+import { PlaylistSearchSchema } from '../schema';
 
 type PlaylistHeaderProps = {
   onOpenCreateModal: () => void;
@@ -80,8 +79,8 @@ function PlaylistHeader({ onOpenCreateModal }: PlaylistHeaderProps) {
             />
           </div>
         </div>
-        {/* <div className="flex items-center gap-2">
-          <Select value={filters.sort} onValueChange={(value) => updateFilters('sort', value)}>
+        <div className="flex items-center gap-2">
+          <Select value={filters.sorted} onValueChange={(value) => updateFilters('sorted', value)}>
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Sắp xếp theo" />
             </SelectTrigger>
@@ -93,7 +92,7 @@ function PlaylistHeader({ onOpenCreateModal }: PlaylistHeaderProps) {
               ))}
             </SelectContent>
           </Select>
-        </div> */}
+        </div>
       </div>
     </header>
   );

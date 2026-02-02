@@ -1,9 +1,9 @@
+import { toast } from '@/shared';
 import { Typography } from '@/shared/ui';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { ListVideo, Plus } from 'lucide-react';
 import { useState } from 'react';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
-import { toast } from '@/shared';
 import {
   CreatePlaylistModal,
   DeleteConfirmationModal,
@@ -14,8 +14,8 @@ import {
 } from '../components';
 import { CreatePlaylistDto } from '../dto';
 import { useCreatePlaylist, useDeletePlaylist, usePlaylists } from '../hooks/usePlaylist';
-import type { Playlist } from '../types';
 import { PlaylistSearchSchema } from '../schema';
+import type { Playlist } from '../types';
 
 function PlaylistListPage() {
   const navigate = useNavigate();
@@ -35,6 +35,8 @@ function PlaylistListPage() {
   } = usePlaylists({
     limit: filters.limit,
     search: filters.search,
+    sort: filters.sort,
+    sorted: filters.sorted,
   });
 
   const [loadMoreRef] = useInfiniteScroll({

@@ -111,12 +111,10 @@ function QueueItem({ qItem, activeItem, isSelected, onToggleSelect }: QueueItemP
         loading="lazy"
       />
       <div className="flex flex-1 flex-col gap-2 overflow-hidden">
-        <Typography className="line-clamp-1 font-bold text-white" variant="small">
+        <Typography className="line-clamp-2 font-bold text-white" variant="small">
           {qItem.title}
         </Typography>
-        <Typography className="text-muted-foreground line-clamp-2 font-mono" variant="tiny">
-          {qItem.short_description}
-        </Typography>
+
         <Typography className="text-muted-foreground" variant="tiny">
           {qItem.tags.join(', ')}
         </Typography>

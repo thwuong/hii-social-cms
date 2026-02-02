@@ -1,3 +1,4 @@
+import { DashboardSkeleton } from '@/shared/components';
 import { STATUS_LABELS } from '@/shared/constants';
 import { ContentStatus } from '@/shared/types';
 import { Button, Typography } from '@/shared/ui';
@@ -5,7 +6,6 @@ import { useNavigate } from '@tanstack/react-router';
 import { ArrowUpRight, Zap } from 'lucide-react';
 import { useMemo } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
-import { DashboardSkeleton } from '@/shared/components';
 import { CustomTooltip, KPICard, StatItem } from '../components';
 import { useDashboardStats, useDashboardTimeseries } from '../hooks';
 import { TimeseriesItem } from '../types';
@@ -205,7 +205,7 @@ function DashboardPage() {
             <Typography variant="h3" size="xlarge" className="mb-1 text-black">
               Tạo Mới
             </Typography>
-            <Typography size="xsmall" className="font-mono text-zinc-600 uppercase">
+            <Typography size="small" className="font-mono text-zinc-600 uppercase">
               THỦ CÔNG
             </Typography>
           </div>
