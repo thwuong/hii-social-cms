@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 
 import ContentTable from '@/features/content/components/content-table';
-import { ContentItem, ContentStatus } from '@/shared';
+import { ConfirmMergeModal } from '@/features/playlist/components';
 import { useAddVideosToPlaylists, useCreatePlaylist } from '@/features/playlist/hooks/usePlaylist';
+import { CreatePlaylistSchema } from '@/features/playlist/schema/create-playlist.schema';
+import { ContentItem, ContentStatus } from '@/shared';
 import { ContentGrid, ContentGridSkeleton, ContentTableSkeleton } from '@/shared/components';
 import { useNavigate, useRouteContext, useSearch } from '@tanstack/react-router';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { toast } from 'sonner';
-import { CreatePlaylistSchema } from '@/features/playlist/schema/create-playlist.schema';
 import {
   AddToPlaylistModal,
   ContentHeader,
@@ -19,6 +20,7 @@ import { useApproveContents, useContent, useRejectContents } from '../hooks/useC
 import { ContentSearchSchema } from '../schemas';
 import { useContentStore } from '../stores/useContentStore';
 import { ApproveContentBatchPayload } from '../types';
+import { checkIsPlaylistPlatform } from '../utils';
 
 function ContentPageComponent() {
   const navigate = useNavigate();
@@ -46,6 +48,7 @@ function ContentPageComponent() {
 
   const [isBatchRejectModalOpen, setIsBatchRejectModalOpen] = useState(false);
   const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
+  const [isConfirmAddToPlaylistModalOpen, setIsConfirmAddToPlaylistModalOpen] = useState(false);
 
   // Infinite scroll for Grid view
   const [loadMoreRef] = useInfiniteScroll({
@@ -220,13 +223,17 @@ function ContentPageComponent() {
     }
   };
 
-  const handleAddToPlaylist = () => {
+  const addToPlaylist = (isMergedPlatforms: boolean) => {
     // Add each selected video to the playlist
     const totalCount = selectedIds.length;
 
     addVideosToPlaylists(
       {
-        payload: { video_ids: selectedIds, playlist_ids: selectedPlaylistIds },
+        payload: {
+          video_ids: selectedIds,
+          playlist_ids: selectedPlaylistIds,
+          is_merged_platforms: isMergedPlatforms,
+        },
       },
       {
         onSuccess: () => {
@@ -241,6 +248,21 @@ function ContentPageComponent() {
         },
       }
     );
+  };
+
+  const handleAddToPlaylist = () => {
+    const selectedItems = items?.filter((item) => selectedIds.includes(item.id)) || [];
+    const isMergedPlatforms = checkIsPlaylistPlatform(selectedItems);
+    if (isMergedPlatforms) {
+      setIsConfirmAddToPlaylistModalOpen(true);
+    } else {
+      addToPlaylist(isMergedPlatforms);
+    }
+  };
+
+  const handleConfirmAddToPlaylist = () => {
+    addToPlaylist(true);
+    setIsConfirmAddToPlaylistModalOpen(false);
   };
 
   const handleCreatePlaylistWithVideos = (data: CreatePlaylistSchema) => {
@@ -370,6 +392,13 @@ function ContentPageComponent() {
         onToggleSelectPlaylist={handleToggleSelectPlaylist}
         onCreatePlaylist={handleCreatePlaylistWithVideos}
         selectedCount={selectedIds.length}
+      />
+
+      {/* Confirm Add to Playlist Modal */}
+      <ConfirmMergeModal
+        isOpen={isConfirmAddToPlaylistModalOpen}
+        onClose={() => setIsConfirmAddToPlaylistModalOpen(false)}
+        onConfirm={handleConfirmAddToPlaylist}
       />
     </div>
   );

@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   AddVideosModal,
+  ConfirmMergeModal,
   DeleteConfirmationModal,
   DraggableVideoList,
   PlaylistDetailSkeleton,
@@ -19,6 +20,7 @@ import { useDeletePlaylist, usePlaylist, useUpdatePlaylist } from '../hooks/useP
 import { updatePlaylistSchema, UpdatePlaylistSchema } from '../schema/update-playlist.schema';
 import { usePlaylistStore } from '../stores/usePlaylistStore';
 import type { PlaylistContent } from '../types';
+import { checkIsPlaylistPlatform } from '../utils';
 
 function PlaylistDetailPage() {
   const navigate = useNavigate();
@@ -46,6 +48,9 @@ function PlaylistDetailPage() {
     type: null,
     video: null,
   });
+
+  const [isConfirmMergeModalOpen, setIsConfirmMergeModalOpen] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState<UpdatePlaylistSchema | null>(null);
 
   const { data: playlist, isLoading } = usePlaylist(playlistId!);
   const initialRender = useRef(false);
@@ -87,6 +92,36 @@ function PlaylistDetailPage() {
   }, [playlist, setActiveVideoId, setPlaylistVideos]);
 
   // Handlers
+  const handleUpdatePlaylist = (
+    id: string,
+    payload: UpdatePlaylistSchema,
+    isMergedPlatforms?: boolean
+  ) => {
+    updatePlaylist(
+      {
+        id,
+        payload: {
+          ...payload,
+          is_merged_platforms: isMergedPlatforms || false,
+        },
+      },
+      {
+        onSuccess: () => {
+          reset({
+            name: playlist?.name || '',
+            description: playlist?.description || '',
+            video_ids: playlist?.contents?.map((v) => v.video_id) || [],
+            thumbnail: playlist?.thumbnail_url || '',
+          });
+          toast.success('Cập nhật thành công');
+        },
+        onError: () => {
+          toast.error('Cập nhật thất bại');
+        },
+      }
+    );
+  };
+
   const handleSave = (data: UpdatePlaylistSchema) => {
     if (!playlistId) return;
 
@@ -107,26 +142,15 @@ function PlaylistDetailPage() {
       payload[typedKey] = data[typedKey];
     });
 
-    updatePlaylist(
-      {
-        id: playlistId,
-        payload,
-      },
-      {
-        onSuccess: () => {
-          reset({
-            name: playlist?.name || '',
-            description: playlist?.description || '',
-            video_ids: playlist?.contents?.map((v) => v.video_id) || [],
-            thumbnail: playlist?.thumbnail_url || '',
-          });
-          toast.success('Cập nhật thành công');
-        },
-        onError: () => {
-          toast.error('Cập nhật thất bại');
-        },
-      }
-    );
+    const isMergedPlatforms = checkIsPlaylistPlatform(playlistVideos);
+
+    if (isMergedPlatforms) {
+      setPendingPayload(payload);
+      setIsConfirmMergeModalOpen(true);
+      return;
+    }
+
+    handleUpdatePlaylist(playlistId, payload);
   };
 
   const handleCancel = () => {
@@ -186,6 +210,13 @@ function PlaylistDetailPage() {
         shouldDirty: true,
       }
     );
+  };
+
+  const handleConfirmMerge = () => {
+    if (!playlistId || !pendingPayload) return;
+    handleUpdatePlaylist(playlistId, pendingPayload, true);
+    setIsConfirmMergeModalOpen(false);
+    setPendingPayload(null);
   };
 
   // Get active video
@@ -373,6 +404,16 @@ function PlaylistDetailPage() {
             : `Bạn có chắc chắn muốn xóa video "${deleteModal.video?.title}" khỏi playlist?`
         }
         confirmText={deleteModal.type === 'playlist' ? 'Xóa Playlist' : 'Xóa Video'}
+      />
+
+      <ConfirmMergeModal
+        isOpen={isConfirmMergeModalOpen}
+        onClose={() => {
+          setIsConfirmMergeModalOpen(false);
+          setPendingPayload(null);
+        }}
+        onConfirm={handleConfirmMerge}
+        isLoading={isUpdating}
       />
     </div>
   );

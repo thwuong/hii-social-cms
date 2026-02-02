@@ -1,4 +1,4 @@
-import { ContentItem, ContentStatus, AuditLogEntry, UserRole } from '@/shared/types';
+import { AuditLogEntry, ContentItem, ContentStatus, UserRole } from '@/shared/types';
 
 export class CMSService {
   private content: ContentItem[] = [];
@@ -131,14 +131,14 @@ export class CMSService {
 
     const allowedRoles: Record<ContentStatus, UserRole[]> = {
       [ContentStatus.ALL]: [], // ALL is a filter status, not a content state
-      [ContentStatus.DRAFT]: [UserRole.EDITOR],
-      [ContentStatus.PENDING_REVIEW]: [UserRole.EDITOR],
+      [ContentStatus.DRAFT]: [UserRole.REVIEWER],
+      [ContentStatus.PENDING_REVIEW]: [UserRole.REVIEWER],
       [ContentStatus.APPROVED]: [UserRole.REVIEWER],
-      [ContentStatus.SCHEDULED]: [UserRole.EDITOR, UserRole.REVIEWER],
+      [ContentStatus.SCHEDULED]: [UserRole.REVIEWER],
       [ContentStatus.REJECTED]: [UserRole.REVIEWER],
-      [ContentStatus.PUBLISHED]: [UserRole.EDITOR, UserRole.REVIEWER],
-      [ContentStatus.ARCHIVED]: [UserRole.EDITOR, UserRole.REVIEWER],
-      [ContentStatus.PRIVATE]: [UserRole.EDITOR],
+      [ContentStatus.PUBLISHED]: [UserRole.REVIEWER],
+      [ContentStatus.ARCHIVED]: [UserRole.REVIEWER],
+      [ContentStatus.PRIVATE]: [UserRole.REVIEWER],
     };
 
     // Check if transition exists

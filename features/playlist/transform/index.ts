@@ -1,19 +1,20 @@
-import { MediaType } from '@/shared';
+import { ContentItem, MediaType } from '@/shared';
 import { PlaylistDetailDto, PlaylistDto, PlaylistVideoDto } from '../dto';
 import { Playlist, PlaylistContent } from '../types';
 
-const transformPlaylistVideo = (video: PlaylistVideoDto): PlaylistContent => {
+const transformPlaylistVideo = (content: PlaylistVideoDto): PlaylistContent => {
   return {
-    id: video.video_id,
-    video_id: video.video_id,
-    title: video.video_title,
-    thumbnail_url: video.video_thumbnail,
-    duration: video.video_duration,
-    position: video.position,
-    created_at: video.added_at,
-    url: video.video.media[0].url,
-    media: video.video.media,
-    type: video.video.type as MediaType,
+    id: content.video_id,
+    video_id: content.video_id,
+    title: content.video_title,
+    thumbnail_url: content.video_thumbnail,
+    duration: content.video_duration,
+    position: content.position,
+    created_at: content.added_at,
+    url: content.video.media[0].url,
+    media: content.video.media,
+    type: content.video.type as MediaType,
+    platforms: content.video.platforms || [],
   };
 };
 
@@ -27,6 +28,25 @@ const transformPlaylist = (playlist: PlaylistDto): Playlist => {
     thumbnail_url: playlist.thumbnail,
     updated_at: playlist.updated_at,
     video_count: playlist.video_count,
+  };
+};
+
+export const transformContentToPlaylistVideo = (
+  content: ContentItem,
+  position: number
+): PlaylistContent => {
+  return {
+    id: content.id,
+    video_id: content.id,
+    title: content.title,
+    thumbnail_url: content.thumbnail_url || '',
+    duration: 0,
+    position,
+    created_at: content.created_at,
+    url: content.media?.[0]?.url || '',
+    media: content.media || [],
+    type: content.media_type as MediaType,
+    platforms: content.target_platforms || [],
   };
 };
 

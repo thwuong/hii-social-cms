@@ -1,10 +1,11 @@
 import { useContent } from '@/features/content/hooks/useContent';
-import { ContentItem, ContentStatus, MediaType } from '@/shared';
+import { ContentItem, ContentStatus } from '@/shared';
 import { Button, Dialog, DialogContent, Input, Typography } from '@/shared/ui';
+import { debounce } from 'lodash';
 import { Search, Video } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
-import { debounce } from 'lodash';
+import { transformContentToPlaylistVideo } from '../transform';
 import { PlaylistContent } from '../types';
 
 interface AddVideosModalProps {
@@ -65,18 +66,8 @@ export function AddVideosModal({
   };
 
   const handleAddVideo = (video: ContentItem) => {
-    onAddVideo({
-      ...video,
-      position: availableVideos.length,
-      video_id: video.id,
-      created_at: video.created_at,
-      id: video.id,
-      thumbnail_url: video.thumbnail_url || '',
-      duration: 0,
-      url: video.media?.[0]?.url || '',
-      type: video.media_type as MediaType,
-      media: video.media || [],
-    });
+    const playlistVideo = transformContentToPlaylistVideo(video, availableVideos.length);
+    onAddVideo(playlistVideo);
     handleClose();
   };
 

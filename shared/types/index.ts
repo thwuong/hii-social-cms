@@ -34,7 +34,6 @@ export enum SourcePlatform {
 }
 
 export enum UserRole {
-  EDITOR = 'Biên Tập Viên',
   REVIEWER = 'Kiểm Duyệt Viên',
   ADMIN = 'Quản Trị Viên',
 }

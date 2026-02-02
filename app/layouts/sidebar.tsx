@@ -18,7 +18,7 @@ function Sidebar() {
     { id: 'audit', path: '/audit', label: 'Nhật Ký Hệ Thống' },
   ];
 
-  const roles: UserRole[] = [UserRole.EDITOR, UserRole.REVIEWER, UserRole.ADMIN];
+  const roles: UserRole[] = [UserRole.REVIEWER, UserRole.ADMIN];
 
   // Get current path
   const currentPath = routerState.location.pathname;

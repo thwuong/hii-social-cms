@@ -64,3 +64,19 @@ export const transformReelContent = (content: Reel): ContentItem => {
 export const transformStatusLabel = (status: string) => {
   return STATUS_LABELS[status as ContentStatus];
 };
+
+export const checkIsPlaylistPlatform = (playlistVideos: ContentItem[]) => {
+  if (!playlistVideos?.length) return false;
+
+  const normalize = (platforms?: string[]) => [...(platforms ?? [])].sort();
+
+  const base = normalize(playlistVideos[0].target_platforms);
+
+  return playlistVideos.slice(1).some((video) => {
+    const current = normalize(video.target_platforms);
+
+    if (base.length !== current.length) return true;
+
+    return base.some((p, i) => p !== current[i]);
+  });
+};

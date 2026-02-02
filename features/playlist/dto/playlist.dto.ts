@@ -37,11 +37,14 @@ export interface CreatePlaylistDto {
   thumbnail: string;
 }
 
-export interface UpdatePlaylistDto extends Partial<CreatePlaylistDto> {}
+export interface UpdatePlaylistDto extends Partial<CreatePlaylistDto> {
+  is_merged_platforms: boolean;
+}
 
 export interface AddVideosToPlaylistsDto {
   video_ids: string[];
   playlist_ids: string[];
+  is_merged_platforms: boolean;
 }
 
 export interface ReorderPlaylistDto {

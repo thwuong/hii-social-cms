@@ -16,6 +16,7 @@ export interface PlaylistContent {
   url: string;
   media: Media[];
   type: MediaType;
+  platforms: string[];
 }
 
 export interface Playlist {
