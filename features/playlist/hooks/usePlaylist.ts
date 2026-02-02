@@ -13,9 +13,7 @@ import {
   AddVideosToPlaylistsDto,
   CreatePlaylistDto,
   DeleteVideoFromPlaylistDto,
-  PlaylistDto,
   PlaylistListQueryParamsDto,
-  PlaylistListResponseDto,
   ReorderPlaylistDto,
   UpdatePlaylistDto,
 } from '../dto';
@@ -26,7 +24,7 @@ import { transformPlaylistDetail, transformPlaylistList } from '../transform';
  */
 export function usePlaylists(params: PlaylistListQueryParamsDto) {
   const playlistsQuery = useInfiniteQuery({
-    queryKey: playlistKeys.list(),
+    queryKey: playlistKeys.list(params),
     queryFn: ({ pageParam = '' }) => playlistService.getPlaylists({ ...params, cursor: pageParam }),
     getNextPageParam: (lastPage) => (lastPage.next_cursor ? lastPage.next_cursor : undefined),
     initialPageParam: '',
@@ -84,10 +82,6 @@ export function useUpdatePlaylist() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: playlistKeys.lists() });
       queryClient.invalidateQueries({ queryKey: playlistKeys.detail(data?.playlist?.id || '') });
-      toast.success('CẬP NHẬT PLAYLIST THÀNH CÔNG');
-    },
-    onError: () => {
-      toast.error('CẬP NHẬT PLAYLIST THẤT BẠI');
     },
   });
 }

@@ -55,6 +55,8 @@ export interface DeleteVideoFromPlaylistDto {
 export interface PlaylistListQueryParamsDto {
   cursor?: string;
   limit?: number;
+  sort?: string;
+  search?: string;
 }
 
 export interface PlaylistListResponseDto {

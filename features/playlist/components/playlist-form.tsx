@@ -45,12 +45,7 @@ export function PlaylistForm({
     <div className={`space-y-6 ${className}`}>
       {/* Name Field */}
       <div className="space-y-2">
-        <FormField
-          control={control}
-          name="name"
-          label="Tên Playlist"
-          placeholder="Nhập tên playlist..."
-        />
+        <FormField control={control} name="name" label="Tiêu đề" placeholder="Nhập tiêu đề..." />
       </div>
 
       {/* Description Field */}

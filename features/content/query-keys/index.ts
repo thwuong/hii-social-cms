@@ -14,7 +14,8 @@ export const queryKeys = {
   // Content queries
   content: {
     all: ['content'] as const,
-    lists: (filters: ContentSearchSchema) => [...queryKeys.content.all, 'list', filters] as const,
+    lists: (filters: Partial<ContentSearchSchema>) =>
+      [...queryKeys.content.all, 'list', filters] as const,
     details: (id: string, approving_status: string) =>
       [...queryKeys.content.all, 'detail', id, approving_status] as const,
   },

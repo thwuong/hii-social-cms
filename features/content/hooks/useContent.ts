@@ -1,7 +1,5 @@
 import { queryClient } from '@/lib';
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
-import { useSearch } from '@tanstack/react-router';
-import { ContentStatus } from '@/shared';
 import { queryKeys } from '../query-keys';
 import { ContentSearchSchema } from '../schemas/content-search.schema';
 import { ContentSchema } from '../schemas/content.schema';
@@ -15,20 +13,20 @@ import {
 } from '../types';
 import { transformReelContent } from '../utils';
 
-export const useContent = (overrideStatus?: ContentStatus) => {
-  const filters: ContentSearchSchema = useSearch({ strict: false });
+export const useContent = (filters: Partial<ContentSearchSchema>) => {
+  // const filters: ContentSearchSchema = useSearch({ strict: false });
 
-  const approvingStatus = overrideStatus || filters.approving_status;
+  // const approvingStatus = overrideStatus || filters.approving_status;
   const queryKey = queryKeys.content.lists({
     ...filters,
-    approving_status: approvingStatus,
+    // approving_status: approvingStatus,
   });
   const contentQuery = useInfiniteQuery({
     queryKey,
     queryFn: ({ pageParam = 1 }) =>
       contentService.getContent({
         ...filters,
-        approving_status: approvingStatus,
+        // approving_status: approvingStatus,
         page: pageParam,
       }),
     getNextPageParam: (lastPage: GetContentResponse, allPages: GetContentResponse[]) => {

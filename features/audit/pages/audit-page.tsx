@@ -6,9 +6,9 @@ function AuditPageComponent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div>
+          <div className="flex flex-col gap-2">
             <Typography variant="h2" className="text-white">
-              AUDIT
+              LỊCH SỬ HOẠT ĐỘNG
             </Typography>
             <Typography variant="small" className="text-muted-foreground font-mono">
               Quản lý các hoạt động audit của hệ thống

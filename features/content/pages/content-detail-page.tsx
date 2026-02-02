@@ -36,7 +36,10 @@ function DetailPageComponent() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useContent(searchParams?.approving_status as ContentStatus);
+  } = useContent({
+    ...searchParams,
+    approving_status: searchParams?.approving_status as string,
+  });
 
   // Batch operations
   const { mutate: approveContents, isPending: isApprovingBatch } = useApproveContents();

@@ -23,6 +23,8 @@ import { ApproveContentBatchPayload } from '../types';
 function ContentPageComponent() {
   const navigate = useNavigate();
 
+  const filters: ContentSearchSchema = useSearch({ strict: false });
+
   const {
     data: items,
     isLoading,
@@ -30,7 +32,7 @@ function ContentPageComponent() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useContent();
+  } = useContent(filters);
 
   const {
     service: _service,
@@ -39,8 +41,6 @@ function ContentPageComponent() {
   } = useRouteContext({
     strict: false,
   });
-
-  const filters: ContentSearchSchema = useSearch({ strict: false });
 
   const { selectedIds, setSelectedIds, viewMode } = useContentStore((state) => state);
 

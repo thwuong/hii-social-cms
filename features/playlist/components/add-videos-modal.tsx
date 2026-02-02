@@ -4,6 +4,7 @@ import { Button, Dialog, DialogContent, Input, Typography } from '@/shared/ui';
 import { Search, Video } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
+import { debounce } from 'lodash';
 import { PlaylistContent } from '../types';
 
 interface AddVideosModalProps {
@@ -20,6 +21,18 @@ export function AddVideosModal({
   existingVideoIds,
 }: AddVideosModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+  const debounceFn = useMemo(
+    () => debounce((value: string) => setDebouncedSearchQuery(value), 500),
+    []
+  );
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setSearchQuery(value);
+    debounceFn(value);
+  };
 
   // Get published videos
   const {
@@ -28,7 +41,10 @@ export function AddVideosModal({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useContent(ContentStatus.PUBLISHED);
+  } = useContent({
+    approving_status: ContentStatus.PUBLISHED,
+    search: debouncedSearchQuery,
+  });
 
   const [loadMoreRef] = useInfiniteScroll({
     hasNextPage,
@@ -40,14 +56,8 @@ export function AddVideosModal({
   const availableVideos = useMemo(() => {
     if (!videos) return [];
 
-    return videos
-      .filter((video) => !existingVideoIds.includes(video.id))
-      .filter((video) => {
-        if (!searchQuery.trim()) return true;
-        const query = searchQuery.toLowerCase();
-        return video.title.toLowerCase().includes(query);
-      });
-  }, [videos, existingVideoIds, searchQuery]);
+    return videos.filter((video) => !existingVideoIds.includes(video.id));
+  }, [videos, existingVideoIds]);
 
   const handleClose = () => {
     setSearchQuery('');
@@ -87,7 +97,7 @@ export function AddVideosModal({
             <Input
               placeholder="Tìm kiếm video..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearch}
               className="border-white/20 bg-zinc-900 pl-10 font-mono text-white"
             />
           </div>

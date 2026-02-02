@@ -1,5 +1,5 @@
 import { Typography } from '@/shared/ui';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { ListVideo, Plus } from 'lucide-react';
 import { useState } from 'react';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
@@ -10,16 +10,20 @@ import {
   PlaylistCard,
   PlaylistCardSkeleton,
   PlaylistGridSkeleton,
+  PlaylistHeader,
 } from '../components';
 import { CreatePlaylistDto } from '../dto';
 import { useCreatePlaylist, useDeletePlaylist, usePlaylists } from '../hooks/usePlaylist';
 import type { Playlist } from '../types';
+import { PlaylistSearchSchema } from '../schema';
 
 function PlaylistListPage() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [playlistToDelete, setPlaylistToDelete] = useState<Playlist | null>(null);
+
+  const filters: PlaylistSearchSchema = useSearch({ strict: false });
 
   // Queries
   const {
@@ -29,7 +33,8 @@ function PlaylistListPage() {
     hasNextPage,
     isFetchingNextPage,
   } = usePlaylists({
-    limit: 10,
+    limit: filters.limit,
+    search: filters.search,
   });
 
   const [loadMoreRef] = useInfiniteScroll({
@@ -77,27 +82,7 @@ function PlaylistListPage() {
   return (
     <div className="flex h-full flex-col space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Typography variant="h2" className="font-mono uppercase">
-            Danh sách phát
-          </Typography>
-          <Typography variant="small" className="mt-2 font-mono text-zinc-500">
-            Quản lý danh sách phát video
-          </Typography>
-        </div>
-
-        {/* Create Button */}
-        <button
-          type="button"
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-2 border border-white bg-white px-6 py-3 font-mono text-sm text-black uppercase transition-colors hover:bg-zinc-200"
-        >
-          <Plus size={16} />
-          Tạo Playlist
-        </button>
-      </div>
-
+      <PlaylistHeader onOpenCreateModal={() => setIsCreateModalOpen(true)} />
       {/* Loading State */}
       {isLoading && <PlaylistGridSkeleton count={8} />}
 
