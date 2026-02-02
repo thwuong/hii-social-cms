@@ -1,20 +1,18 @@
+import { MediaCarousel } from '@/features/content';
+import { MediaType, toast } from '@/shared';
 import { ThumbnailUpload, VideoPlayer } from '@/shared/components';
-import { Button, CarouselContent, Label, Textarea, Typography } from '@/shared/ui';
+import { Button, Label, Textarea, Typography } from '@/shared/ui';
 import FormField from '@/shared/ui/form-field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { ArrowLeft, Plus, Save, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { MediaType, toast } from '@/shared';
-import { MediaCarousel } from '@/features/content';
 import {
   AddVideosModal,
   DeleteConfirmationModal,
   DraggableVideoList,
-  DraggableVideoListSkeleton,
   PlaylistDetailSkeleton,
-  PlaylistFormSkeleton,
 } from '../components';
 
 import { useDeletePlaylist, usePlaylist, useUpdatePlaylist } from '../hooks/usePlaylist';
