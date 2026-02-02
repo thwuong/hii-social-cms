@@ -23,7 +23,7 @@ const ContentGrid: React.FC<ContentGridProps> = ({
       </div>
 
       {/* Infinite Scroll Trigger */}
-      {loadMoreRef && (
+      {hasNextPage && (
         <div ref={loadMoreRef} className="flex justify-center py-8">
           {isFetchingNextPage && <LoadingState />}
           {!isFetchingNextPage && hasNextPage && (

@@ -20,9 +20,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        <main className="grid flex-1 items-start gap-4 bg-black/80 p-4 sm:p-14">
-          {children || <Outlet />}
-        </main>
+        <main className="grid flex-1 items-start gap-4 bg-black/80">{children || <Outlet />}</main>
       </div>
     </div>
   );

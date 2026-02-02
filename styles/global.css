@@ -296,7 +296,7 @@ body {
   display: grid;
   /* 3 Columns: Queue | Viewport | Inspector */
   grid-template-columns: 280px minmax(0, 1fr) 350px;
-  height: calc(100vh - 60px);
+  height: 100dvh;
   position: relative;
   z-index: 2;
   background: var(--bg);
@@ -360,7 +360,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 16px;
   overflow: hidden;
   background: var(--bg);
   border-right: 1px solid var(--border-bright);
@@ -694,6 +694,7 @@ body {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }

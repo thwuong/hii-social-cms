@@ -225,7 +225,7 @@ function PlaylistDetailPage() {
   if (isLoading) return <PlaylistDetailSkeleton />;
 
   return (
-    <div className="flex h-full flex-col space-y-6">
+    <div className="flex h-full flex-col space-y-6 p-4 sm:p-10">
       {/* Header */}
       <div className="flex items-center gap-4">
         <button

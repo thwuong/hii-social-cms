@@ -47,7 +47,7 @@ function CreatePageComponent() {
   };
 
   return (
-    <div className="mx-auto w-full py-8">
+    <div className="mx-auto w-full p-4 sm:p-10">
       <Card>
         <CardHeader>
           <CardTitle>GIAO_THỨC_TÀI_NGUYÊN_MỚI</CardTitle>

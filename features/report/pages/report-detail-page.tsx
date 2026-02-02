@@ -1,6 +1,7 @@
 import { RejectConfirmationModal } from '@/features/content/components';
 import { ContentStatus, STATUS_LABELS } from '@/shared';
 import { VideoPlayer } from '@/shared/components';
+import { ReportDetailSkeleton } from '@/shared/components/skeletons';
 import { Badge, Button, Typography } from '@/shared/ui';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { AlertTriangle, ArrowLeft, Check, MessageSquare, Video, XCircle } from 'lucide-react';
@@ -99,14 +100,7 @@ function ReportDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex items-center gap-2 font-mono text-sm text-zinc-500">
-          <div className="h-2 w-2 animate-pulse rounded-full bg-white" />
-          <span>ĐANG TẢI...</span>
-        </div>
-      </div>
-    );
+    return <ReportDetailSkeleton />;
   }
 
   if (!report) {
@@ -127,7 +121,7 @@ function ReportDetailPage() {
   const reportCount = report.reports?.length || 0;
 
   return (
-    <div className="animate-in fade-in grid w-full grid-cols-1 gap-6 duration-300 md:grid-cols-2">
+    <div className="animate-in fade-in grid w-full grid-cols-1 gap-6 p-4 duration-300 sm:p-10 md:grid-cols-2">
       {/* Header */}
       <div className="col-span-2 flex items-start justify-between">
         <div className="flex items-center gap-4">

@@ -164,7 +164,7 @@ function ReportListPage() {
   ];
 
   return (
-    <div className="relative flex h-full flex-col space-y-8">
+    <div className="relative flex h-full flex-col space-y-8 p-4 sm:p-10">
       {/* Header */}
       <div className="sticky top-0 z-50 flex flex-col gap-6 bg-black/80 py-4 backdrop-blur-md">
         <div className="flex items-center justify-between">

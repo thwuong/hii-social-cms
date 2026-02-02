@@ -17,7 +17,7 @@ const CHART_BAR_HEIGHTS = [65, 85, 70, 90, 55, 75, 95, 60, 80, 50, 70, 85];
  */
 export function DashboardSkeleton() {
   return (
-    <div className="animate-in fade-in duration-700">
+    <div className="animate-in fade-in p-4 duration-700 sm:p-10">
       {/* Header Section Skeleton */}
       <div className="mb-20 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
         <div className="flex flex-col gap-2">

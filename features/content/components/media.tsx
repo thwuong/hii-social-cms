@@ -26,7 +26,7 @@ function Media({ item, onView, isSelected, onToggleSelect }: MediaProps) {
     <button
       type="button"
       onClick={() => onView()}
-      className="group hover:bg-background relative flex cursor-pointer flex-col items-start gap-3 overflow-hidden bg-black p-4 text-left transition-colors"
+      className="group hover:bg-background relative flex cursor-pointer flex-col items-start gap-3 overflow-hidden border border-white/5 bg-black p-4 text-left transition-colors"
     >
       {/* Hover Line */}
       <div className="absolute top-0 left-0 z-20 h-[1px] w-full origin-left scale-x-0 transform bg-white transition-transform duration-500 group-hover:scale-x-100" />

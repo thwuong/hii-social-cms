@@ -82,7 +82,7 @@ function PlaylistListPage() {
   };
 
   return (
-    <div className="flex h-full flex-col space-y-8">
+    <div className="flex h-full flex-col space-y-8 p-4 sm:p-10">
       {/* Header */}
       <PlaylistHeader onOpenCreateModal={() => setIsCreateModalOpen(true)} />
       {/* Loading State */}

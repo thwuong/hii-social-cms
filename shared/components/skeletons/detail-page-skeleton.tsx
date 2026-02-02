@@ -1,5 +1,5 @@
-import { Skeleton } from './skeleton';
 import { QueueSkeleton } from './queue-skeleton';
+import { Skeleton } from './skeleton';
 
 /**
  * Detail Page Skeleton
@@ -8,7 +8,7 @@ import { QueueSkeleton } from './queue-skeleton';
  */
 export function DetailPageSkeleton() {
   return (
-    <div className="detail-layout animate-in fade-in duration-300">
+    <div className="detail-layout animate-in fade-in p-4 duration-300 sm:p-10">
       {/* LEFT: QUEUE SIDEBAR */}
       <aside className="queue-sidebar">
         <QueueSkeleton count={12} />

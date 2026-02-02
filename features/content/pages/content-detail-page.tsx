@@ -386,7 +386,7 @@ function DetailPageComponent() {
   if (isRejected) activeIndex = 1;
   if (isArchived) activeIndex = 5;
   return (
-    <div className="detail-layout animate-in fade-in duration-300">
+    <div className="detail-layout animate-in fade-in p-4 duration-300 sm:p-10">
       {/* LEFT: QUEUE SIDEBAR */}
       <aside className="queue-sidebar">
         {isLoadingCrawlContent ? (

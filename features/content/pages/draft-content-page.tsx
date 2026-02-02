@@ -157,7 +157,7 @@ function ContentCrawlPageComponent() {
   const batchRejectCount = batchApproveCount; // Same for crawl page
 
   return (
-    <div className="relative flex h-full flex-col space-y-8">
+    <div className="relative flex h-full flex-col space-y-8 p-4 sm:p-10">
       <DraftContentHeader />
 
       {_isLoadingCrawlContent && viewMode === 'table' && <ContentTableSkeleton rows={10} />}

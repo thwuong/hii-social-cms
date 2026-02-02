@@ -295,7 +295,7 @@ function ContentPageComponent() {
   }, []);
 
   return (
-    <div className="relative flex h-full flex-col space-y-8">
+    <div className="relative flex h-full flex-col space-y-8 p-4 sm:p-10">
       <ContentHeader />
       {isLoading && viewMode === 'table' && <ContentTableSkeleton rows={10} />}
       {isLoading && viewMode === 'grid' && <ContentGridSkeleton count={12} />}
