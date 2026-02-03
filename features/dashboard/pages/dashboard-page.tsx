@@ -169,7 +169,7 @@ function DashboardPage() {
           onClick={() => handleNavigate({ status: ContentStatus.DRAFT })}
         />
         <KPICard
-          count={stats?.total_published || 0}
+          count={stats?.total_approved || 0}
           subtext={STATUS_LABELS[ContentStatus.APPROVED]}
           onClick={() => handleNavigate({ status: ContentStatus.APPROVED })}
         />
