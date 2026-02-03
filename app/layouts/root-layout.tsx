@@ -1,20 +1,21 @@
 import { NotFoundPage } from '@/features/error';
 import { createRoute, createRouter, redirect } from '@tanstack/react-router';
 import {
+  auditDetailRoute,
   auditRoute,
   authLayoutRoute,
   contentDetailRoute,
   contentRoute,
   createContentRoute,
   dashboardRoute,
+  draftContentDetailRoute,
+  draftContentRoute,
   loginRoute,
+  playlistDetailRoute,
+  playlistsRoute,
   registerRoute,
   reportDetailRoute,
   reportRoute,
-  draftContentDetailRoute,
-  draftContentRoute,
-  playlistsRoute,
-  playlistDetailRoute,
 } from '../routes';
 import { mainLayoutRoute } from '../routes/_main';
 import { rootRoute, type RouterContext } from '../routes/_root';
@@ -47,6 +48,7 @@ const routeTree = rootRoute.addChildren([
     reportDetailRoute,
     playlistsRoute,
     playlistDetailRoute,
+    auditDetailRoute,
   ]),
 ]);
 
