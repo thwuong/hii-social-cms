@@ -9,6 +9,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Activity, AlertCircle, ArrowLeft, CheckCircle, Clock, User } from 'lucide-react';
+import { AuditLogDetailSkeleton } from '../components';
 import { AUDIT_ACTION_COLORS, AUDIT_ACTION_LABELS } from '../constants';
 import { useAuditLogDetail } from '../hooks';
 import { AuditStatus } from '../types';
@@ -25,13 +26,7 @@ function AuditLogDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Typography variant="p" className="font-mono text-zinc-500">
-          ĐANG TẢI...
-        </Typography>
-      </div>
-    );
+    return <AuditLogDetailSkeleton />;
   }
 
   if (!log) {
