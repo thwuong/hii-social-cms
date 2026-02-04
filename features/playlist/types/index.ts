@@ -17,6 +17,9 @@ export interface PlaylistContent {
   media: Media[];
   type: MediaType;
   platforms: string[];
+  tags: string[];
+  categories: string[];
+  is_allow_comment: boolean;
 }
 
 export interface Playlist {

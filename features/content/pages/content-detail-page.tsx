@@ -428,14 +428,6 @@ function DetailPageComponent() {
 
           {/* UI Overlay */}
           <div className="ui-overlay">
-            <div className="flex items-center justify-between">
-              {/* <span className="flex items-center gap-2">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-[#00ff66] shadow-[0_0_10px_#00ff66]" />{' '}
-                GHI
-              </span> */}
-              <div />
-              <Badge>{new Date(item.created_at).toLocaleTimeString()}</Badge>
-            </div>
             <div className="scanline" />
           </div>
 

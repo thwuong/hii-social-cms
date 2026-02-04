@@ -108,6 +108,7 @@ function SortableVideoItem({ video, isActive, onPlay, onRemove }: SortableVideoI
     <div
       ref={setNodeRef}
       style={style}
+      onClick={() => onPlay(video)}
       className={cn(
         'group flex items-center gap-4 bg-black p-4 transition-colors',
         isActive && 'bg-white/5',
@@ -147,39 +148,8 @@ function SortableVideoItem({ video, isActive, onPlay, onRemove }: SortableVideoI
         )}
       </div>
 
-      {/* Info */}
-      <div className="flex-1 overflow-hidden">
-        <Typography
-          className={cn(
-            'line-clamp-1 font-mono text-sm uppercase',
-            isActive ? 'text-white' : 'text-zinc-300'
-          )}
-        >
-          {video.title}
-        </Typography>
-        <div className="mt-1 flex items-center gap-4">
-          <Typography variant="tiny" className="font-mono text-zinc-500">
-            {formatDuration(video.duration)}
-          </Typography>
-          {isActive && (
-            <Typography variant="tiny" className="font-mono text-white">
-              • ĐANG PHÁT
-            </Typography>
-          )}
-        </div>
-      </div>
-
       {/* Actions */}
-      <div className="flex items-center gap-2">
-        {/* Play Button */}
-        <button
-          type="button"
-          onClick={() => onPlay(video)}
-          className="flex h-8 w-8 items-center justify-center border border-white/20 bg-transparent text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white hover:text-black"
-        >
-          <Play size={14} />
-        </button>
-
+      <div className="ml-auto flex items-center gap-2">
         {/* Remove Button */}
         <button
           type="button"

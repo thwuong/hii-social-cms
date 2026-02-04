@@ -187,16 +187,7 @@ function DetailPageComponent() {
 
           {/* UI Overlay */}
           <div className="ui-overlay">
-            <div className="flex items-center justify-between">
-              <div />
-              <Badge>{new Date(contentDetails.created_at).toLocaleTimeString()}</Badge>
-            </div>
             <div className="scanline" />
-            <div className="text-right">
-              <span>
-                {contentDetails.media_type?.toUpperCase()} {/* HD */}
-              </span>
-            </div>
           </div>
 
           {/* Media Content */}

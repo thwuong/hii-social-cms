@@ -181,7 +181,7 @@ function AuditPageComponent() {
               <Search className="absolute top-2.5 left-3 h-4 w-4 text-zinc-600 transition-colors group-hover:text-white" />
               <Input
                 placeholder="TÌM KIẾM..."
-                className="h-10 border-white/10 bg-black pl-10 font-mono text-xs text-white uppercase focus:border-white"
+                className="h-10 border-white/10 bg-black pl-10 font-mono text-xs text-white focus:border-white"
                 value={value}
                 onChange={(e) => handleChange(e.target.value)}
               />

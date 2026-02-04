@@ -71,7 +71,7 @@ function DashboardPage() {
   return (
     <div className="animate-in fade-in p-4 duration-700 sm:p-10">
       {/* Header Section */}
-      <div className="mb-20 flex flex-col justify-between gap-8 pt-4 lg:flex-row lg:items-end">
+      <div className="mb-10 flex flex-col justify-between gap-8 pt-4 lg:flex-row lg:items-end">
         <div className="flex flex-col gap-2">
           <Typography variant="h2" className="text-white">
             TỔNG QUAN

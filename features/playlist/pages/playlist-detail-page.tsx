@@ -1,11 +1,11 @@
-import { MediaCarousel } from '@/features/content';
-import { MediaType, toast } from '@/shared';
-import { ThumbnailUpload, VideoPlayer } from '@/shared/components';
-import { Button, Label, Textarea, Typography } from '@/shared/ui';
+import { ContentBody } from '@/features/content';
+import { ContentItem, toast } from '@/shared';
+import { ThumbnailUpload } from '@/shared/components';
+import { Badge, Button, Label, Textarea, Typography } from '@/shared/ui';
 import FormField from '@/shared/ui/form-field';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import { ArrowLeft, Plus, Save, X } from 'lucide-react';
+import { Globe, Plus, Save, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -225,108 +225,27 @@ function PlaylistDetailPage() {
   if (isLoading) return <PlaylistDetailSkeleton />;
 
   return (
-    <div className="flex h-full flex-col space-y-6 p-4 sm:p-10">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => navigate({ to: '/playlists' })}
-          className="flex h-10 w-10 items-center justify-center border border-white/20 text-white transition-colors hover:bg-white hover:text-black"
-        >
-          <ArrowLeft size={16} />
-        </button>
-        <div className="flex-1">
-          <Typography variant="h2" className="font-mono uppercase">
-            Chi tiết danh sách phát
-          </Typography>
-        </div>
-      </div>
-
-      {/* Content */}
-      {!isLoading && playlist && (
-        <div className="grid flex-1 gap-6 lg:grid-cols-2">
-          {/* Left: Video Player & Info */}
-          <div className="aspect-video space-y-6">
-            {/* Video Player */}
-            {!activeVideo && (
-              <div className="flex h-full w-full items-center justify-center border border-white/10 bg-black">
-                <Typography variant="small" className="font-mono text-zinc-500 uppercase">
-                  Chọn video để phát
-                </Typography>
-              </div>
-            )}
-            {activeVideo &&
-              (activeVideo.type === MediaType.REEL ? (
-                <VideoPlayer
-                  url={activeVideo.url}
-                  poster={activeVideo.thumbnail_url}
-                  title={activeVideo.title}
-                  aspectRatio="video"
-                />
-              ) : (
-                <MediaCarousel
-                  media={activeVideo.media}
-                  title={activeVideo.title}
-                  aspectRatio="video"
-                  size="lg"
-                  objectFit="contain"
-                />
-              ))}
-
-            {/* Active Video Info */}
-            {activeVideo && (
-              <div className="space-y-4 border border-white/10 bg-black p-6">
-                <Typography className="font-mono text-lg text-white uppercase">
-                  {activeVideo.title}
-                </Typography>
-                <div className="flex items-center gap-4 text-sm">
-                  <Typography variant="small" className="font-mono text-zinc-500">
-                    Vị trí: {activeVideo.position}/{playlistVideos.length}
-                  </Typography>
-                  <Typography variant="small" className="font-mono text-zinc-500">
-                    Thời lượng: {Math.floor(activeVideo.duration / 60)}:
-                    {(activeVideo.duration % 60).toString().padStart(2, '0')}
-                  </Typography>
-                </div>
-              </div>
-            )}
-            {/* Right: Video List */}
-            <div className="space-y-4">
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <Typography variant="h4" className="font-mono uppercase">
-                  Danh Sách Video ({playlistVideos.length})
-                </Typography>
-                <Button
-                  size="sm"
-                  onClick={() => setIsAddVideoModalOpen(true)}
-                  className="border-white bg-white font-mono text-xs text-black uppercase hover:bg-zinc-200"
-                >
-                  <Plus size={14} className="mr-2" />
-                  Thêm Video
-                </Button>
-              </div>
-
-              {/* Draggable List */}
-              <DraggableVideoList
-                videos={playlistVideos}
-                activeVideoId={activeVideoId}
-                onReorder={handleReorder}
-                onPlayVideo={handlePlayVideo}
-                onRemoveVideo={handleRemoveVideo}
-              />
-            </div>
-          </div>
-
-          {/* Playlist Info Form */}
-          <form
-            onSubmit={handleSubmit(handleSave)}
-            className="h-fit space-y-4 border border-white/10 bg-black p-6"
-          >
+    <div className="detail-layout animate-in fade-in grid-cols-[350px_1fr_350px]! overflow-hidden p-4 duration-300 max-lg:grid-cols-1 sm:p-10">
+      {/* Playlist Info Form */}
+      <form
+        onSubmit={handleSubmit(handleSave)}
+        className="flex h-full flex-col overflow-hidden border-r border-white/10"
+        id="playlist-info-form"
+      >
+        <div className="scrollbar-hide flex-1 overflow-y-auto p-4">
+          <div className="flex flex-col gap-4">
             <Typography variant="h4" className="font-mono uppercase">
               Thông Tin Danh Sách Phát
             </Typography>
 
+            {/* Thumbnail */}
+            <div className="space-y-2">
+              <Label className="text-xs">Ảnh đại diện</Label>
+              <ThumbnailUpload
+                value={watch('thumbnail')}
+                onChange={(base64: string) => setValue('thumbnail', base64, { shouldDirty: true })}
+              />
+            </div>
             {/* Name */}
             <div className="space-y-2">
               <FormField
@@ -350,39 +269,164 @@ function PlaylistDetailPage() {
               />
             </div>
 
-            {/* Thumbnail */}
-            <div className="space-y-2">
-              <Label className="text-xs">Ảnh đại diện</Label>
-              <ThumbnailUpload
-                value={watch('thumbnail')}
-                onChange={(base64: string) => setValue('thumbnail', base64, { shouldDirty: true })}
+            {/* Right: Video List */}
+            <div className="space-y-4">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <Typography variant="h5" className="font-mono uppercase">
+                  Danh Sách ({playlistVideos.length})
+                </Typography>
+                <Button
+                  size="sm"
+                  onClick={() => setIsAddVideoModalOpen(true)}
+                  className="border-white bg-white font-mono text-xs text-black uppercase hover:bg-zinc-200"
+                >
+                  <Plus size={14} className="mr-2" />
+                  Thêm Video
+                </Button>
+              </div>
+
+              {/* Draggable List */}
+              <DraggableVideoList
+                videos={playlistVideos}
+                activeVideoId={activeVideoId}
+                onReorder={handleReorder}
+                onPlayVideo={handlePlayVideo}
+                onRemoveVideo={handleRemoveVideo}
               />
             </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 border-t border-white/10 pt-4">
-              <Button
-                type="submit"
-                isLoading={isUpdating}
-                disabled={!isDirty}
-                className="flex-1 border-white bg-white font-mono text-black uppercase hover:bg-zinc-200 disabled:opacity-50"
-              >
-                <Save size={16} className="mr-2" />
-                Lưu
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleCancel}
-                disabled={!isDirty}
-                className="flex-1 font-mono uppercase hover:bg-white/10 disabled:opacity-50"
-              >
-                <X size={16} className="mr-2" />
-                Bỏ Qua
-              </Button>
-            </div>
-          </form>
+          </div>
         </div>
+
+        {/* Actions - Fixed at Bottom */}
+        <div className="mt-auto flex items-center gap-3 border-t border-white/10 bg-black/80 p-4 backdrop-blur-sm">
+          <Button
+            type="submit"
+            isLoading={isUpdating}
+            disabled={!isDirty}
+            className="flex-1 border-white bg-white font-mono text-black uppercase hover:bg-zinc-200 disabled:opacity-50"
+          >
+            <Save size={16} className="mr-2" />
+            Lưu
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={handleCancel}
+            disabled={!isDirty}
+            className="flex-1 font-mono uppercase hover:bg-white/10 disabled:opacity-50"
+          >
+            <X size={16} className="mr-2" />
+            Bỏ Qua
+          </Button>
+        </div>
+      </form>
+
+      {/* Content */}
+      {!isLoading && (
+        <section className="viewport-container group">
+          {activeVideo && (
+            <div className="shutter-frame">
+              <div className="shutter-blade shutter-top" />
+              <div className="shutter-blade shutter-bottom" />
+
+              {/* UI Overlay */}
+              <div className="ui-overlay">
+                <div className="scanline" />
+              </div>
+
+              {/* Media Content */}
+              <ContentBody
+                content={
+                  {
+                    media_url: activeVideo.url,
+                    media_type: activeVideo.type,
+                    media: activeVideo.media,
+                    title: activeVideo.title,
+                    tags: activeVideo.tags,
+                    created_at: activeVideo.created_at,
+                  } as ContentItem
+                }
+              />
+            </div>
+          )}
+          {!activeVideo && (
+            <div className="flex h-full w-full items-center justify-center border border-white/10 bg-black">
+              <Typography variant="small" className="font-mono text-zinc-500 uppercase">
+                Chọn video để phát
+              </Typography>
+            </div>
+          )}
+
+          {/* Close Button */}
+          <Button
+            variant="ghost"
+            className="absolute top-4 right-4 z-40 text-zinc-500 hover:text-white"
+            onClick={() => navigate({ to: '/content' })}
+          >
+            <X size={20} />
+          </Button>
+        </section>
       )}
+
+      {/* RIGHT: INSPECTOR SECTION */}
+      <div className="flex flex-col gap-4 py-4">
+        {/* DESCRIPTION */}
+        <div className="flex flex-col gap-2">
+          <Typography variant="small" className="text-muted-foreground font-medium">
+            NHẬT KÝ PHIÊN DỊCH
+          </Typography>
+          <p className="font-base border border-transparent">&ldquo;{activeVideo?.title}&rdquo;</p>
+        </div>
+
+        {/* TAGS */}
+        {!!activeVideo?.tags?.length && (
+          <div className="flex flex-col gap-2">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              THẺ PHÂN LOẠI
+            </Typography>
+            <div className="flex flex-wrap gap-1.5">
+              {activeVideo?.tags.map((tag: string) => (
+                <Badge key={tag} variant="default">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* DISTRIBUTION NETWORKS */}
+        {!!activeVideo?.platforms?.length && (
+          <div className="flex flex-col gap-2">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              MẠNG LƯỚI PHÂN PHỐI
+            </Typography>
+            <div className="flex flex-wrap gap-1.5">
+              {activeVideo?.platforms.map((platform) => (
+                <Badge variant="default" key={platform}>
+                  <Globe size={10} />
+                  {platform}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* CATEGORIES */}
+        {!!activeVideo?.categories?.length && (
+          <div className="flex flex-col gap-2">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              DANH MỤC
+            </Typography>
+            <div className="flex flex-wrap gap-1.5">
+              {activeVideo?.categories.map((category) => (
+                <Badge variant="default" key={category}>
+                  {category}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Modals */}
       <AddVideosModal
