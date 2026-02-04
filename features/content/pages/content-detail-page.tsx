@@ -379,7 +379,9 @@ function DetailPageComponent() {
   const aprovePermission = usePermission(Permission.REELS_APPROVE);
   const rejectPermission = usePermission(Permission.REELS_REJECT);
   const canEdit =
-    item?.status === ContentStatus.PENDING_REVIEW && aprovePermission && rejectPermission;
+    (item?.status === ContentStatus.PENDING_REVIEW || item?.status === ContentStatus.REJECTED) &&
+    aprovePermission &&
+    rejectPermission;
 
   const categoryList = useMemo(() => {
     if (!canEdit) return item?.categories;
@@ -541,7 +543,7 @@ function DetailPageComponent() {
 
         {/* ACTIONS */}
         <div className="mt-auto flex gap-2">
-          {item.status === ContentStatus.PENDING_REVIEW && (
+          {canEdit && (
             <PermissionGate permission={Permission.REELS_REJECT}>
               <Button
                 variant="destructive"
@@ -553,31 +555,33 @@ function DetailPageComponent() {
               </Button>
             </PermissionGate>
           )}
-          {item.status !== ContentStatus.PENDING_REVIEW && (
-            <PermissionGate permission={Permission.REELS_SCHEDULE}>
-              <Button
-                variant="outline"
-                onClick={() => setIsScheduleModalOpen(true)}
-                disabled={item.status === ContentStatus.PUBLISHED || isSchedulingContent}
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
-              >
-                LÊN LỊCH
-              </Button>
-            </PermissionGate>
-          )}
-          {item.status !== ContentStatus.PENDING_REVIEW && (
-            <PermissionGate permission={Permission.REELS_PUBLISH}>
-              <Button
-                variant="default"
-                className="flex-1"
-                onClick={() => handleUpdateStatus(ContentStatus.PUBLISHED)}
-                disabled={isPublishingContent || item.status === ContentStatus.PUBLISHED}
-              >
-                Đăng ngay
-              </Button>
-            </PermissionGate>
-          )}
-          {item.status === ContentStatus.PENDING_REVIEW && (
+          {item.status !== ContentStatus.PENDING_REVIEW &&
+            item.status !== ContentStatus.REJECTED && (
+              <PermissionGate permission={Permission.REELS_SCHEDULE}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsScheduleModalOpen(true)}
+                  disabled={item.status === ContentStatus.PUBLISHED || isSchedulingContent}
+                  className="flex-1 border-white/20 text-white hover:bg-white/10"
+                >
+                  LÊN LỊCH
+                </Button>
+              </PermissionGate>
+            )}
+          {item.status !== ContentStatus.PENDING_REVIEW &&
+            item.status !== ContentStatus.REJECTED && (
+              <PermissionGate permission={Permission.REELS_PUBLISH}>
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  onClick={() => handleUpdateStatus(ContentStatus.PUBLISHED)}
+                  disabled={isPublishingContent || item.status === ContentStatus.PUBLISHED}
+                >
+                  Đăng ngay
+                </Button>
+              </PermissionGate>
+            )}
+          {canEdit && (
             <PermissionGate permission={Permission.REELS_APPROVE}>
               <Button
                 variant="default"

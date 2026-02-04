@@ -33,7 +33,7 @@ function DetailPageComponent() {
     loading: isFetchingNextPage,
   });
 
-  const { mutate: createContent } = useCreateContent();
+  const { mutate: createContent, isPending: isPendingCreateContent } = useCreateContent();
 
   const navigate = useNavigate();
   const currentUser = useUser();
@@ -315,13 +315,15 @@ function DetailPageComponent() {
         />
 
         {/* ACTIONS */}
-        <div className="actions">
-          <Button variant="destructive" disabled>
+        <div className="mt-auto flex gap-2">
+          {/* <Button variant="destructive" disabled>
             TỪ CHỐI
-          </Button>
+          </Button> */}
           <Button
+            className="flex-1"
             type="submit"
             variant="default"
+            isLoading={isPendingCreateContent}
             disabled={
               contentDetails.status === ContentStatus.APPROVED ||
               contentDetails.status === ContentStatus.PUBLISHED ||

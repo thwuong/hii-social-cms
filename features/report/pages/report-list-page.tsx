@@ -336,7 +336,7 @@ function ReportListPage() {
             variant="default"
             className="h-8 bg-yellow-600 text-white hover:bg-yellow-700"
             onClick={() => setIsAcceptModalOpen(true)}
-            disabled={isAccepting || isRejecting}
+            isLoading={isAccepting || isRejecting}
           >
             <Check size={14} className="mr-1" />
             ẨN VIDEO ({selectedVideoIds.length})
@@ -346,7 +346,7 @@ function ReportListPage() {
             variant="destructive"
             className="h-8"
             onClick={() => setIsRejectModalOpen(true)}
-            disabled={isAccepting || isRejecting}
+            isLoading={isAccepting || isRejecting}
           >
             <XCircle size={14} className="mr-1" />
             TỪ CHỐI ({selectedVideoIds.length})

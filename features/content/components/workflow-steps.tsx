@@ -1,8 +1,10 @@
+import { ContentItem, STATUS_LABELS } from '@/shared';
 import { Typography } from '@/shared/ui';
+import { AlertTriangle } from 'lucide-react';
 
 type WorkflowStepsProps = {
   isRejected: boolean;
-  item: any;
+  item: ContentItem;
   workflowSteps: any[];
   activeIndex: number;
 };
@@ -14,8 +16,9 @@ function WorkflowSteps({ isRejected, item, workflowSteps, activeIndex }: Workflo
       </Typography>
 
       {isRejected && (
-        <div className="mb-2 border border-red-500/50 bg-red-950/20 p-2 font-mono text-[10px] text-red-400 uppercase">
-          ⚠ Nội dung bị từ chối: {item.moderation_notes || 'Phát hiện vi phạm'}
+        <div className="flex items-center gap-2 border border-red-500/50 bg-red-950/20 p-2 font-mono text-xs text-red-400">
+          <AlertTriangle size={16} /> Nội dung bị từ chối:{' '}
+          {item.moderation_notes || 'Phát hiện vi phạm'}
         </div>
       )}
 
@@ -50,7 +53,7 @@ function WorkflowSteps({ isRejected, item, workflowSteps, activeIndex }: Workflo
                       : 'text-zinc-700'
                   }`}
                 >
-                  {step.label}
+                  {isRejected && activeIndex === index ? STATUS_LABELS.rejected : step.label}
                 </span>
               </div>
             );
