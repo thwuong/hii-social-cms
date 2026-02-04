@@ -16,7 +16,7 @@ interface PaginationRequest {
   sort_order?: 'asc' | 'desc';
   sort_by?: 'created_at' | 'updated_at';
   search?: string;
-  is_previewed?: boolean;
+  is_previewed?: string;
 }
 
 interface Pagination {
@@ -26,4 +26,4 @@ interface Pagination {
   total_page: number;
 }
 
-export type { ApiResponse, PaginationRequest, Pagination };
+export type { ApiResponse, Pagination, PaginationRequest };

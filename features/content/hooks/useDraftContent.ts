@@ -23,7 +23,7 @@ const useDraftContent = () => {
       draftContentService.getDraftContent({
         ...filters,
         page: pageParam,
-        is_previewed: Boolean(filters.is_previewed),
+        is_previewed: filters.is_previewed,
         sort_order: filters.sort_order as SortOrder,
       }) as Promise<PaginatedResponse>,
     getNextPageParam: (lastPage: PaginatedResponse) => {

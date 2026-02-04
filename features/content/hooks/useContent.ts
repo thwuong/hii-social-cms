@@ -38,7 +38,7 @@ export const useContent = (filters: Partial<ContentSearchSchema>) => {
     data: contentQuery.data?.pages.flatMap((page) =>
       page.reels ? page.reels.map(transformReelContent) : []
     ),
-    totalItems: contentQuery.data?.pages[contentQuery.data.pages.length - 1].total,
+    totalItems: contentQuery.data?.pages[contentQuery.data.pages.length - 1].total || 0,
   };
 };
 
