@@ -15,6 +15,9 @@ const transformPlaylistVideo = (content: PlaylistVideoDto): PlaylistContent => {
     media: content.video.media,
     type: content.video.type as MediaType,
     platforms: content.video.platforms || [],
+    categories: content.video.categories || [],
+    tags: content.video.tags || [],
+    is_allow_comment: true,
   };
 };
 
@@ -47,6 +50,9 @@ export const transformContentToPlaylistVideo = (
     media: content.media || [],
     type: content.media_type as MediaType,
     platforms: content.target_platforms || [],
+    categories: content.categories || [],
+    tags: content.tags || [],
+    is_allow_comment: true,
   };
 };
 
