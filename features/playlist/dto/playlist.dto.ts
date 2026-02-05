@@ -34,7 +34,7 @@ export interface CreatePlaylistDto {
   name: string;
   description?: string;
   video_ids: string[];
-  thumbnail: string;
+  thumbnail?: string;
 }
 
 export interface UpdatePlaylistDto extends Partial<CreatePlaylistDto> {

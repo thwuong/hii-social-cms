@@ -5,10 +5,11 @@ import {
   createPlaylistSchema,
 } from '@/features/playlist/schema/create-playlist.schema';
 import { cn } from '@/lib';
+import { useDebounceSearch } from '@/shared/hooks/use-debounce-search';
 import { Button, Dialog, DialogContent, Input, Typography } from '@/shared/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ListVideo, Plus, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface AddToPlaylistModalProps {
@@ -19,6 +20,7 @@ interface AddToPlaylistModalProps {
   selectedCount: number;
   selectedPlaylistIds: string[];
   onToggleSelectPlaylist: (playlistId: string) => void;
+  selectedVideoIds: string[];
 }
 
 export function AddToPlaylistModal({
@@ -29,42 +31,40 @@ export function AddToPlaylistModal({
   selectedCount,
   selectedPlaylistIds,
   onToggleSelectPlaylist,
+  selectedVideoIds,
 }: AddToPlaylistModalProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerms, setSearchTerms] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const {
     handleSubmit,
-    formState: { isValid, isDirty },
+    formState: { isValid, isDirty, errors },
     control,
     watch,
     setValue,
   } = useForm<CreatePlaylistSchema>({
     resolver: zodResolver(createPlaylistSchema),
-    defaultValues: {
+    values: {
       name: '',
-      description: '',
-      video_ids: [],
-      thumbnail: '',
+      description: undefined,
+      video_ids: selectedVideoIds,
+      thumbnail: undefined,
     },
+    mode: 'all',
   });
 
   // Get playlists
   const { data: playlists, isLoading } = usePlaylists({
     limit: 10,
+    search: searchTerms,
   });
 
-  // Filter playlists by search
-  const filteredPlaylists = useMemo(() => {
-    if (!playlists) return [];
-    if (!searchQuery.trim()) return playlists;
-
-    const query = searchQuery.toLowerCase();
-    return playlists.filter((playlist) => playlist.name.toLowerCase().includes(query));
-  }, [playlists, searchQuery]);
+  const { handleChange, value: debouncedSearchTerm } = useDebounceSearch((value) => {
+    setSearchTerms(value);
+  }, 500);
 
   const handleClose = () => {
-    setSearchQuery('');
+    handleChange('');
     setShowCreateForm(false);
     onClose();
   };
@@ -103,8 +103,8 @@ export function AddToPlaylistModal({
                 <Search className="absolute top-2.5 left-3 h-4 w-4 text-zinc-500" />
                 <Input
                   placeholder="Tìm kiếm playlist..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={debouncedSearchTerm}
+                  onChange={(e) => handleChange(e.target.value)}
                   className="border-white/20 bg-zinc-900 pl-10 font-mono text-white"
                 />
               </div>
@@ -128,18 +128,18 @@ export function AddToPlaylistModal({
                 </div>
               )}
 
-              {!isLoading && filteredPlaylists.length === 0 && (
+              {!isLoading && playlists?.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-8">
                   <ListVideo className="mb-2 h-12 w-12 text-zinc-700" />
                   <Typography variant="small" className="font-mono text-zinc-500">
-                    {searchQuery ? 'Không tìm thấy playlist' : 'Chưa có playlist'}
+                    {debouncedSearchTerm ? 'Không tìm thấy playlist' : 'Chưa có playlist'}
                   </Typography>
                 </div>
               )}
 
-              {!isLoading && filteredPlaylists.length > 0 && (
+              {!isLoading && playlists.length > 0 && (
                 <div className="space-y-2">
-                  {filteredPlaylists.map((playlist) => {
+                  {playlists.map((playlist) => {
                     const isSelected = selectedPlaylistIds.includes(playlist.id);
                     return (
                       <button

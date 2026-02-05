@@ -6,7 +6,7 @@ import { Skeleton } from './skeleton';
  */
 export function MediaCardSkeleton() {
   return (
-    <div className="group relative overflow-hidden border border-white/10 bg-black/50 backdrop-blur-sm transition-all hover:border-white/20">
+    <div className="group relative w-full overflow-hidden border border-white/10 bg-black/50 backdrop-blur-sm transition-all hover:border-white/20">
       {/* Thumbnail */}
       <Skeleton className="aspect-[16/9] w-full" />
 

@@ -10,7 +10,7 @@ interface ContentGridSkeletonProps {
  */
 export function ContentGridSkeleton({ count = 8 }: ContentGridSkeletonProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: count }).map((_, index) => (
         <MediaCardSkeleton key={`media-card-skeleton-${index + 1}`} />
       ))}

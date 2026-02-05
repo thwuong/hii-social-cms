@@ -1,5 +1,6 @@
 import { cn } from '@/lib';
 import React from 'react';
+import { ContentGridSkeleton } from './skeletons';
 
 interface ContentGridProps {
   children: React.ReactNode;
@@ -32,10 +33,10 @@ const ContentGrid: React.FC<ContentGridProps> = ({
 
       {/* Infinite Scroll Trigger */}
       {hasNextPage && (
-        <div ref={loadMoreRef} className="flex justify-center py-8">
+        <div ref={loadMoreRef} className="flex w-full justify-center py-8">
           {isFetchingNextPage && <LoadingState />}
           {!isFetchingNextPage && hasNextPage && (
-            <div className="font-mono text-xs text-zinc-600 uppercase">SCROLL_TO_LOAD_MORE</div>
+            <div className="font-mono text-xs text-zinc-600 uppercase">Cuộn để tải thêm</div>
           )}
         </div>
       )}
@@ -52,12 +53,7 @@ function EmptyState() {
 }
 
 function LoadingState() {
-  return (
-    <div className="flex items-center gap-2 font-mono text-xs text-white uppercase">
-      <div className="h-2 w-2 animate-pulse rounded-full bg-white" />
-      <span>ĐANG_TẢI...</span>
-    </div>
-  );
+  return <ContentGridSkeleton count={8} />;
 }
 
 export default ContentGrid;

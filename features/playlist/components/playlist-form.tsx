@@ -71,9 +71,7 @@ export function PlaylistForm({
 
       {/* Thumbnail Upload */}
       <div className="space-y-2">
-        <Label className="text-xs">
-          Ảnh đại diện <span className="text-red-500">*</span>
-        </Label>
+        <Label className="text-xs">Ảnh đại diện</Label>
         <ThumbnailUpload
           value={watch('thumbnail')}
           onChange={(base64: string) =>

@@ -271,9 +271,9 @@ function ContentPageComponent() {
     createPlaylist(
       {
         name: data.name,
-        description: data.description || undefined,
-        video_ids: selectedIds,
-        thumbnail: data.thumbnail || '',
+        description: data.description,
+        video_ids: data.video_ids,
+        thumbnail: data.thumbnail,
       },
       {
         onSuccess: () => {
@@ -396,6 +396,7 @@ function ContentPageComponent() {
         onToggleSelectPlaylist={handleToggleSelectPlaylist}
         onCreatePlaylist={handleCreatePlaylistWithVideos}
         selectedCount={selectedIds.length}
+        selectedVideoIds={selectedIds}
       />
 
       {/* Confirm Add to Playlist Modal */}

@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogContent, Typography } from '@/shared/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus, X } from 'lucide-react';
+import { AlertTriangle, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CreatePlaylistDto } from '../dto';
@@ -38,9 +38,9 @@ export function CreatePlaylistModal({
     resolver: zodResolver(createPlaylistSchema),
     defaultValues: {
       name: '',
-      description: '',
+      description: undefined,
       video_ids: [],
-      thumbnail: '',
+      thumbnail: undefined,
     },
   });
 
@@ -51,21 +51,28 @@ export function CreatePlaylistModal({
   };
 
   const handleAddVideo = (video: PlaylistContent) => {
+    const videoIds = watch('video_ids');
+    setValue('video_ids', [...videoIds, video.video_id], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
     setSelectedVideos((prev) => [...prev, video]);
   };
 
   const handleRemoveVideo = (videoId: string) => {
+    const videoIds = watch('video_ids');
+    setValue(
+      'video_ids',
+      videoIds.filter((id) => id !== videoId),
+      { shouldDirty: true, shouldValidate: true }
+    );
     setSelectedVideos((prev) => prev.filter((v) => v.id !== videoId));
   };
 
   const onSubmitForm = (data: CreatePlaylistSchema) => {
-    const allVideoIds = [...selectedVideoIds, ...selectedVideos.map((v) => v.video_id)];
-
     onSubmit(
       {
         ...data,
-        video_ids: allVideoIds,
-        thumbnail: data.thumbnail || '',
       },
       handleClose
     );
@@ -110,6 +117,15 @@ export function CreatePlaylistModal({
                   Thêm Video
                 </Button>
               </div>
+
+              {selectedVideos.length === 0 && (
+                <div className="flex items-center justify-center gap-2 border border-red-500/10 bg-red-500/5 p-2">
+                  <AlertTriangle size={14} className="text-red-500" />
+                  <Typography variant="small" className="font-mono text-red-500">
+                    Chọn ít nhất 1 video
+                  </Typography>
+                </div>
+              )}
 
               {/* Selected Videos List */}
               {selectedVideos.length > 0 && (
