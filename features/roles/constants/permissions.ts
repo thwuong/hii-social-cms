@@ -35,7 +35,7 @@ export const PERMISSIONS = {
   DASHBOARD_ANALYTICS: 'dashboard:analytics',
 } as const;
 
-export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 // Permission groups for UI display
 export const PERMISSION_GROUPS = [

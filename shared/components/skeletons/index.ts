@@ -14,5 +14,5 @@ export { MediaCardSkeleton } from './media-card-skeleton';
 export { QueueItemSkeleton } from './queue-item-skeleton';
 export { QueueSkeleton } from './queue-skeleton';
 export { ReportDetailSkeleton } from './report-detail-skeleton';
-export { Skeleton } from './skeleton';
+// Skeleton is now exported from shared/ui instead
 export { TableRowSkeleton } from './table-row-skeleton';

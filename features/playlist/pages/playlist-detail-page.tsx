@@ -375,7 +375,7 @@ function PlaylistDetailPage() {
           <Button
             variant="ghost"
             className="absolute top-4 right-4 z-40 text-zinc-500 hover:text-white"
-            onClick={() => navigate({ to: '/content' })}
+            onClick={() => navigate({ to: '/playlists' })}
           >
             <X size={20} />
           </Button>
