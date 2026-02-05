@@ -14,3 +14,4 @@ export * from './playlists.$playlistId';
 export * from './register';
 export * from './report';
 export * from './report.detail.$reportId';
+export * from './roles';

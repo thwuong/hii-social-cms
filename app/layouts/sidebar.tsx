@@ -4,7 +4,16 @@ import { UserRole } from '@/shared';
 import { UserProfile } from '@/shared/components/user-profile';
 import { useSidebarStore } from '@/shared/stores/use-sidebar-store';
 import { Link, useRouterState } from '@tanstack/react-router';
-import { FileText, Flag, History, ListPlus, PanelLeft, PieChart, SquarePen } from 'lucide-react';
+import {
+  FileText,
+  Flag,
+  History,
+  ListPlus,
+  PanelLeft,
+  PieChart,
+  Shield,
+  SquarePen,
+} from 'lucide-react';
 
 const ICONS: Record<string, React.ReactNode> = {
   dashboard: <PieChart size={20} />,
@@ -13,6 +22,7 @@ const ICONS: Record<string, React.ReactNode> = {
   playlists: <ListPlus size={20} />,
   report: <Flag size={20} />,
   audit: <History size={20} />,
+  roles: <Shield size={20} />,
 };
 
 function Sidebar() {
@@ -29,6 +39,7 @@ function Sidebar() {
     { id: 'playlists', path: '/playlists', label: 'Danh sách phát' },
     { id: 'report', path: '/report', label: 'Báo Cáo Vi Phạm' },
     { id: 'audit', path: '/audit', label: 'Nhật Ký Hệ Thống' },
+    // { id: 'roles', path: '/roles', label: 'Quản Lý Vai Trò' },
   ];
 
   const roles: UserRole[] = [UserRole.REVIEWER, UserRole.ADMIN];
