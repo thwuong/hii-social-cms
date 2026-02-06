@@ -130,11 +130,10 @@ function DetailPageComponent() {
   const watchTags = useMemo(() => {
     return detectTags(watchTitle);
   }, [watchTitle]);
-  const [scheduleAt, setScheduleAt] = useState<string | null>();
+  const [scheduleAt, setScheduleAt] = useState<string | undefined>();
 
   useEffect(() => {
-    if (!item?.scheduled_at) return;
-    setScheduleAt(item.scheduled_at);
+    setScheduleAt(item?.scheduled_at);
   }, [item]);
 
   const handleChangeMetadata = (key: 'platforms' | 'categories', value: any) => {
