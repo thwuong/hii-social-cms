@@ -105,11 +105,16 @@ function ContentPageComponent() {
   };
 
   const handleBatchApprove = () => {
-    const eligibleApprovals = items?.filter((item: ContentItem) => selectedIds.includes(item.id));
+    const eligibleApprovals = items?.filter(
+      (item: ContentItem) =>
+        selectedIds.includes(item.id) &&
+        (item.approving_status === ContentStatus.PENDING_REVIEW ||
+          item.approving_status === ContentStatus.REJECTED)
+    );
 
     if (!eligibleApprovals || eligibleApprovals.length === 0) {
       toast.error('KHÔNG CÓ NỘI DUNG HỢP LỆ', {
-        description: 'Chỉ có thể duyệt nội dung ở trạng thái CHỜ DUYỆT',
+        description: 'Chỉ có thể duyệt nội dung ở trạng thái CHỜ DUYỆT hoặc ĐÃ TỪ CHỐI',
       });
       return;
     }
@@ -197,12 +202,14 @@ function ContentPageComponent() {
   const handleBatchPublish = () => {
     const eligiblePublish = items?.filter(
       (item: ContentItem) =>
-        selectedIds.includes(item.id) && item.approving_status === ContentStatus.APPROVED
+        selectedIds.includes(item.id) &&
+        (item.approving_status === ContentStatus.APPROVED ||
+          item.approving_status === ContentStatus.SCHEDULED)
     );
 
     if (!eligiblePublish || eligiblePublish.length === 0) {
       toast.error('KHÔNG CÓ NỘI DUNG HỢP LỆ', {
-        description: 'Chỉ có thể đăng nội dung ở trạng thái ĐÃ DUYỆT',
+        description: 'Chỉ có thể đăng nội dung ở trạng thái ĐÃ DUYỆT hoặc ĐÃ LÊN LỊCH',
       });
       return;
     }
@@ -234,12 +241,14 @@ function ContentPageComponent() {
   const handleBatchSchedule = (scheduledTime: string) => {
     const eligibleSchedule = items?.filter(
       (item: ContentItem) =>
-        selectedIds.includes(item.id) && item.approving_status === ContentStatus.APPROVED
+        selectedIds.includes(item.id) &&
+        (item.approving_status === ContentStatus.APPROVED ||
+          item.approving_status === ContentStatus.SCHEDULED)
     );
 
     if (!eligibleSchedule || eligibleSchedule.length === 0) {
       toast.error('KHÔNG CÓ NỘI DUNG HỢP LỆ', {
-        description: 'Chỉ có thể lên lịch nội dung ở trạng thái ĐÃ DUYỆT',
+        description: 'Chỉ có thể lên lịch nội dung ở trạng thái ĐÃ DUYỆT hoặc ĐÃ LÊN LỊCH',
       });
       return;
     }
