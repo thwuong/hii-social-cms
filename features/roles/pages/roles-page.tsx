@@ -3,13 +3,14 @@
 import { Button, Card, CardContent, CardHeader } from '@/shared/ui';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { DeleteRoleModal, RoleFormModal, RolesTable } from '../components';
+import { DeleteRoleModal, PermissionFormModal, RoleFormModal, RolesTable } from '../components';
 import { useDeleteRole, useGetRoles } from '../hooks';
 import { Role } from '../types';
 
 export const RolesPage = () => {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreatePermissionModalOpen, setIsCreatePermissionModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -48,10 +49,16 @@ export const RolesPage = () => {
             Tạo và quản lý vai trò cùng quyền hạn của hệ thống
           </p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Tạo vai trò mới
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsCreatePermissionModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Tạo quyền mới
+          </Button>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Tạo vai trò mới
+          </Button>
+        </div>
       </div>
 
       {/* Roles Table */}
@@ -107,6 +114,12 @@ export const RolesPage = () => {
         onConfirm={handleConfirmDelete}
         roleName={selectedRole?.name || ''}
         isLoading={deleteRoleMutation.isPending}
+      />
+
+      {/* Create Permission Modal */}
+      <PermissionFormModal
+        isOpen={isCreatePermissionModalOpen}
+        onClose={() => setIsCreatePermissionModalOpen(false)}
       />
     </div>
   );

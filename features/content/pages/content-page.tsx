@@ -273,26 +273,6 @@ function ContentPageComponent() {
     );
   };
 
-  // Count items eligible for approve (PENDING_REVIEW)
-  const batchApproveCount = items?.filter(
-    (i: ContentItem) => selectedIds.includes(i.id) && i.status === ContentStatus.PENDING_REVIEW
-  ).length;
-
-  // Count items eligible for reject (PENDING_REVIEW)
-  const batchRejectCount = items?.filter(
-    (i: ContentItem) => selectedIds.includes(i.id) && i.status === ContentStatus.PENDING_REVIEW
-  ).length;
-
-  // Count items eligible for publish (APPROVED)
-  const batchPublishCount = items?.filter(
-    (i: ContentItem) => selectedIds.includes(i.id) && i.approving_status === ContentStatus.APPROVED
-  ).length;
-
-  // Count items eligible for schedule (APPROVED)
-  const batchScheduleCount = items?.filter(
-    (i: ContentItem) => selectedIds.includes(i.id) && i.approving_status === ContentStatus.APPROVED
-  ).length;
-
   // Add to Playlist handlers
   const handleOpenAddToPlaylist = () => {
     if (selectedIds.length === 0) {
@@ -388,11 +368,9 @@ function ContentPageComponent() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     return () => {
       setSelectedIds([]);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const canSelect = filters.approving_status !== '';

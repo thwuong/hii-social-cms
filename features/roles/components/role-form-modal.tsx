@@ -168,7 +168,7 @@ export const RoleFormModal = ({ isOpen, onClose, mode, role }: RoleFormModalProp
               rows={3}
             />
             {errors.description && (
-              <p className="text-sm text-red-500">{errors.description.message}</p>
+              <p className="text-sm text-red-400">{errors.description.message}</p>
             )}
           </div>
 
@@ -181,7 +181,7 @@ export const RoleFormModal = ({ isOpen, onClose, mode, role }: RoleFormModalProp
               onGroupToggle={handleGroupToggle}
             />
             {errors.permissions && (
-              <p className="text-sm text-red-500">{errors.permissions.message}</p>
+              <p className="text-sm text-red-400">{errors.permissions.message}</p>
             )}
           </div>
         </form>

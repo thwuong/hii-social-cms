@@ -77,9 +77,7 @@ function ContentHeader({ totalItems }: ContentHeaderProps) {
 
   const handleFilterStatus = (status: string) => {
     setFilters('approving_status', status);
-    if (status !== ContentStatus.APPROVED) {
-      resetSelectedIds();
-    }
+    resetSelectedIds();
   };
 
   const statusTabs = useMemo(() => {

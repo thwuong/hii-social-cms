@@ -24,3 +24,14 @@ export interface GetPermissionsParams {
   cursor?: string;
   limit?: number;
 }
+
+export interface CreatePermissionParams {
+  name: string;
+  description: string;
+  module: string;
+  slug: string;
+}
+
+export interface CreatePermissionResponse {
+  permission: Permission;
+}
