@@ -7,20 +7,17 @@
 import { api } from '@/services';
 import queryString from 'query-string';
 import type { LogEntryDto, LogResponseDataDto } from '../dto';
-import type { AuditLogDetail, GetAuditLogsPayload, GetAuditLogsResponse } from '../types';
-import {
-  mapLogEntryToAuditLogDetail,
-  mapLogResponseToAuditLogsResponse,
-} from '../utils/dto-mappers';
+import type { AuditLogDetail, GetAuditLogsPayload } from '../types';
+import { mapLogEntryToAuditLogDetail } from '../utils/dto-mappers';
 
 class AuditService {
   private baseUrl = 'logs';
 
-  async getAuditLogs(payload: GetAuditLogsPayload): Promise<GetAuditLogsResponse> {
+  async getAuditLogs(payload: GetAuditLogsPayload): Promise<LogResponseDataDto> {
     const searchParams = queryString.stringify(payload);
     const data = await api.get<LogResponseDataDto>(`${this.baseUrl}?${searchParams}`);
 
-    return mapLogResponseToAuditLogsResponse(data);
+    return data;
   }
 
   async getAuditLogDetail(logId: string): Promise<AuditLogDetail> {

@@ -322,24 +322,20 @@ function AuditPageComponent() {
         </div>
       )}
 
-      {!isLoading && !!logs?.length && (
-        <>
-          {viewMode === 'table' ? (
-            <AuditLogTable
-              logs={logs}
-              onRowClick={(log) => handleViewDetail(log.id)}
-              hasNextPage={hasNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-              loadMoreRef={loadMoreRef}
-            />
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {logs.map((log) => (
-                <AuditLogCard key={log.id} log={log} onView={() => handleViewDetail(log.id)} />
-              ))}
-            </div>
-          )}
-
+      {!isLoading && !!logs?.length && viewMode === 'table' && (
+        <AuditLogTable
+          logs={logs}
+          onRowClick={(log) => handleViewDetail(log.id)}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          loadMoreRef={loadMoreRef}
+        />
+      )}
+      {!isLoading && !!logs?.length && viewMode === 'grid' && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {logs.map((log) => (
+            <AuditLogCard key={log.id} log={log} onView={() => handleViewDetail(log.id)} />
+          ))}
           {/* Infinite Scroll Trigger for Grid View */}
           {viewMode === 'grid' && hasNextPage && (
             <div ref={loadMoreRef} className="flex justify-center py-8">
@@ -350,7 +346,7 @@ function AuditPageComponent() {
               )}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

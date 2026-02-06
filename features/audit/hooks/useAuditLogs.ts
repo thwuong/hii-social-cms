@@ -9,6 +9,7 @@ import { useSearch } from '@tanstack/react-router';
 import { auditKeys } from '../query-keys/auditKeys';
 import type { AuditSearchSchema } from '../schemas';
 import { auditService } from '../services';
+import { mapLogEntryToAuditLog } from '../utils';
 
 /**
  * Hook to fetch audit logs with infinite scroll
@@ -26,8 +27,12 @@ export const useAuditLogs = () => {
         platforms: filters.platforms.includes('all') ? [] : filters.platforms,
       }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => (lastPage.has_next ? Number(lastPage.next_cursor) : undefined),
-    select: (data) => data.pages.flatMap((page) => page.logs),
+    getNextPageParam: (lastPage) => {
+      return lastPage.meta.current_page < lastPage.meta.total_pages
+        ? Number(lastPage.meta.current_page + 1)
+        : undefined;
+    },
+    select: (data) => data.pages.flatMap((page) => page.logs.map(mapLogEntryToAuditLog)),
   });
 };
 

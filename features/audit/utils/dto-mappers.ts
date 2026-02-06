@@ -43,7 +43,7 @@ export function mapLogEntryToAuditLog(dto: LogEntryDto): AuditLog {
   return {
     id: dto.id,
     action: mapAction(dto.action),
-    resources: dto.after.items.map(mapResource),
+    resources: dto.after?.items.map(mapResource),
     actor_id: dto.id,
     actor_name: dto.who,
     actor_email: dto.email,
@@ -56,8 +56,8 @@ export function mapLogEntryToAuditLog(dto: LogEntryDto): AuditLog {
     },
     changes: dto.before
       ? {
-          before: dto.before.items,
-          after: dto.after.items,
+          before: dto.before?.items,
+          after: dto.after?.items,
         }
       : undefined,
     created_at: dto.created_at,
@@ -69,6 +69,8 @@ export function mapLogEntryToAuditLog(dto: LogEntryDto): AuditLog {
  */
 export function mapLogResponseToAuditLogsResponse(dto: LogResponseDataDto): GetAuditLogsResponse {
   const logs = dto.logs.map(mapLogEntryToAuditLog);
+  console.log(dto.meta.current_page, 'current_page');
+  console.log(dto.meta.total_pages, 'total_pages');
 
   return {
     logs,
@@ -87,7 +89,7 @@ export function mapLogEntryToAuditLogDetail(dto: LogEntryDto): AuditLogDetail {
   return {
     id: dto.id,
     action: mapAction(dto.action),
-    resources: dto.after.items.map(mapResource),
+    resources: dto.after?.items.map(mapResource),
     actor_id: dto.id,
     actor_name: dto.who,
     actor_email: dto.email,
@@ -100,8 +102,8 @@ export function mapLogEntryToAuditLogDetail(dto: LogEntryDto): AuditLogDetail {
     },
     changes: dto.before
       ? {
-          before: dto.before.items,
-          after: dto.after.items,
+          before: dto.before?.items,
+          after: dto.after?.items,
         }
       : undefined,
     created_at: dto.created_at,
