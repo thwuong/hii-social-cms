@@ -1,6 +1,7 @@
 import { ThumbnailUpload } from '@/shared/components';
-import { Label, Textarea, Typography } from '@/shared/ui';
+import { Label, Typography } from '@/shared/ui';
 import FormField from '@/shared/ui/form-field';
+import FormTextarea from '@/shared/ui/form-textarea';
 import type { Control, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import type { CreatePlaylistSchema } from '../schema/create-playlist.schema';
 
@@ -42,7 +43,7 @@ export function PlaylistForm({
   className = '',
 }: PlaylistFormProps) {
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`w-full space-y-6 ${className}`}>
       {/* Name Field */}
       <div className="space-y-2">
         <FormField
@@ -56,16 +57,12 @@ export function PlaylistForm({
 
       {/* Description Field */}
       <div className="space-y-2">
-        <Label htmlFor="playlist-description" className="text-xs">
-          Mô Tả
-        </Label>
-        <Textarea
-          id="playlist-description"
+        <FormTextarea
+          control={control}
+          name="description"
+          label="Mô Tả"
           placeholder="Nhập mô tả danh sách phát..."
-          value={watch('description')}
-          onChange={(e) => setValue('description', e.target.value)}
-          className="border-white/20 bg-zinc-900 font-mono text-white"
-          rows={3}
+          className="w-full border-white/20 bg-zinc-900 font-mono text-white"
         />
       </div>
 

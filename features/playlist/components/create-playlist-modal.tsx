@@ -33,7 +33,7 @@ export function CreatePlaylistModal({
     reset,
     watch,
     setValue,
-    formState: { isValid, isDirty },
+    formState: { isValid, isDirty, errors },
   } = useForm<CreatePlaylistSchema>({
     resolver: zodResolver(createPlaylistSchema),
     defaultValues: {
@@ -42,6 +42,7 @@ export function CreatePlaylistModal({
       video_ids: [],
       thumbnail: undefined,
     },
+    mode: 'onChange',
   });
 
   const handleClose = () => {
@@ -92,7 +93,7 @@ export function CreatePlaylistModal({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmitForm)} className="p-6">
+          <form onSubmit={handleSubmit(onSubmitForm)} className="w-full p-6">
             <PlaylistForm
               control={control}
               watch={watch}
@@ -129,7 +130,7 @@ export function CreatePlaylistModal({
 
               {/* Selected Videos List */}
               {selectedVideos.length > 0 && (
-                <div className="space-y-2 overflow-y-auto">
+                <div className="max-h-[300px] space-y-2 overflow-y-auto">
                   {selectedVideos.map((video) => (
                     <div
                       key={video.id}

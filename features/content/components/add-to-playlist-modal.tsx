@@ -46,7 +46,7 @@ export function AddToPlaylistModal({
     resolver: zodResolver(createPlaylistSchema),
     values: {
       name: '',
-      description: undefined,
+      description: '',
       video_ids: selectedVideoIds,
       thumbnail: undefined,
     },
