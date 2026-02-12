@@ -18,6 +18,8 @@ export const queryKeys = {
       [...queryKeys.content.all, 'list', filters] as const,
     details: (id: string, approving_status: string) =>
       [...queryKeys.content.all, 'detail', id, approving_status] as const,
+    inPlaylist: (filters: Partial<ContentSearchSchema>) =>
+      [...queryKeys.content.all, 'in-playlist', filters] as const,
   },
 
   // Approving Status queries
@@ -32,6 +34,9 @@ export const queryKeys = {
       [...queryKeys.contentCrawl.lists(), filters] as const,
     details: () => [...queryKeys.contentCrawl.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.contentCrawl.details(), id] as const,
+    playlist: () => [...queryKeys.contentCrawl.all, 'playlist'] as const,
+    playlistList: (filters: Record<string, unknown>) =>
+      [...queryKeys.contentCrawl.playlist(), filters] as const,
   },
 
   // User queries

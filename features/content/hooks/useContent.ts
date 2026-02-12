@@ -45,6 +45,34 @@ export const useContent = (filters: Partial<ContentSearchSchema>) => {
   };
 };
 
+export const useContentInPlaylist = (filters: Partial<ContentSearchSchema>) => {
+  const queryKey = queryKeys.content.inPlaylist(filters);
+  const contentQuery = useInfiniteQuery({
+    queryKey,
+    queryFn: ({ pageParam = 1 }) =>
+      contentService.getContent({
+        ...filters,
+        page: pageParam,
+      }),
+    getNextPageParam: (lastPage: GetContentResponse, allPages: GetContentResponse[]) => {
+      const totalPages = allPages[allPages.length - 1].total_page;
+      const currentPage = lastPage.page;
+      return totalPages > currentPage ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
+    enabled: !!filters.playlist?.length,
+  });
+
+  return {
+    ...contentQuery,
+    data:
+      contentQuery.data?.pages.flatMap((page) =>
+        page.reels ? page.reels.map(transformReelContent) : []
+      ) || [],
+    totalItems: contentQuery.data?.pages[contentQuery.data.pages.length - 1].total || 0,
+  };
+};
+
 export const useCreateContent = () => {
   return useMutation({
     mutationFn: ({ data }: { data: ContentSchema }) => contentService.createContent(data),
@@ -69,8 +97,8 @@ export const useCreateContent = () => {
       return { previousData };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.contentCrawl.lists() });
       queryClient.invalidateQueries({ queryKey: queryKeys.content.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.contentCrawl.all });
     },
     onError: (_err, _variables, context) => {
       // Rollback on error

@@ -1,9 +1,10 @@
 import { useUser } from '@/features/auth/stores/useAuthStore';
+import { cn } from '@/lib';
 import { STATUS_LABELS } from '@/shared';
 import { DetailPageSkeleton, FilterSkeleton, VideoPlayer } from '@/shared/components';
 import { ContentStatus, UserRole } from '@/shared/types';
 import { Badge, Button, Textarea, Typography } from '@/shared/ui';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { AlertTriangle, Globe, X } from 'lucide-react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
@@ -11,12 +12,20 @@ import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { toast } from 'sonner';
 import { Queue, useContentContext, WorkflowSteps } from '../components';
 import { useCreateContent } from '../hooks/useContent';
-import { useDraftContent, useGetDraftContentDetails } from '../hooks/useDraftContent';
+import {
+  useDraftContent,
+  useGetDraftContentDetails,
+  useGetDraftContentPlaylist,
+} from '../hooks/useDraftContent';
+import { DraftContentSearchSchema } from '../schemas';
 import { ContentSchema } from '../schemas/content.schema';
 import { detectTags } from '../utils';
 
 function DetailPageComponent() {
   const { contentId } = useParams({ strict: false });
+  const filters: DraftContentSearchSchema = useSearch({ strict: false });
+  const { playlist, ...restFilters } = filters;
+
   const {
     data: crawlContent,
     fetchNextPage,
@@ -24,7 +33,21 @@ function DetailPageComponent() {
     isFetchingNextPage,
     isLoading: isLoadingCrawlContent,
     totalItems,
-  } = useDraftContent();
+  } = useDraftContent(restFilters);
+
+  const {
+    data: recommendedPlaylists,
+    fetchNextPage: fetchNextPagePlaylist,
+    hasNextPage: hasNextPagePlaylist,
+    isFetchingNextPage: isFetchingNextPagePlaylist,
+    totalItems: totalItemsPlaylist,
+  } = useGetDraftContentPlaylist(filters);
+
+  const filteredCrawlContent = useMemo(() => {
+    return (
+      crawlContent?.filter((c) => !recommendedPlaylists?.map((p) => p.id).includes(c.id)) || []
+    );
+  }, [crawlContent, recommendedPlaylists]);
 
   // Infinite scroll for queue
   const [loadMoreRef] = useInfiniteScroll({
@@ -33,7 +56,16 @@ function DetailPageComponent() {
     loading: isFetchingNextPage,
   });
 
-  const { mutate: createContent, isPending: isPendingCreateContent } = useCreateContent();
+  // Infinite scroll for playlist queue
+  const [loadMorePlaylistRef] = useInfiniteScroll({
+    hasNextPage: hasNextPagePlaylist,
+    onLoadMore: fetchNextPagePlaylist,
+    loading: isFetchingNextPagePlaylist,
+  });
+
+  const showPlaylistQueue = filters.playlist && filters.playlist.length > 0;
+
+  const { mutate: createContent } = useCreateContent();
 
   const navigate = useNavigate();
   const currentUser = useUser();
@@ -47,13 +79,19 @@ function DetailPageComponent() {
   } = useGetDraftContentDetails(Number(contentId));
   const firstFetch = useRef(false);
 
-  useEffect(() => {
-    if (!crawlContent || !contentDetails || firstFetch.current) return;
+  const mergeContent = useMemo(() => {
+    return [...(recommendedPlaylists || []), ...(filteredCrawlContent || [])];
+  }, [recommendedPlaylists, filteredCrawlContent]);
 
-    const itemIndex = crawlContent?.findIndex((c) => c.id === contentDetails.id) || 0;
-    if (itemIndex >= 0) {
-      const queueList = document.querySelector('.queue-list');
+  useEffect(() => {
+    if (!mergeContent || !contentDetails || firstFetch.current) return;
+
+    const foundItem = mergeContent?.some((c) => c.id === contentDetails.id);
+
+    if (foundItem) {
       const activeItem = document.querySelector('.queue-item-active');
+      const queueList = document.querySelector('.queue-list');
+
       if (activeItem && isFetched) {
         requestAnimationFrame(() => {
           const activeItemRect = activeItem.getBoundingClientRect();
@@ -65,10 +103,24 @@ function DetailPageComponent() {
       return;
     }
 
-    if (hasNextPage) {
+    if (hasNextPagePlaylist) {
+      fetchNextPagePlaylist();
+      return;
+    }
+    if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [contentDetails, crawlContent, hasNextPage, fetchNextPage, isFetched]);
+  }, [
+    contentDetails,
+    hasNextPage,
+    mergeContent,
+    isFetched,
+    hasNextPagePlaylist,
+    fetchNextPage,
+    fetchNextPagePlaylist,
+    isFetchingNextPagePlaylist,
+    isFetchingNextPage,
+  ]);
 
   const { register, handleSubmit, setValue, watch } = useForm<ContentSchema>({
     values: contentDetails
@@ -83,6 +135,7 @@ function DetailPageComponent() {
           id: contentDetails?.id || '',
           categories: [],
           crawler_id: contentDetails?.id || '',
+          playlist: contentDetails?.playlist_id ? [contentDetails?.playlist_id] : [],
         }
       : undefined,
   });
@@ -120,14 +173,19 @@ function DetailPageComponent() {
       },
       {
         onSuccess: () => {
+          if (!mergeContent) return;
           toast.dismiss(toastId);
           toast.success('Khởi tạo nội dung thành công');
-          const itemIndex = crawlContent?.findIndex((c) => c.id === id);
-          const nextItem = crawlContent?.[itemIndex + 1];
+          const itemIndex = mergeContent?.findIndex((c) => c.id === id);
+          const nextItem = mergeContent?.[itemIndex + 1];
           if (nextItem) {
             navigate({
               to: '/draft/detail/$contentId',
               params: { contentId: nextItem.id },
+              search: {
+                playlist: filters.playlist,
+                is_previewed: filters.is_previewed,
+              },
             });
           } else {
             navigate({ to: '/draft' });
@@ -166,11 +224,29 @@ function DetailPageComponent() {
   if (isRejected) activeIndex = 1;
 
   return (
-    <div className="detail-layout animate-in fade-in p-4 duration-300 sm:p-10">
+    <div
+      className={cn(
+        'detail-layout animate-in fade-in p-4 duration-300 sm:p-10',
+        showPlaylistQueue && 'has-playlist-queue'
+      )}
+    >
       {/* LEFT: QUEUE SIDEBAR */}
-      <aside className="queue-sidebar">
+      <aside className="queue-sidebar flex flex-col gap-5">
+        {/* LEFT: PLAYLIST QUEUE SIDEBAR */}
+        {showPlaylistQueue && (
+          <Queue
+            title="DANH SÁCH GỢI Ý"
+            queueItems={recommendedPlaylists || []}
+            item={contentDetails}
+            loadMoreRef={loadMorePlaylistRef}
+            hasNextPage={hasNextPagePlaylist}
+            isFetchingNextPage={isFetchingNextPagePlaylist}
+            totalItems={totalItemsPlaylist}
+            className="playlist"
+          />
+        )}
         <Queue
-          queueItems={crawlContent}
+          queueItems={filteredCrawlContent}
           item={contentDetails}
           loadMoreRef={loadMoreRef}
           hasNextPage={hasNextPage}

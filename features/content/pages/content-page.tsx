@@ -79,7 +79,7 @@ function ContentPageComponent() {
     navigate({
       to: `${item.details_link}/$contentId`,
       params: { contentId: item.id },
-      search: { approving_status: item.approving_status },
+      search: { approving_status: item.approving_status, playlist: item?.playlist_id || undefined },
     });
   };
 

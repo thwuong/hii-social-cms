@@ -173,8 +173,8 @@ function ContentHeader({ totalItems }: ContentHeaderProps) {
         </div>
         <div className="flex items-center gap-2">
           <Select
-            value={filters.platforms}
-            onValueChange={(value) => setFilters('platforms', value)}
+            value={filters.platforms[0]}
+            onValueChange={(value) => setFilters('platforms', [value])}
           >
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Tất cả nền tảng" />

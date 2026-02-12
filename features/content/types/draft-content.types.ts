@@ -67,6 +67,7 @@ export interface VideoMetadata {
   duration: number;
   title: string;
   uploader: string;
+  playlist_id?: string;
 }
 
 export interface PaginatedResponse {

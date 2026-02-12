@@ -31,6 +31,7 @@ export const transformCrawlContent = (content: Video): ContentItem => {
     details_link: `/draft/detail`,
     categories: [],
     is_pending: content.is_pending || false,
+    playlist_id: content.video_metadata?.playlist_id,
   };
 };
 
@@ -60,6 +61,7 @@ export const transformReelContent = (content: Reel): ContentItem => {
     categories: content.categories || [],
     media: content.media || [],
     is_pending: content.is_pending || false,
+    playlist_id: content.playlist,
   };
 };
 

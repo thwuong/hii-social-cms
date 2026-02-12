@@ -54,6 +54,7 @@ export interface Reel {
   categories: string[];
   reason: string;
   is_pending: boolean;
+  playlist?: string;
 }
 
 export interface PublishContentPayload {

@@ -11,11 +11,11 @@ export const STATUS_LABELS = {
 };
 
 export const DRAFT_CONTENT_SEARCH_SORT_OPTIONS = [
-  { id: SortOrder.ASC, label: 'Mới nhất' },
-  { id: SortOrder.DESC, label: 'Cũ nhất' },
+  { id: SortOrder.ASC, label: 'Cũ nhất' },
+  { id: SortOrder.DESC, label: 'Mới nhất' },
 ];
 
 export const DRAFT_CONTENT_SEARCH_IS_PREVIEWED_OPTIONS = [
-  { id: '', label: 'Tất cả' },
+  { id: undefined, label: 'Tất cả' },
   { id: 'true', label: 'Đã xem trước' },
 ];

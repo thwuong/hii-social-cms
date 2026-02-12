@@ -70,6 +70,7 @@ export interface ContentItem {
   media?: Media[];
   is_allow_comment?: boolean;
   is_pending?: boolean;
+  playlist_id?: string;
 }
 
 export enum Permission {

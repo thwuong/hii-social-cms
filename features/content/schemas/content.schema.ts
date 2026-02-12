@@ -12,6 +12,7 @@ export const contentSchema = z.object({
   categories: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]).optional(),
   crawler_id: z.string(),
+  playlist: z.array(z.string()).optional(),
 });
 
 export type ContentSchema = z.infer<typeof contentSchema>;

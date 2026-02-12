@@ -11,6 +11,7 @@ type QueueListProps = {
   isFetchingNextPage?: boolean;
   selectedIds?: string[];
   onToggleSelect?: (id: string) => void;
+  className?: string;
 };
 
 function QueueList({
@@ -21,9 +22,10 @@ function QueueList({
   isFetchingNextPage,
   selectedIds,
   onToggleSelect,
+  className,
 }: QueueListProps) {
   return (
-    <div className="custom-scrollbar queue-list flex flex-col overflow-y-auto">
+    <div className={cn('custom-scrollbar queue-list flex flex-col overflow-y-auto', className)}>
       {queueItems.map((qItem) => (
         <QueueItem
           key={qItem.content_id}
@@ -35,7 +37,7 @@ function QueueList({
       ))}
 
       {/* Infinite Scroll Trigger */}
-      {loadMoreRef && (
+      {loadMoreRef && hasNextPage && (
         <div ref={loadMoreRef} className="flex justify-center p-4">
           {isFetchingNextPage && <LoadingState />}
           {!isFetchingNextPage && hasNextPage && (
@@ -64,6 +66,7 @@ function QueueItem({ qItem, activeItem, isSelected, onToggleSelect }: QueueItemP
       params: { contentId: qItem.id },
       search: {
         approving_status: qItem.details_link === '/content/detail' ? qItem.status : undefined,
+        playlist: qItem.playlist_id || undefined,
       },
     });
   };
@@ -80,7 +83,7 @@ function QueueItem({ qItem, activeItem, isSelected, onToggleSelect }: QueueItemP
       className={cn(
         'group relative flex w-full cursor-pointer items-center gap-3 p-4 transition-all duration-300',
         activeItem &&
-          'after:bg-accent bg-foreground/5 after:absolute after:top-0 after:bottom-0 after:left-0 after:w-0.5 after:shadow-md',
+          'after:bg-accent-foreground bg-foreground/10 after:absolute after:top-0 after:bottom-0 after:left-0 after:w-0.5 after:shadow-md',
         activeItem && 'queue-item-active'
       )}
       onClick={handleClick}
@@ -130,6 +133,8 @@ type QueueProps = {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   totalItems?: number;
+  title?: string;
+  className?: string;
 };
 
 function Queue({
@@ -139,12 +144,14 @@ function Queue({
   hasNextPage,
   isFetchingNextPage,
   totalItems,
+  title,
+  className,
 }: QueueProps) {
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <Typography className="flex items-center gap-2 p-4 font-medium" variant="small">
         <ListVideo size={14} />
-        <span>HÀNG ĐỢI // {STATUS_LABELS[item.status as ContentStatus]}</span>
+        <span>{title || `HÀNG ĐỢI // ${STATUS_LABELS[item.status as ContentStatus]}`}</span>
         <span className="ml-auto opacity-50">{totalItems}</span>
       </Typography>
       <QueueList
@@ -153,6 +160,7 @@ function Queue({
         loadMoreRef={loadMoreRef}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
+        className={className}
       />
     </div>
   );

@@ -11,10 +11,13 @@ import { toast } from 'sonner';
 import { DraftContentTable, RejectConfirmationModal } from '../components';
 import DraftContentHeader from '../components/draft-content-header';
 import { useDraftContent, useMakeDraftContentPreview } from '../hooks/useDraftContent';
+import { DraftContentSearchSchema } from '../schemas';
 import { useDraftContentStore } from '../stores/useDraftContentStore';
 
 function ContentCrawlPageComponent() {
   const navigate = useNavigate();
+  const filters: DraftContentSearchSchema = useSearch({ strict: false });
+  const { playlist, ...restFilters } = filters;
 
   const {
     data: crawlContent,
@@ -25,7 +28,7 @@ function ContentCrawlPageComponent() {
     isFetchingNextPage,
     isPlaceholderData,
     totalItems,
-  } = useDraftContent();
+  } = useDraftContent(restFilters);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -55,7 +58,10 @@ function ContentCrawlPageComponent() {
     navigate({
       to: `${item.details_link}/$contentId`,
       params: { contentId: item.id },
-      search: { is_previewed: isPreviewed },
+      search: {
+        is_previewed: isPreviewed,
+        playlist: item.playlist_id ? [item.playlist_id] : undefined,
+      },
     });
   };
 

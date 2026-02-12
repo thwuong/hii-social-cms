@@ -1,3 +1,4 @@
+import { queryClient } from '@/lib';
 import { Permission, STATUS_LABELS } from '@/shared';
 import { DetailPageSkeleton, PermissionGate, QueueSkeleton } from '@/shared/components';
 import { usePermission } from '@/shared/hooks/use-permission';
@@ -22,10 +23,12 @@ import {
   useApproveContent,
   useContent,
   useContentDetails,
+  useContentInPlaylist,
   usePublishContent,
   useRejectContents,
 } from '../hooks/useContent';
 import { useScheduleContent } from '../hooks/useSchedule';
+import { queryKeys } from '../query-keys';
 import { ContentDetailSearchSchema, UpdateReelSchema } from '../schemas';
 import { useContentStore } from '../stores/useContentStore';
 import { detectTags } from '../utils';
@@ -33,6 +36,7 @@ import { detectTags } from '../utils';
 function DetailPageComponent() {
   const { contentId } = useParams({ strict: false });
   const searchParams: ContentDetailSearchSchema = useSearch({ strict: false });
+  const { playlist, ...restSearchParams } = searchParams;
 
   const {
     data: realContent,
@@ -43,8 +47,22 @@ function DetailPageComponent() {
     isFetchingNextPage,
     totalItems,
   } = useContent({
+    ...restSearchParams,
+    approving_status: searchParams?.approving_status as string,
+  });
+
+  const {
+    data: contentInPlaylist,
+    isLoading: isLoadingContentInPlaylist,
+    error: _errorContentInPlaylist,
+    fetchNextPage: fetchNextPageContentInPlaylist,
+    hasNextPage: hasNextPageContentInPlaylist,
+    isFetchingNextPage: isFetchingNextPageContentInPlaylist,
+    totalItems: totalItemsContentInPlaylist,
+  } = useContentInPlaylist({
     ...searchParams,
     approving_status: searchParams?.approving_status as string,
+    playlist,
   });
 
   // Mutate
@@ -61,6 +79,12 @@ function DetailPageComponent() {
     loading: isFetchingNextPage,
   });
 
+  const [loadMoreRefContentInPlaylist] = useInfiniteScroll({
+    hasNextPage: hasNextPageContentInPlaylist,
+    onLoadMore: fetchNextPageContentInPlaylist,
+    loading: isFetchingNextPageContentInPlaylist,
+  });
+
   const {
     data: item,
     isLoading: isLoadingContentDetails,
@@ -70,13 +94,25 @@ function DetailPageComponent() {
     approving_status: searchParams?.approving_status as string,
   });
 
+  const contentIgnoreInPlaylist = useMemo(() => {
+    return realContent?.filter(
+      (c) => !contentInPlaylist?.map((content) => content.id).includes(c.id)
+    );
+  }, [realContent, item]);
+
+  const mergeContent = useMemo(() => {
+    return [...(contentInPlaylist || []), ...(contentIgnoreInPlaylist || [])];
+  }, [contentIgnoreInPlaylist, contentInPlaylist]);
+
   const firstFetch = useRef(false);
 
   useEffect(() => {
-    if (!realContent || !item || firstFetch.current) return;
+    if (!mergeContent || !item || firstFetch.current) return;
 
-    const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
-    if (itemIndex >= 0) {
+    const foundItem = mergeContent.some((c) => {
+      return c.id === item.id;
+    });
+    if (foundItem) {
       const queueList = document.querySelector('.queue-list');
       const activeItem = document.querySelector('.queue-item-active');
       if (activeItem && isFetched) {
@@ -91,10 +127,24 @@ function DetailPageComponent() {
       return;
     }
 
-    if (hasNextPage) {
+    if (hasNextPageContentInPlaylist) {
+      fetchNextPageContentInPlaylist();
+      return;
+    }
+
+    if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [item, realContent, hasNextPage, fetchNextPage, isFetched]);
+  }, [
+    item,
+    mergeContent,
+    hasNextPage,
+    fetchNextPage,
+    isFetched,
+    fetchNextPageContentInPlaylist,
+    hasNextPageContentInPlaylist,
+    isFetchingNextPage,
+  ]);
 
   const navigate = useNavigate();
 
@@ -171,6 +221,13 @@ function DetailPageComponent() {
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.content.inPlaylist({
+              ...searchParams,
+              approving_status: searchParams?.approving_status as string,
+              playlist,
+            }),
+          });
           toast.dismiss(toastId);
           toast.success('Duyệt nội dung thành công');
           const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
@@ -206,6 +263,13 @@ function DetailPageComponent() {
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.content.inPlaylist({
+              ...searchParams,
+              approving_status: searchParams?.approving_status as string,
+              playlist,
+            }),
+          });
           toast.dismiss(toastId);
           toast.success('Đăng nội dung thành công');
           const itemIndex = realContent?.findIndex((c) => c.id === item.id) || 0;
@@ -241,6 +305,13 @@ function DetailPageComponent() {
         },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.content.inPlaylist({
+                ...searchParams,
+                approving_status: searchParams?.approving_status as string,
+                playlist,
+              }),
+            });
             toast.success('Từ chối nội dung thành công');
             setIsRejectModalOpen(false);
             setPendingRejectId(null);
@@ -284,6 +355,13 @@ function DetailPageComponent() {
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.content.inPlaylist({
+              ...searchParams,
+              approving_status: searchParams?.approving_status as string,
+              playlist,
+            }),
+          });
           toast.dismiss(toastId);
           toast.success('TỪ CHỐI THÀNH CÔNG', {
             description: `Đã từ chối ${eligibleRejections.length} nội dung`,
@@ -329,6 +407,13 @@ function DetailPageComponent() {
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.content.inPlaylist({
+              ...searchParams,
+              approving_status: searchParams?.approving_status as string,
+              playlist,
+            }),
+          });
           toast.dismiss(toastId);
           toast.success('LÊN_LỊCH_THÀNH_CÔNG', {
             description: `Video sẽ được đăng vào ${new Date(scheduledTime).toLocaleString('vi-VN')}`,
@@ -417,12 +502,27 @@ function DetailPageComponent() {
     <div className="detail-layout animate-in fade-in p-4 duration-300 sm:p-10">
       {/* LEFT: QUEUE SIDEBAR */}
       <aside className="queue-sidebar">
+        {isLoadingContentInPlaylist ? (
+          <QueueSkeleton count={12} />
+        ) : (
+          !!contentInPlaylist.length && (
+            <Queue
+              title="Danh sách gợi ý"
+              totalItems={totalItemsContentInPlaylist}
+              queueItems={contentInPlaylist || []}
+              item={item}
+              hasNextPage={hasNextPageContentInPlaylist}
+              isFetchingNextPage={isFetchingNextPageContentInPlaylist}
+              loadMoreRef={loadMoreRefContentInPlaylist}
+            />
+          )
+        )}
         {isLoadingCrawlContent ? (
           <QueueSkeleton count={12} />
         ) : (
           <Queue
-            totalItems={totalItems}
-            queueItems={realContent || []}
+            totalItems={totalItems - totalItemsContentInPlaylist}
+            queueItems={contentIgnoreInPlaylist || []}
             item={item}
             hasNextPage={hasNextPage}
             isFetchingNextPage={isFetchingNextPage}
