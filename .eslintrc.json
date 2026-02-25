@@ -56,7 +56,8 @@
           "vite.config.ts",
           "*.config.js",
           "*.config.ts"
-        ]
+        ],
+        "packageDir": "./"
       }
     ],
     "import/prefer-default-export": "off",
