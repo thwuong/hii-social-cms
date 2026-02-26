@@ -13,6 +13,8 @@ export const contentSchema = z.object({
   tags: z.array(z.string()).default([]).optional(),
   crawler_id: z.string(),
   playlist: z.array(z.string()).optional(),
+  language: z.string().optional(),
+  country: z.array(z.string()).optional(),
 });
 
 export type ContentSchema = z.infer<typeof contentSchema>;

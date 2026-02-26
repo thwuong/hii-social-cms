@@ -58,6 +58,8 @@ export interface Data {
   updated_at: string;
   updated_by: string;
   views: number;
+  language?: string;
+  country?: string[];
 }
 
 export interface VideoMetadata {

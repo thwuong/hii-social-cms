@@ -11,6 +11,18 @@ export const queryKeys = {
     lists: () => [...queryKeys.platforms.all, 'list'] as const,
   },
 
+  languages: {
+    all: ['languages'] as const,
+    lists: (params: Record<string, unknown>) =>
+      [...queryKeys.languages.all, 'list', params] as const,
+  },
+
+  countries: {
+    all: ['countries'] as const,
+    lists: (params: Record<string, unknown>) =>
+      [...queryKeys.countries.all, 'list', params] as const,
+  },
+
   // Content queries
   content: {
     all: ['content'] as const,

@@ -32,6 +32,8 @@ export const transformCrawlContent = (content: Video): ContentItem => {
     categories: [],
     is_pending: content.is_pending || false,
     playlist_id: content.video_metadata?.playlist_id,
+    language: content.publish_metadata?.data?.language || '',
+    country: content.publish_metadata?.data?.country || [],
   };
 };
 
@@ -62,6 +64,8 @@ export const transformReelContent = (content: Reel): ContentItem => {
     media: content.media || [],
     is_pending: content.is_pending || false,
     playlist_id: content.playlist,
+    language: content.language || '',
+    country: content.country || [],
   };
 };
 

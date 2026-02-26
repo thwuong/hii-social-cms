@@ -2,21 +2,24 @@ import { useUser } from '@/features/auth/stores/useAuthStore';
 import { cn } from '@/lib';
 import { STATUS_LABELS } from '@/shared';
 import { DetailPageSkeleton, FilterSkeleton, VideoPlayer } from '@/shared/components';
+import { useDebounceSearch } from '@/shared/hooks/use-debounce-search';
 import { ContentStatus, UserRole } from '@/shared/types';
-import { Badge, Button, Textarea, Typography } from '@/shared/ui';
+import { Badge, Button, Dialog, DialogTrigger, Textarea, Typography } from '@/shared/ui';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
-import { AlertTriangle, Globe, X } from 'lucide-react';
-import { useEffect, useMemo, useRef } from 'react';
+import { AlertTriangle, Globe, Languages, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { toast } from 'sonner';
-import { Queue, useContentContext, WorkflowSteps } from '../components';
+import { MetadataModal, Queue, useContentContext, WorkflowSteps } from '../components';
 import { useCreateContent } from '../hooks/useContent';
+import { useCountries } from '../hooks/useCountry';
 import {
   useDraftContent,
   useGetDraftContentDetails,
   useGetDraftContentPlaylist,
 } from '../hooks/useDraftContent';
+import { useLanguages } from '../hooks/useLanguage';
 import { DraftContentSearchSchema } from '../schemas';
 import { ContentSchema } from '../schemas/content.schema';
 import { detectTags } from '../utils';
@@ -71,6 +74,26 @@ function DetailPageComponent() {
   const currentUser = useUser();
 
   const { platforms, categories } = useContentContext();
+
+  const [languageSearch, setLanguageSearch] = useState('');
+  const [countrySearch, setCountrySearch] = useState('');
+
+  const { handleChange: handleChangeLanguage, value: debouncedLanguageSearch } = useDebounceSearch(
+    (value) => {
+      setLanguageSearch(value);
+    },
+    500
+  );
+
+  const { handleChange: handleChangeCountry, value: debouncedCountrySearch } = useDebounceSearch(
+    (value) => {
+      setCountrySearch(value);
+    },
+    500
+  );
+
+  const languagesQuery = useLanguages({ q: debouncedLanguageSearch });
+  const countriesQuery = useCountries({ q: debouncedCountrySearch });
 
   const {
     data: contentDetails,
@@ -136,6 +159,8 @@ function DetailPageComponent() {
           categories: [],
           crawler_id: contentDetails?.id || '',
           playlist: contentDetails?.playlist_id ? [contentDetails?.playlist_id] : [],
+          language: '',
+          country: [],
         }
       : undefined,
   });
@@ -143,21 +168,43 @@ function DetailPageComponent() {
   const watchPlatforms = watch('platforms');
   const watchCategories = watch('categories');
   const watchTitle = watch('title');
+  const watchLanguage = watch('language');
+  const watchCountry = watch('country');
 
   const allTags = useMemo(() => {
     return detectTags(watchTitle);
   }, [watchTitle]);
 
-  const handleUpdateMetadata = (key: 'platforms' | 'categories', value: any) => {
-    const isExist = watch(key).includes(value);
+  const handleUpdateMetadata = (key: 'platforms' | 'categories' | 'country', value: any) => {
+    const isExist = watch(key)?.includes(value);
     if (isExist) {
       setValue(
         key,
-        watch(key).filter((p) => p !== value)
+        watch(key)?.filter((p: any) => p !== value)
       );
     } else {
-      setValue(key, [...watch(key), value]);
+      setValue(key, [...(watch(key) || []), value]);
     }
+  };
+
+  const handleSelectLanguage = (value: string) => {
+    setValue('language', value);
+  };
+
+  const renderSelectedItems = (
+    items: { id: string | number; name: string; value: string }[],
+    onRemove: (value: string) => void
+  ) => {
+    return (
+      <div className="flex flex-wrap gap-1">
+        {items.map((item) => (
+          <Badge key={item.id} variant="default" className="flex items-center gap-1">
+            {item.name}
+            <X size={12} className="cursor-pointer" onClick={() => onRemove(item.value)} />
+          </Badge>
+        ))}
+      </div>
+    );
   };
 
   const onSubmit = (data: ContentSchema) => {
@@ -373,6 +420,85 @@ function DetailPageComponent() {
           <FilterSkeleton count={3} />
         )}
 
+        {/* LANGUAGES */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              NGÔN NGỮ
+            </Typography>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className="size-8 rounded-none">
+                  <Languages size={16} />
+                </Button>
+              </DialogTrigger>
+              <MetadataModal
+                title="NGÔN NGỮ"
+                searchTerm={languageSearch}
+                onSearchChange={handleChangeLanguage}
+                items={languagesQuery.data || []}
+                selectedValues={watchLanguage || ''}
+                onSelect={handleSelectLanguage}
+                hasNextPage={languagesQuery.hasNextPage}
+                fetchNextPage={languagesQuery.fetchNextPage}
+                isFetchingNextPage={languagesQuery.isFetchingNextPage}
+              />
+            </Dialog>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {watchLanguage ? (
+              renderSelectedItems(
+                languagesQuery.data
+                  .filter((l) => l.slug === watchLanguage)
+                  .map((l) => ({ id: l.id, name: l.name, value: l.slug })),
+                () => setValue('language', '')
+              )
+            ) : (
+              <p className="text-muted-foreground text-xs">Chưa chọn ngôn ngữ</p>
+            )}
+          </div>
+        </div>
+
+        {/* COUNTRIES */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              QUỐC GIA
+            </Typography>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className="size-8 rounded-none">
+                  <Globe size={16} />
+                </Button>
+              </DialogTrigger>
+              <MetadataModal
+                title="QUỐC GIA"
+                searchTerm={countrySearch}
+                onSearchChange={handleChangeCountry}
+                items={countriesQuery.data || []}
+                selectedValues={watchCountry || []}
+                onSelect={(val) => handleUpdateMetadata('country', val)}
+                multiple
+                hasNextPage={countriesQuery.hasNextPage}
+                fetchNextPage={countriesQuery.fetchNextPage}
+                isFetchingNextPage={countriesQuery.isFetchingNextPage}
+              />
+            </Dialog>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(watchCountry?.length ?? 0) > 0 ? (
+              renderSelectedItems(
+                countriesQuery.data
+                  .filter((c) => watchCountry?.includes(c.code))
+                  .map((c) => ({ id: c.id, name: c.name, value: c.code })),
+                (code) => handleUpdateMetadata('country', code)
+              )
+            ) : (
+              <p className="text-muted-foreground text-xs">Chưa chọn quốc gia</p>
+            )}
+          </div>
+        </div>
+
         {/* WORKFLOW STATUS PROGRESS */}
         <WorkflowSteps
           isRejected={isRejected}
@@ -391,7 +517,12 @@ function DetailPageComponent() {
             type="submit"
             variant="default"
             isLoading={contentDetails.is_pending}
-            disabled={!watchPlatforms?.length || !watchCategories?.length}
+            disabled={
+              !watchPlatforms?.length ||
+              !watchCategories?.length ||
+              !watchCountry?.length ||
+              !watchLanguage
+            }
           >
             DUYỆT
           </Button>

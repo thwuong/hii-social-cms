@@ -8,7 +8,7 @@ const contentSearchSchema = z.object({
   sort_order: z.nativeEnum(SortOrder).optional().default(SortOrder.DESC),
   approving_status: z.string().optional().default(''),
   categories: z.array(z.string()).optional().default([]),
-  platforms: z.array(z.string()).optional().default([]),
+  platforms: z.array(z.string()).optional().default(['all']),
   playlist: z.array(z.string()).optional(),
 });
 

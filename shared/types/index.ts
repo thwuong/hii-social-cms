@@ -71,6 +71,8 @@ export interface ContentItem {
   is_allow_comment?: boolean;
   is_pending?: boolean;
   playlist_id?: string;
+  language?: string;
+  country?: string[];
 }
 
 export enum Permission {

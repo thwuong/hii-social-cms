@@ -13,8 +13,8 @@
  */
 
 /* eslint-disable max-classes-per-file */
-import { LoginResponse } from '@/shared/types';
 import { useAuthStore } from '@/features/auth/stores/useAuthStore';
+import { LoginResponse } from '@/shared/types';
 import ky, { HTTPError } from 'ky';
 import { ApiResponse } from './types/api';
 
@@ -341,6 +341,32 @@ export const apiClient = ky.create({
 
         // Return original error
         return error;
+      },
+    ],
+  },
+});
+
+export const apiBasicClient = ky.create({
+  prefixUrl: API_BASE_URL,
+  timeout: 30000, // 30 seconds
+  retry: {
+    limit: 2,
+    methods: ['get', 'put', 'head', 'delete', 'options', 'trace'],
+    statusCodes: [408, 413, 429, 500, 502, 503, 504],
+    afterStatusCodes: [413, 429, 503],
+  },
+  hooks: {
+    beforeRequest: [
+      async (request) => {
+        request.headers.set('Authorization', `Basic ${BASIC_AUTH}`);
+        // Log request in dev
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.log('🚀 API Request:', {
+            method: request.method,
+            url: request.url,
+          });
+        }
       },
     ],
   },

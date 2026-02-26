@@ -1,18 +1,20 @@
 import { queryClient } from '@/lib';
 import { Permission, STATUS_LABELS } from '@/shared';
 import { DetailPageSkeleton, PermissionGate, QueueSkeleton } from '@/shared/components';
+import { useDebounceSearch } from '@/shared/hooks/use-debounce-search';
 import { usePermission } from '@/shared/hooks/use-permission';
 import { ContentStatus } from '@/shared/types';
-import { Badge, Button, Textarea, Typography } from '@/shared/ui';
+import { Badge, Button, Dialog, DialogTrigger, Textarea, Typography } from '@/shared/ui';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { formatDate } from 'date-fns';
-import { AlertTriangle, Clock, Globe, X } from 'lucide-react';
+import { AlertTriangle, Clock, Globe, Languages, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import useInfiniteScroll from 'react-infinite-scroll-hook';
 import { toast } from 'sonner';
 import {
   ContentBody,
+  MetadataModal,
   Queue,
   RejectConfirmationModal,
   ScheduleModal,
@@ -27,6 +29,8 @@ import {
   usePublishContent,
   useRejectContents,
 } from '../hooks/useContent';
+import { useCountries } from '../hooks/useCountry';
+import { useLanguages } from '../hooks/useLanguage';
 import { useScheduleContent } from '../hooks/useSchedule';
 import { queryKeys } from '../query-keys';
 import { ContentDetailSearchSchema, UpdateReelSchema } from '../schemas';
@@ -167,6 +171,8 @@ function DetailPageComponent() {
           categories: item?.categories || [],
           tags: item?.tags || [],
           is_allow_comment: item?.is_allow_comment || true,
+          country: item?.country || [],
+          language: item?.language,
         }
       : undefined,
   });
@@ -176,6 +182,8 @@ function DetailPageComponent() {
   const watchTitle = watch('title');
   const watchPlatforms = watch('platforms');
   const watchCategories = watch('categories');
+  const watchCountry = watch('country');
+  const watchLanguage = watch('language');
   // const watchIsAllowComment = watch('is_allow_comment');
   const watchTags = useMemo(() => {
     return detectTags(watchTitle);
@@ -186,7 +194,7 @@ function DetailPageComponent() {
     setScheduleAt(item?.scheduled_at);
   }, [item]);
 
-  const handleChangeMetadata = (key: 'platforms' | 'categories', value: any) => {
+  const handleChangeMetadata = (key: 'platforms' | 'categories' | 'country', value: any) => {
     const isExits = watch(key)?.includes(value);
     if (isExits) {
       setValue(
@@ -218,6 +226,8 @@ function DetailPageComponent() {
         reel_id: item.id,
         reason: 'Ok',
         update_reels: payload,
+        country: watchCountry,
+        language: watchLanguage,
       },
       {
         onSuccess: () => {
@@ -461,6 +471,26 @@ function DetailPageComponent() {
     }
   };
 
+  const [languageSearch, setLanguageSearch] = useState('');
+  const [countrySearch, setCountrySearch] = useState('');
+
+  const { handleChange: handleChangeLanguage, value: debouncedLanguageSearch } = useDebounceSearch(
+    (value) => {
+      setLanguageSearch(value);
+    },
+    500
+  );
+
+  const { handleChange: handleChangeCountry, value: debouncedCountrySearch } = useDebounceSearch(
+    (value) => {
+      setCountrySearch(value);
+    },
+    500
+  );
+
+  const languagesQuery = useLanguages({ q: debouncedLanguageSearch });
+  const countriesQuery = useCountries({ q: debouncedCountrySearch });
+
   const workflowSteps = [
     { id: ContentStatus.PENDING_REVIEW, label: STATUS_LABELS[ContentStatus.PENDING_REVIEW] },
     { id: ContentStatus.APPROVED, label: STATUS_LABELS[ContentStatus.APPROVED] },
@@ -487,6 +517,24 @@ function DetailPageComponent() {
     if (!canEdit) return item?.target_platforms;
     return platforms.map((platform) => platform.api_key);
   }, [canEdit, item?.target_platforms]);
+
+  const renderSelectedItems = (
+    items: { id: string | number; name: string; value: string }[],
+    onRemove: (value: string) => void
+  ) => {
+    return (
+      <div className="flex flex-wrap gap-1">
+        {items.map((itemData) => (
+          <Badge key={itemData.id} variant="default" className="flex items-center gap-1">
+            {itemData.name}
+            {canEdit && (
+              <X size={12} className="cursor-pointer" onClick={() => onRemove(itemData.value)} />
+            )}
+          </Badge>
+        ))}
+      </div>
+    );
+  };
 
   let activeIndex = currentStepIndex;
   if (isRejected) activeIndex = 1;
@@ -635,6 +683,89 @@ function DetailPageComponent() {
             </div>
           </div>
         )}
+
+        {/* LANGUAGES */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              NGÔN NGỮ
+            </Typography>
+            {canEdit && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="size-8 rounded-none">
+                    <Languages size={16} />
+                  </Button>
+                </DialogTrigger>
+                <MetadataModal
+                  title="NGÔN NGỮ"
+                  searchTerm={languageSearch}
+                  onSearchChange={handleChangeLanguage}
+                  items={languagesQuery.data || []}
+                  selectedValues={watchLanguage || ''}
+                  onSelect={(val) => setValue('language', val, { shouldDirty: true })}
+                  hasNextPage={languagesQuery.hasNextPage}
+                  fetchNextPage={languagesQuery.fetchNextPage}
+                  isFetchingNextPage={languagesQuery.isFetchingNextPage}
+                />
+              </Dialog>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {watchLanguage ? (
+              renderSelectedItems(
+                languagesQuery.data
+                  .filter((l) => l.slug === watchLanguage)
+                  .map((l) => ({ id: l.id, name: l.name, value: l.slug })),
+                () => setValue('language', '', { shouldDirty: true })
+              )
+            ) : (
+              <p className="text-muted-foreground text-xs">Chưa chọn ngôn ngữ</p>
+            )}
+          </div>
+        </div>
+
+        {/* COUNTRIES */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              QUỐC GIA
+            </Typography>
+            {canEdit && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="size-8 rounded-none">
+                    <Globe size={16} />
+                  </Button>
+                </DialogTrigger>
+                <MetadataModal
+                  title="QUỐC GIA"
+                  searchTerm={countrySearch}
+                  onSearchChange={handleChangeCountry}
+                  items={countriesQuery.data || []}
+                  selectedValues={watchCountry || []}
+                  onSelect={(val) => handleChangeMetadata('country', val)}
+                  multiple
+                  hasNextPage={countriesQuery.hasNextPage}
+                  fetchNextPage={countriesQuery.fetchNextPage}
+                  isFetchingNextPage={countriesQuery.isFetchingNextPage}
+                />
+              </Dialog>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(watchCountry?.length ?? 0) > 0 ? (
+              renderSelectedItems(
+                countriesQuery.data
+                  .filter((c) => watchCountry?.includes(c.code))
+                  .map((c) => ({ id: c.id, name: c.name, value: c.code })),
+                (code) => handleChangeMetadata('country', code)
+              )
+            ) : (
+              <p className="text-muted-foreground text-xs">Chưa chọn quốc gia</p>
+            )}
+          </div>
+        </div>
 
         {/* WORKFLOW STATUS PROGRESS */}
         <WorkflowSteps

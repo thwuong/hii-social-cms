@@ -55,6 +55,8 @@ export interface Reel {
   reason: string;
   is_pending: boolean;
   playlist?: string;
+  language?: string;
+  country?: string[];
 }
 
 export interface PublishContentPayload {
@@ -69,7 +71,7 @@ export interface ScheduleContentPayload {
 export interface GetContentPayload {
   approving_status: string;
   categories: string[];
-  platform: string;
+  platforms: string[];
   search: string;
   page: number;
   page_size: number;
@@ -81,6 +83,8 @@ export interface ApproveContentPayload {
   reason: string;
   reel_id: string;
   update_reels?: UpdateReelSchema;
+  country?: string[];
+  language?: string;
 }
 
 export interface ApproveContentBatchPayload {

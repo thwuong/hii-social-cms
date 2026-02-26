@@ -24,6 +24,8 @@ interface Pagination {
   page: number;
   page_size: number;
   total_page: number;
+  has_next: boolean;
+  has_prev: boolean;
 }
 
 export type { ApiResponse, Pagination, PaginationRequest };

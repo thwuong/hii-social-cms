@@ -22,7 +22,7 @@ function ContentProvider({ children }: { children: React.ReactNode }) {
       platforms: platforms.data?.applications || [],
       categories: categories.data?.categories || [],
     }),
-    [platforms, categories]
+    [platforms.data, categories.data]
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;

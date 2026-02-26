@@ -10,6 +10,7 @@
 
 import { type Options } from 'ky';
 import {
+  apiBasicClient,
   apiClient,
   ApiError,
   ForbiddenError,
@@ -149,6 +150,64 @@ export const api = {
    */
   download: async (url: string, options?: Options): Promise<Blob> => {
     const response = await apiClient.get(url, options);
+    return response.blob();
+  },
+};
+
+export const apiBasic = {
+  /**
+   * GET request
+   */
+  get: async <T>(url: string, options?: Options): Promise<T> => {
+    const response = await apiBasicClient.get(url, options);
+    return handleResponse<T>(response);
+  },
+
+  /**
+   * POST request
+   */
+  post: async <T>(url: string, data?: unknown, options?: Options): Promise<T> => {
+    const response = await apiBasicClient.post(url, { json: data, ...options });
+    return handleResponse<T>(response);
+  },
+
+  /**
+   * PUT request
+   */
+  put: async <T>(url: string, data?: unknown, options?: Options): Promise<T> => {
+    const response = await apiBasicClient.put(url, { json: data, ...options });
+    return handleResponse<T>(response);
+  },
+
+  /**
+   * PATCH request
+   */
+  patch: async <T>(url: string, data?: unknown, options?: Options): Promise<T> => {
+    const response = await apiBasicClient.patch(url, { json: data, ...options });
+    return handleResponse<T>(response);
+  },
+
+  /**
+   * DELETE request
+   */
+  delete: async <T>(url: string, options?: Options): Promise<T> => {
+    const response = await apiBasicClient.delete(url, options);
+    return handleResponse<T>(response);
+  },
+
+  /**
+   * Upload file
+   */
+  upload: async <T>(url: string, formData: FormData, options?: Options): Promise<T> => {
+    const response = await apiBasicClient.post(url, { body: formData, ...options });
+    return handleResponse<T>(response);
+  },
+
+  /**
+   * Download file
+   */
+  download: async (url: string, options?: Options): Promise<Blob> => {
+    const response = await apiBasicClient.get(url, options);
     return response.blob();
   },
 };

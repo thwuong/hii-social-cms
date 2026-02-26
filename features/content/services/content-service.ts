@@ -24,7 +24,11 @@ class ContentService {
   }
 
   async getContent(queryParams: Partial<GetContentPayload>) {
-    const searchParams = queryString.stringify(queryParams);
+    const formattedQueryParams = {
+      ...queryParams,
+      platforms: queryParams.platforms?.includes('all') ? [] : queryParams.platforms,
+    };
+    const searchParams = queryString.stringify(formattedQueryParams);
     const data = await api.get<GetContentResponse>(`${this.baseUrl}?${searchParams}`);
     return data;
   }

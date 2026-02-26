@@ -15,6 +15,7 @@ export { default as DraftContentHeader } from './draft-content-header';
 export { default as DraftContentTable } from './draft-content-table';
 export { FloatingBatchActionBar } from './floating-batch-action-bar';
 export { MediaCarousel } from './media-carousel';
+export { default as MetadataModal } from './meta-data-modal';
 export { default as Queue, QueueItem, QueueList } from './queue';
 export { default as RejectConfirmationModal } from './reject-confirmation-modal';
 export { ScheduleModal } from './schedule-modal';
